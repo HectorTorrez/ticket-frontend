@@ -1,0 +1,92 @@
+export class ApiError extends Error {
+	readonly statusCode: number;
+	readonly code: string;
+	readonly path?: string;
+	readonly timestamp?: string;
+
+	constructor(opts: {
+		message: string;
+		statusCode: number;
+		code: string;
+		path?: string;
+		timestamp?: string;
+	}) {
+		super(opts.message);
+		this.name = "ApiError";
+		this.statusCode = opts.statusCode;
+		this.code = opts.code;
+		this.path = opts.path;
+		this.timestamp = opts.timestamp;
+	}
+}
+
+export type ApiErrorBody = {
+	statusCode?: number;
+	message?: string | string[];
+	code?: string;
+	path?: string;
+	timestamp?: string;
+};
+
+export function parseApiErrorBody(body: unknown): ApiErrorBody | null {
+	if (!body || typeof body !== "object") return null;
+	const b = body as Record<string, unknown>;
+	if (typeof b.statusCode !== "number") return null;
+	return {
+		statusCode: b.statusCode,
+		message: b.message as string | string[] | undefined,
+		code: b.code as string | undefined,
+		path: b.path as string | undefined,
+		timestamp: b.timestamp as string | undefined,
+	};
+}
+
+export function errorMessageFromBody(body: ApiErrorBody): string {
+	const m = body.message;
+	if (Array.isArray(m)) return m.join(", ");
+	if (typeof m === "string") return m;
+	return "Request failed";
+}
+
+export function toApiError(status: number, body: unknown): ApiError {
+	const parsed = parseApiErrorBody(body);
+	if (parsed) {
+		return new ApiError({
+			message: errorMessageFromBody(parsed),
+			statusCode: parsed.statusCode ?? status,
+			code: parsed.code ?? "Error",
+			path: parsed.path,
+			timestamp: parsed.timestamp,
+		});
+	}
+	return new ApiError({
+		message: `HTTP ${status}`,
+		statusCode: status,
+		code: "Unknown",
+	});
+}
+
+/** User-visible copy for TanStack Query / fetch failures (avoids raw "Failed to fetch"). */
+export function getUserFacingErrorMessage(error: unknown): string {
+	if (error instanceof ApiError) {
+		return error.message;
+	}
+	if (error instanceof Error) {
+		const msg = error.message;
+		const lower = msg.toLowerCase();
+		if (
+			msg === "Failed to fetch" ||
+			lower.includes("failed to fetch") ||
+			lower.includes("networkerror") ||
+			lower.includes("load failed") ||
+			msg === "NetworkError when attempting to fetch resource."
+		) {
+			return "We could not reach the ticketing API. Check that your backend is running, that VITE_API_BASE_URL in .env matches the server URL (scheme, host, and port), and that the API allows browser requests (CORS).";
+		}
+		if (error.name === "AbortError") {
+			return "The request was cancelled.";
+		}
+		return msg;
+	}
+	return "Something went wrong. Please try again.";
+}
