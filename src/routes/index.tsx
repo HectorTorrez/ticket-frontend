@@ -12,12 +12,12 @@ function HomePage() {
 		<PublicLayout>
 			<section className="page-wrap space-y-12 py-16 md:py-20">
 				<div className="rise-in max-w-3xl space-y-6">
-					<p className="island-kicker">Digital ticketing MVP</p>
+					<p className="island-kicker">Digital ticketing</p>
 					<h1 className="display-title text-4xl font-semibold leading-tight tracking-tight md:text-5xl">
 						Calm, fast events — from listing to QR at the door
 					</h1>
 					<p className="text-lg text-muted-foreground md:text-xl">
-						Browse upcoming shows, hold inventory in real time, complete a mock
+						Browse upcoming shows, hold inventory in real time, complete
 						checkout, and keep passes in one place. Organizers use the dashboard
 						to publish events and validate QR codes.
 					</p>
@@ -40,8 +40,8 @@ function HomePage() {
 							body: "Socket.IO updates ticket counts while customers shop — no stale “sold out” surprises.",
 						},
 						{
-							title: "Mock payments",
-							body: "Exercise the full reserve → pay → issue ticket flow without plugging in a processor.",
+							title: "Checkout",
+							body: "Reserve ticket inventory with a time limit, complete payment, and receive digital passes in your account.",
 						},
 						{
 							title: "Role-aware UI",

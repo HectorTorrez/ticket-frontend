@@ -234,8 +234,8 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 			<main className="flex-1">{children}</main>
 			<footer className="site-footer mt-auto py-10">
 				<div className="page-wrap flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-					<span>Tide Tickets — MVP ticketing frontend</span>
-					<span>Payments simulated for demo</span>
+					<span>Tide Tickets — event discovery and digital passes</span>
+					<span>Reserve seats · pay · QR at the door</span>
 				</div>
 			</footer>
 		</div>

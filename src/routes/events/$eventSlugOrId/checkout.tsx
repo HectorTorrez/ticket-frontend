@@ -82,26 +82,22 @@ function CheckoutPage() {
 	}, [lines, order, reserve]);
 
 	const pay = useMutation({
-		mutationFn: (outcome: "SUCCESS" | "FAILURE") => {
+		mutationFn: () => {
 			if (!order) throw new Error("No order");
-			return mockPayOrder(order.id, outcome);
+			return mockPayOrder(order.id, "SUCCESS");
 		},
-		onSuccess: async (paid, outcome) => {
+		onSuccess: async (paid) => {
 			setOrder(paid);
 			await qc.invalidateQueries({ queryKey: ordersKeys.all });
 			await qc.invalidateQueries({ queryKey: ticketsKeys.all });
 			await qc.invalidateQueries({
 				queryKey: eventsKeys.detail(eventSlugOrId),
 			});
-			if (outcome === "SUCCESS") {
-				toast.success("Payment complete (mock)");
-				void navigate({
-					to: "/my-orders/$orderId",
-					params: { orderId: paid.id },
-				});
-			} else {
-				toast.error("Payment failed (mock)");
-			}
+			toast.success("Payment completed successfully");
+			void navigate({
+				to: "/my-orders/$orderId",
+				params: { orderId: paid.id },
+			});
 		},
 		onError: (e) =>
 			toast.error(e instanceof ApiError ? e.message : "Payment request failed"),
@@ -260,18 +256,8 @@ function CheckoutPage() {
 							</p>
 							{order.status === "PENDING" ? (
 								<div className="flex flex-wrap gap-2">
-									<Button
-										onClick={() => pay.mutate("SUCCESS")}
-										disabled={pay.isPending}
-									>
-										Pay (mock success)
-									</Button>
-									<Button
-										variant="secondary"
-										onClick={() => pay.mutate("FAILURE")}
-										disabled={pay.isPending}
-									>
-										Pay (mock fail)
+									<Button onClick={() => pay.mutate()} disabled={pay.isPending}>
+										Complete payment
 									</Button>
 									<Button
 										variant="outline"
