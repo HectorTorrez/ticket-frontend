@@ -8,7 +8,7 @@ import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Textarea } from "#/components/ui/textarea";
-import { ApiError } from "#/lib/api/errors";
+import { ApiError, getUserFacingErrorMessage } from "#/lib/api/errors";
 import { createEvent } from "#/lib/api/ticket-api";
 import { eventsKeys } from "#/lib/query-keys";
 
@@ -40,7 +40,9 @@ function CreateEventPage() {
 			});
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Could not create"),
+			toast.error(
+				e instanceof ApiError ? e.message : getUserFacingErrorMessage(e),
+			),
 	});
 
 	const form = useForm({

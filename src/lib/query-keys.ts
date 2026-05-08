@@ -8,8 +8,20 @@ export const eventsKeys = {
 		from?: string;
 		to?: string;
 	}) => [...eventsKeys.all, "list", params] as const,
+	/** Dashboard table: `GET /admin/events`. */
+	adminList: (params: {
+		page: number;
+		limit: number;
+		published?: boolean;
+		q?: string;
+		from?: string;
+		to?: string;
+	}) => [...eventsKeys.all, "admin", "list", params] as const,
 	detail: (slugOrId: string) =>
 		[...eventsKeys.all, "detail", slugOrId] as const,
+	/** Dashboard edit: published via `GET /events/:id`, drafts via `GET /admin/events` / PATCH. */
+	adminDetail: (id: string) =>
+		[...eventsKeys.all, "admin", "detail", id] as const,
 };
 
 export const ordersKeys = {

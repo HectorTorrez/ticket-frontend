@@ -1,4 +1,4 @@
-import type { z } from "zod";
+import type { ZodError, z } from "zod";
 import { toApiError } from "#lib/api/errors";
 import { authResponseSchema } from "#lib/api/schemas";
 import { clearSession, getSession, setSession } from "#lib/auth/session";
@@ -83,6 +83,24 @@ function serializeBody(body: unknown): BodyInit | undefined {
 	return JSON.stringify(body);
 }
 
+/** Many Nest APIs wrap entities as `{ data: T }`; public list routes may return `T` at the root. */
+function unwrapResponseBody(body: unknown): unknown {
+	if (body === null || body === undefined) return body;
+	if (typeof body !== "object" || Array.isArray(body)) return body;
+	const o = body as Record<string, unknown>;
+	if ("data" in o) {
+		return o.data;
+	}
+	return body;
+}
+
+function formatZodIssuesForError(err: ZodError, path: string): string {
+	const detail = err.issues
+		.map((i) => `${i.path.length ? i.path.join(".") : "(root)"}: ${i.message}`)
+		.join("; ");
+	return `Invalid API response for ${path} (${detail})`;
+}
+
 export async function apiRequest<T>(
 	path: string,
 	schema: z.ZodType<T>,
@@ -130,9 +148,10 @@ export async function apiRequest<T>(
 			throw toApiError(res.status, bodyJson);
 		}
 
-		const parsed = schema.safeParse(bodyJson);
+		const toValidate = unwrapResponseBody(bodyJson);
+		const parsed = schema.safeParse(toValidate);
 		if (!parsed.success) {
-			throw new Error(`Invalid API response for ${path}`);
+			throw new Error(formatZodIssuesForError(parsed.error, path));
 		}
 		return parsed.data;
 	};

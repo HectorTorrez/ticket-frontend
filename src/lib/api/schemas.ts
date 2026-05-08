@@ -31,12 +31,21 @@ export const authResponseSchema = z.object({
 });
 
 export type AuthResponse = z.infer<typeof authResponseSchema>;
+
+export const healthOkSchema = z.object({
+	status: z.literal("ok"),
+});
+
+export const healthReadySchema = z.object({
+	status: z.literal("ready"),
+});
+
 export const ticketTypeListSummarySchema = z.object({
 	id: z.string().uuid(),
 	tier: ticketTierSchema,
 	name: z.string(),
-	price: z.string(),
-	quantityRemaining: z.number(),
+	price: z.coerce.string(),
+	quantityRemaining: z.coerce.number(),
 	saleStartsAt: z.string().nullable().optional(),
 	saleEndsAt: z.string().nullable().optional(),
 });
@@ -52,24 +61,30 @@ export const ticketTypeFullSchema = ticketTypeListSummarySchema
 
 export const eventListItemSchema = z.object({
 	id: z.string().uuid(),
-	organizerId: z.string().uuid(),
+	organizerId: z.string().uuid().optional(),
 	title: z.string(),
 	slug: z.string(),
 	description: z.string().nullable().optional(),
 	startsAt: z.string(),
 	endsAt: z.string(),
 	venue: z.string().nullable().optional(),
-	published: z.boolean(),
+	published: z.boolean().default(false),
 	bannerKey: z.string().nullable().optional(),
 	bannerUrl: z.string().nullable().optional(),
 	createdAt: z.string(),
 	updatedAt: z.string(),
 	deletedAt: z.string().nullable().optional(),
-	ticketTypes: z.array(ticketTypeListSummarySchema),
+	ticketTypes: z.preprocess(
+		(v) => (v === null || v === undefined ? [] : v),
+		z.array(ticketTypeListSummarySchema),
+	),
 });
 
 export const eventDetailSchema = eventListItemSchema.extend({
-	ticketTypes: z.array(ticketTypeFullSchema),
+	ticketTypes: z.preprocess(
+		(v) => (v === null || v === undefined ? [] : v),
+		z.array(ticketTypeFullSchema),
+	),
 });
 
 export const paginatedEventsSchema = z.object({
@@ -82,7 +97,7 @@ export const paginatedEventsSchema = z.object({
 export const ticketTypeSummaryNestedSchema = z.object({
 	tier: ticketTierSchema,
 	name: z.string(),
-	price: z.string(),
+	price: z.coerce.string(),
 });
 
 export const orderLineCustomerListSchema = z.object({
@@ -90,7 +105,7 @@ export const orderLineCustomerListSchema = z.object({
 	orderId: z.string().uuid(),
 	ticketTypeId: z.string().uuid(),
 	quantity: z.number(),
-	unitPrice: z.string(),
+	unitPrice: z.coerce.string(),
 	ticketType: ticketTypeSummaryNestedSchema,
 });
 
@@ -99,7 +114,7 @@ export const orderCustomerListItemSchema = z.object({
 	userId: z.string().uuid(),
 	status: orderStatusSchema,
 	currency: z.string(),
-	totalAmount: z.string(),
+	totalAmount: z.coerce.string(),
 	expiresAt: z.string().nullable(),
 	paidAt: z.string().nullable(),
 	paymentReference: z.string().nullable(),
@@ -115,13 +130,19 @@ export const paginatedCustomerOrdersSchema = z.object({
 	limit: z.number(),
 });
 
+/** Create-order lines nest a minimal `ticketType`; mock-pay / order detail nest the full row. */
+export const ticketTypeOnOrderLineSchema = z.union([
+	ticketTypeSummaryNestedSchema,
+	ticketTypeFullSchema,
+]);
+
 export const orderLineDetailSchema = z.object({
 	id: z.string().uuid(),
 	orderId: z.string().uuid(),
 	ticketTypeId: z.string().uuid(),
 	quantity: z.number(),
-	unitPrice: z.string(),
-	ticketType: ticketTypeFullSchema,
+	unitPrice: z.coerce.string(),
+	ticketType: ticketTypeOnOrderLineSchema,
 });
 
 export const orderDetailSchema = z.object({
@@ -129,7 +150,7 @@ export const orderDetailSchema = z.object({
 	userId: z.string().uuid(),
 	status: orderStatusSchema,
 	currency: z.string(),
-	totalAmount: z.string(),
+	totalAmount: z.coerce.string(),
 	expiresAt: z.string().nullable(),
 	paidAt: z.string().nullable(),
 	paymentReference: z.string().nullable(),
@@ -142,7 +163,7 @@ export const orderLineAdminSchema = z.object({
 	id: z.string().uuid(),
 	ticketTypeId: z.string().uuid(),
 	quantity: z.number(),
-	unitPrice: z.string(),
+	unitPrice: z.coerce.string(),
 	ticketType: ticketTypeFullSchema,
 });
 
@@ -151,7 +172,7 @@ export const adminOrderItemSchema = z.object({
 	userId: z.string().uuid(),
 	status: orderStatusSchema,
 	currency: z.string(),
-	totalAmount: z.string(),
+	totalAmount: z.coerce.string(),
 	expiresAt: z.string().nullable(),
 	paidAt: z.string().nullable(),
 	paymentReference: z.string().nullable(),

@@ -71,7 +71,7 @@ function CheckoutPage() {
 			void qc.invalidateQueries({ queryKey: eventsKeys.detail(eventSlugOrId) });
 		},
 		onError: (e) => {
-			toast.error(e instanceof ApiError ? e.message : "Could not reserve");
+			toast.error(getUserFacingErrorMessage(e));
 		},
 	});
 

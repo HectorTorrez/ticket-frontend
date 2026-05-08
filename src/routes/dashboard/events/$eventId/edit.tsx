@@ -17,6 +17,7 @@ import {
 } from "#/components/ui/select";
 import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
+import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
 import { ApiError } from "#/lib/api/errors";
 import type { TicketTier } from "#/lib/api/schemas";
@@ -24,7 +25,7 @@ import {
 	createTicketType,
 	deleteEvent,
 	deleteTicketType,
-	fetchEventDetail,
+	fetchOrganizerEventDetail,
 	patchEvent,
 	publishEvent,
 	unpublishEvent,
@@ -51,8 +52,8 @@ function EditEventPage() {
 	const qc = useQueryClient();
 
 	const q = useQuery({
-		queryKey: eventsKeys.detail(eventId),
-		queryFn: () => fetchEventDetail(eventId),
+		queryKey: eventsKeys.adminDetail(eventId),
+		queryFn: () => fetchOrganizerEventDetail(eventId),
 	});
 
 	const [title, setTitle] = useState("");
@@ -87,26 +88,20 @@ function EditEventPage() {
 			toast.error(e instanceof ApiError ? e.message : "Save failed"),
 	});
 
-	const publish = useMutation({
-		mutationFn: () => publishEvent(eventId),
-		onSuccess: async () => {
+	const togglePublished = useMutation({
+		mutationFn: (nextPublished: boolean) =>
+			nextPublished ? publishEvent(eventId) : unpublishEvent(eventId),
+		onSuccess: async (_data, nextPublished) => {
 			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success("Published");
+			toast.success(
+				nextPublished ? "Event is now public" : "Event is now a draft",
+			);
 			void q.refetch();
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Publish failed"),
-	});
-
-	const unpublish = useMutation({
-		mutationFn: () => unpublishEvent(eventId),
-		onSuccess: async () => {
-			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success("Unpublished");
-			void q.refetch();
-		},
-		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Unpublish failed"),
+			toast.error(
+				e instanceof ApiError ? e.message : "Could not update visibility",
+			),
 	});
 
 	const remove = useMutation({
@@ -177,9 +172,29 @@ function EditEventPage() {
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<h1 className="display-title text-2xl font-semibold">Edit event</h1>
-					<div className="mt-2 flex flex-wrap gap-2">
+					<div className="mt-2 flex flex-wrap items-center gap-3">
+						<div className="flex items-center gap-2">
+							<Switch
+								id={`published-${ev.id}`}
+								checked={ev.published}
+								disabled={togglePublished.isPending}
+								onCheckedChange={(checked) => {
+									if (checked !== ev.published) {
+										togglePublished.mutate(checked);
+									}
+								}}
+							/>
+							<Label
+								htmlFor={`published-${ev.id}`}
+								className="cursor-pointer text-sm leading-none font-normal"
+							>
+								{ev.published
+									? "Public (visible in catalog)"
+									: "Draft (hidden from catalog)"}
+							</Label>
+						</div>
 						<Badge variant={ev.published ? "default" : "secondary"}>
-							{ev.published ? "Published" : "Draft"}
+							{ev.published ? "Public" : "Draft"}
 						</Badge>
 						<span className="font-mono text-xs text-muted-foreground">
 							{ev.slug}
@@ -264,19 +279,6 @@ function EditEventPage() {
 			</Card>
 
 			<div className="flex flex-wrap gap-2">
-				{ev.published ? (
-					<Button
-						type="button"
-						variant="secondary"
-						onClick={() => unpublish.mutate()}
-					>
-						Unpublish
-					</Button>
-				) : (
-					<Button type="button" onClick={() => publish.mutate()}>
-						Publish
-					</Button>
-				)}
 				<Button
 					type="button"
 					variant="destructive"

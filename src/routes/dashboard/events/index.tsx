@@ -1,9 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { toast } from "sonner";
+import type { z } from "zod";
 
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
+import { Switch } from "#/components/ui/switch";
 import {
 	Table,
 	TableBody,
@@ -12,25 +15,72 @@ import {
 	TableHeader,
 	TableRow,
 } from "#/components/ui/table";
-import { fetchEventsList } from "#/lib/api/ticket-api";
+import { ApiError } from "#/lib/api/errors";
+import { eventListItemSchema } from "#/lib/api/schemas";
+import {
+	fetchAdminEventsList,
+	publishEvent,
+	unpublishEvent,
+} from "#/lib/api/ticket-api";
 import { eventsKeys } from "#/lib/query-keys";
+
+type EventListItem = z.infer<typeof eventListItemSchema>;
 
 export const Route = createFileRoute("/dashboard/events/")({
 	component: DashboardEventsList,
 });
 
+const ADMIN_EVENTS_PAGE_SIZE = 10;
+
+function EventVisibilityControl({ event }: { event: EventListItem }) {
+	const qc = useQueryClient();
+	const toggle = useMutation({
+		mutationFn: (nextPublished: boolean) =>
+			nextPublished ? publishEvent(event.id) : unpublishEvent(event.id),
+		onSuccess: async (_data, nextPublished) => {
+			await qc.invalidateQueries({ queryKey: eventsKeys.all });
+			toast.success(
+				nextPublished ? "Event is now public" : "Event is now a draft",
+			);
+		},
+		onError: (e) =>
+			toast.error(
+				e instanceof ApiError ? e.message : "Could not update visibility",
+			),
+	});
+
+	return (
+		<div className="flex flex-wrap items-center gap-2">
+			<Switch
+				checked={event.published}
+				disabled={toggle.isPending}
+				size="sm"
+				aria-label={
+					event.published
+						? "Event is public — switch off to hide from catalog"
+						: "Event is draft — switch on to publish"
+				}
+				onCheckedChange={(checked) => {
+					if (checked !== event.published) toggle.mutate(checked);
+				}}
+			/>
+			<Badge variant={event.published ? "default" : "secondary"}>
+				{event.published ? "Public" : "Draft"}
+			</Badge>
+		</div>
+	);
+}
+
 function DashboardEventsList() {
 	const q = useQuery({
-		queryKey: eventsKeys.list({
+		queryKey: eventsKeys.adminList({
 			page: 1,
-			limit: 100,
-			publishedOnly: false,
+			limit: ADMIN_EVENTS_PAGE_SIZE,
 		}),
 		queryFn: () =>
-			fetchEventsList({
+			fetchAdminEventsList({
 				page: 1,
-				limit: 100,
-				publishedOnly: false,
+				limit: ADMIN_EVENTS_PAGE_SIZE,
 			}),
 	});
 
@@ -39,7 +89,10 @@ function DashboardEventsList() {
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<h1 className="display-title text-2xl font-semibold">Events</h1>
-					<p className="text-muted-foreground">Draft and published events</p>
+					<p className="text-muted-foreground">
+						All events (draft and public). Toggle the switch to publish or hide
+						from the catalog.
+					</p>
 				</div>
 				<Button asChild>
 					<Link to="/dashboard/events/create">Create event</Link>
@@ -63,7 +116,7 @@ function DashboardEventsList() {
 								<TableHead>Title</TableHead>
 								<TableHead>Slug</TableHead>
 								<TableHead>Starts</TableHead>
-								<TableHead>Status</TableHead>
+								<TableHead>Visibility</TableHead>
 								<TableHead className="text-right">Actions</TableHead>
 							</TableRow>
 						</TableHeader>
@@ -78,9 +131,7 @@ function DashboardEventsList() {
 										}).format(new Date(ev.startsAt))}
 									</TableCell>
 									<TableCell>
-										<Badge variant={ev.published ? "default" : "secondary"}>
-											{ev.published ? "Published" : "Draft"}
-										</Badge>
+										<EventVisibilityControl event={ev} />
 									</TableCell>
 									<TableCell className="text-right">
 										<Button variant="outline" size="sm" asChild>

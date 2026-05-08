@@ -14,7 +14,7 @@ import { EventCard } from "#/routes/events/-components/event-card";
 
 const searchSchema = z.object({
 	page: z.coerce.number().catch(1),
-	limit: z.coerce.number().catch(12),
+	limit: z.coerce.number().catch(10),
 	q: z.string().optional(),
 	from: z.string().optional(),
 	to: z.string().optional(),
