@@ -6,6 +6,7 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import {
 	Table,
 	TableBody,
@@ -39,6 +40,8 @@ function AdminOrdersPage() {
 		queryKey: adminOrdersKeys.list({ page, limit, status, userId }),
 		queryFn: () => fetchAdminOrders({ page, limit, status, userId }),
 	});
+
+	useErrorToast(q.isError ? q.error : null, "No pudimos cargar los pedidos");
 
 	return (
 		<div className="space-y-8">
@@ -101,7 +104,9 @@ function AdminOrdersPage() {
 
 			{q.isPending ? <Skeleton className="h-72 rounded-xl" /> : null}
 			{q.isError ? (
-				<p className="text-destructive">{(q.error as Error).message}</p>
+				<p className="text-muted-foreground">
+					No pudimos cargar los pedidos.
+				</p>
 			) : null}
 
 			{q.data && q.data.items.length > 0 ? (

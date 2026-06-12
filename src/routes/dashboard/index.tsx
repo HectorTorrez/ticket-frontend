@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchDashboardSummary } from "#/lib/api/ticket-api";
 import { dashboardKeys } from "#/lib/query-keys";
 
@@ -25,6 +26,8 @@ function DashboardHome() {
 		queryFn: fetchDashboardSummary,
 	});
 
+	useErrorToast(q.isError ? q.error : null, "No se pudo cargar el panel");
+
 	if (q.isPending) {
 		return (
 			<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -37,14 +40,9 @@ function DashboardHome() {
 
 	if (q.isError) {
 		return (
-			<Card className="border-destructive/50">
-				<CardHeader>
-					<CardTitle>No se pudo cargar el panel</CardTitle>
-				</CardHeader>
-				<CardContent className="text-sm text-muted-foreground">
-					{(q.error as Error).message}
-				</CardContent>
-			</Card>
+			<p className="text-muted-foreground">
+				No se pudo cargar el panel. Inténtalo de nuevo en unos instantes.
+			</p>
 		);
 	}
 

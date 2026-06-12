@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
@@ -38,7 +39,6 @@ export const Route = createFileRoute("/login/")({
 
 function LoginPage() {
 	const { redirect: redirectTo } = Route.useSearch();
-	const [formError, setFormError] = useState<string | null>(null);
 	const [hydrated, setHydrated] = useState(false);
 
 	useEffect(() => {
@@ -48,10 +48,11 @@ function LoginPage() {
 	const form = useForm({
 		defaultValues: { email: "", password: "" },
 		onSubmit: async ({ value }) => {
-			setFormError(null);
 			const parsed = loginSchema.safeParse(value);
 			if (!parsed.success) {
-				setFormError(parsed.error.flatten().formErrors.join(", "));
+				toast.error(
+					parsed.error.flatten().formErrors.join(", ") || "Revisa el formulario",
+				);
 				return;
 			}
 			try {
@@ -65,8 +66,8 @@ function LoginPage() {
 					safeRedirect ?? (data.user.role === "ADMIN" ? "/dashboard" : "/");
 				window.location.href = target;
 			} catch (e) {
-				if (e instanceof ApiError) setFormError(e.message);
-				else setFormError("No se pudo iniciar sesión");
+				if (e instanceof ApiError) toast.error(e.message);
+				else toast.error("No se pudo iniciar sesión");
 			}
 		},
 	});
@@ -122,11 +123,6 @@ function LoginPage() {
 										onChange={(e) => field.handleChange(e.target.value)}
 										onBlur={field.handleBlur}
 									/>
-									{field.state.meta.errors[0] ? (
-										<p className="text-sm text-destructive">
-											{field.state.meta.errors[0]}
-										</p>
-									) : null}
 								</div>
 							)}
 						</form.Field>
@@ -148,17 +144,9 @@ function LoginPage() {
 										onChange={(e) => field.handleChange(e.target.value)}
 										onBlur={field.handleBlur}
 									/>
-									{field.state.meta.errors[0] ? (
-										<p className="text-sm text-destructive">
-											{field.state.meta.errors[0]}
-										</p>
-									) : null}
 								</div>
 							)}
 						</form.Field>
-						{formError ? (
-							<p className="text-sm text-destructive">{formError}</p>
-						) : null}
 						<Button type="submit" className="w-full" size="lg">
 							Iniciar sesión
 						</Button>

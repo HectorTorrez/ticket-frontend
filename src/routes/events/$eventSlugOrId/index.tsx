@@ -4,10 +4,10 @@ import { Calendar, MapPin, Minus, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { QueryErrorAlert } from "#/components/query-error-alert";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchEventDetail } from "#/lib/api/ticket-api";
 import { getSession, isCustomer } from "#/lib/auth/session";
 import { labelFor, ticketTierLabel } from "#/lib/labels";
@@ -27,6 +27,11 @@ function EventDetailPage() {
 		queryKey: eventsKeys.detail(eventSlugOrId),
 		queryFn: () => fetchEventDetail(eventSlugOrId),
 	});
+
+	useErrorToast(
+		q.isError ? q.error : null,
+		"No pudimos cargar este evento",
+	);
 
 	useInventorySocket(eventSlugOrId, q.data?.id);
 
@@ -69,11 +74,13 @@ function EventDetailPage() {
 	if (q.isError) {
 		return (
 			<PublicLayout>
-				<div className="page-wrap py-16">
-					<QueryErrorAlert
-						title="No pudimos cargar este evento"
-						error={q.error}
-					/>
+				<div className="page-wrap py-16 text-center">
+					<p className="text-muted-foreground">
+						No pudimos cargar este evento.
+					</p>
+					<Button className="mt-6" variant="outline" asChild>
+						<Link to="/events">Volver a eventos</Link>
+					</Button>
 				</div>
 			</PublicLayout>
 		);

@@ -6,8 +6,8 @@ import type { DateRange } from "react-day-picker";
 import { z } from "zod";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { QueryErrorAlert } from "#/components/query-error-alert";
 import { Button } from "#/components/ui/button";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { DateRangePicker } from "#/components/ui/date-range-picker";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
@@ -75,6 +75,11 @@ function EventsListPage() {
 				to,
 			}),
 	});
+
+	useErrorToast(
+		query.isError ? query.error : null,
+		"No pudimos cargar los eventos",
+	);
 
 	return (
 		<PublicLayout>
@@ -163,10 +168,11 @@ function EventsListPage() {
 				) : null}
 
 				{query.isError ? (
-					<QueryErrorAlert
-						title="No pudimos cargar los eventos"
-						error={query.error}
-					/>
+					<div className="island-shell rounded-xl p-12 text-center">
+						<p className="text-muted-foreground">
+							No pudimos cargar los eventos. Inténtalo de nuevo en unos instantes.
+						</p>
+					</div>
 				) : null}
 
 				{query.data && query.data.items.length === 0 ? (

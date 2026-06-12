@@ -1,6 +1,7 @@
 import { Html5Qrcode } from "html5-qrcode";
 import { Camera, CameraOff } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { Button } from "#/components/ui/button";
 
@@ -14,7 +15,6 @@ export function QrCameraScanner({ onScan, disabled = false }: QrCameraScannerPro
 	const scannerRef = useRef<Html5Qrcode | null>(null);
 	const lastScanRef = useRef("");
 	const [active, setActive] = useState(false);
-	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!active || disabled) return;
@@ -38,7 +38,7 @@ export function QrCameraScanner({ onScan, disabled = false }: QrCameraScannerPro
 			)
 			.catch((e: unknown) => {
 				if (!cancelled) {
-					setError(
+					toast.error(
 						e instanceof Error
 							? e.message
 							: "No se pudo acceder a la cámara",
@@ -72,14 +72,12 @@ export function QrCameraScanner({ onScan, disabled = false }: QrCameraScannerPro
 					</div>
 				)}
 			</div>
-			{error ? <p className="text-sm text-destructive">{error}</p> : null}
 			<Button
 				type="button"
 				variant={active ? "outline" : "default"}
 				className="w-full"
 				disabled={disabled}
 				onClick={() => {
-					setError(null);
 					lastScanRef.current = "";
 					setActive((prev) => !prev);
 				}}

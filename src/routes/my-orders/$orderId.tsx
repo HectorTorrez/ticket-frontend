@@ -6,6 +6,7 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMyOrder } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
 import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
@@ -26,6 +27,8 @@ function OrderDetailPage() {
 		queryFn: () => fetchMyOrder(orderId),
 	});
 
+	useErrorToast(q.isError ? q.error : null, "No pudimos cargar el pedido");
+
 	return (
 		<PublicLayout>
 			<div className="page-wrap max-w-2xl space-y-8 py-12">
@@ -35,7 +38,9 @@ function OrderDetailPage() {
 
 				{q.isPending ? <Skeleton className="h-56 rounded-xl" /> : null}
 				{q.isError ? (
-					<p className="text-destructive">{(q.error as Error).message}</p>
+					<p className="text-muted-foreground">
+						No pudimos cargar el pedido.
+					</p>
 				) : null}
 
 				{q.data ? (

@@ -7,6 +7,7 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMyOrders } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
 import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
@@ -35,6 +36,8 @@ function MyOrdersPage() {
 		queryKey: ordersKeys.meList({ page, limit, status }),
 		queryFn: () => fetchMyOrders({ page, limit, status }),
 	});
+
+	useErrorToast(q.isError ? q.error : null, "No pudimos cargar tus pedidos");
 
 	return (
 		<PublicLayout>
@@ -87,7 +90,9 @@ function MyOrdersPage() {
 
 				{q.isPending ? <Skeleton className="h-48 rounded-xl" /> : null}
 				{q.isError ? (
-					<p className="text-destructive">{(q.error as Error).message}</p>
+					<p className="text-muted-foreground">
+						No pudimos cargar tus pedidos.
+					</p>
 				) : null}
 
 				{q.data && q.data.items.length === 0 ? (

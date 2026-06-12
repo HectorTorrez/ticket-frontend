@@ -8,6 +8,7 @@ import { PublicLayout } from "#/components/layouts/public-layout";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { ApiError } from "#/lib/api/errors";
 import { fetchPublicTicket, validateQrCode } from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
@@ -30,6 +31,11 @@ function CheckTicketPage() {
 		queryFn: () => fetchPublicTicket(publicCode),
 		retry: false,
 	});
+
+	useErrorToast(
+		ticketQ.isError ? ticketQ.error : null,
+		"Entrada no encontrada",
+	);
 
 	const validate = useMutation({
 		mutationFn: () => validateQrCode(publicCode),
@@ -159,7 +165,7 @@ function CheckTicketPage() {
 							</p>
 						) : null}
 						{ticket.status === "CANCELLED" ? (
-							<p className="text-center text-sm text-destructive">
+							<p className="text-center text-sm text-muted-foreground">
 								Entrada cancelada — acceso denegado.
 							</p>
 						) : null}

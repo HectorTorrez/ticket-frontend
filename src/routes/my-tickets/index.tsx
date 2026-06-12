@@ -7,6 +7,7 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { TicketQrCode } from "#/components/ticket-qr-code";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMyTickets } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
 import { labelFor, ticketStatusLabel, ticketTierLabel } from "#/lib/labels";
@@ -24,6 +25,8 @@ function MyTicketsPage() {
 		queryKey: ticketsKeys.mine(),
 		queryFn: fetchMyTickets,
 	});
+
+	useErrorToast(q.isError ? q.error : null, "No pudimos cargar tus entradas");
 
 	return (
 		<PublicLayout>
@@ -47,8 +50,10 @@ function MyTicketsPage() {
 				) : null}
 
 				{q.isError ? (
-					<div className="island-shell rounded-xl p-8 text-center text-destructive">
-						{(q.error as Error).message}
+					<div className="island-shell rounded-xl p-8 text-center">
+						<p className="text-muted-foreground">
+							No pudimos cargar tus entradas.
+						</p>
 					</div>
 				) : null}
 

@@ -6,6 +6,7 @@ import type { z } from "zod";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { Switch } from "#/components/ui/switch";
 import {
 	Table,
@@ -86,6 +87,8 @@ function DashboardEventsList() {
 			}),
 	});
 
+	useErrorToast(q.isError ? q.error : null, "No pudimos cargar los eventos");
+
 	return (
 		<div className="space-y-8">
 			<div className="flex flex-wrap items-center justify-between gap-4">
@@ -102,7 +105,9 @@ function DashboardEventsList() {
 
 			{q.isPending ? <Skeleton className="h-64 w-full rounded-xl" /> : null}
 			{q.isError ? (
-				<p className="text-destructive">{(q.error as Error).message}</p>
+				<p className="text-muted-foreground">
+					No pudimos cargar los eventos.
+				</p>
 			) : null}
 
 			{q.data && q.data.items.length === 0 ? (

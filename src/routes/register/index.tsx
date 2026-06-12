@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
@@ -28,7 +29,6 @@ export const Route = createFileRoute("/register/")({
 });
 
 function RegisterPage() {
-	const [formError, setFormError] = useState<string | null>(null);
 	const [hydrated, setHydrated] = useState(false);
 
 	useEffect(() => {
@@ -38,10 +38,11 @@ function RegisterPage() {
 	const form = useForm({
 		defaultValues: { email: "", password: "" },
 		onSubmit: async ({ value }) => {
-			setFormError(null);
 			const parsed = registerSchema.safeParse(value);
 			if (!parsed.success) {
-				setFormError(parsed.error.flatten().formErrors.join(", "));
+				toast.error(
+					parsed.error.flatten().formErrors.join(", ") || "Revisa el formulario",
+				);
 				return;
 			}
 			try {
@@ -49,8 +50,8 @@ function RegisterPage() {
 				setSession(data);
 				window.location.href = data.user.role === "ADMIN" ? "/dashboard" : "/";
 			} catch (e) {
-				if (e instanceof ApiError) setFormError(e.message);
-				else setFormError("No se pudo registrar la cuenta");
+				if (e instanceof ApiError) toast.error(e.message);
+				else toast.error("No se pudo registrar la cuenta");
 			}
 		},
 	});
@@ -107,11 +108,6 @@ function RegisterPage() {
 										onChange={(e) => field.handleChange(e.target.value)}
 										onBlur={field.handleBlur}
 									/>
-									{field.state.meta.errors[0] ? (
-										<p className="text-sm text-destructive">
-											{field.state.meta.errors[0]}
-										</p>
-									) : null}
 								</div>
 							)}
 						</form.Field>
@@ -133,17 +129,9 @@ function RegisterPage() {
 										onChange={(e) => field.handleChange(e.target.value)}
 										onBlur={field.handleBlur}
 									/>
-									{field.state.meta.errors[0] ? (
-										<p className="text-sm text-destructive">
-											{field.state.meta.errors[0]}
-										</p>
-									) : null}
 								</div>
 							)}
 						</form.Field>
-						{formError ? (
-							<p className="text-sm text-destructive">{formError}</p>
-						) : null}
 						<Button type="submit" className="w-full" size="lg">
 							Crear cuenta
 						</Button>

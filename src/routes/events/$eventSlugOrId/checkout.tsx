@@ -10,9 +10,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { z } from "zod";
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { QueryErrorAlert } from "#/components/query-error-alert";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { ApiError, getUserFacingErrorMessage } from "#/lib/api/errors";
 import type { orderDetailSchema } from "#/lib/api/schemas";
 import {
@@ -97,6 +97,11 @@ function CheckoutPage() {
 		queryKey: eventsKeys.detail(eventSlugOrId),
 		queryFn: () => fetchEventDetail(eventSlugOrId),
 	});
+
+	useErrorToast(
+		eventQ.isError ? eventQ.error : null,
+		"No pudimos cargar el pago",
+	);
 
 	useInventorySocket(eventSlugOrId, eventQ.data?.id);
 
@@ -238,11 +243,15 @@ function CheckoutPage() {
 	if (eventQ.isError) {
 		return (
 			<PublicLayout>
-				<div className="page-wrap py-16">
-					<QueryErrorAlert
-						title="No pudimos cargar el pago"
-						error={eventQ.error}
-					/>
+				<div className="page-wrap py-16 text-center">
+					<p className="text-muted-foreground">
+						No pudimos cargar el pago.
+					</p>
+					<Button className="mt-6" variant="outline" asChild>
+						<Link to="/events/$eventSlugOrId" params={{ eventSlugOrId }}>
+							Volver al evento
+						</Link>
+					</Button>
 				</div>
 			</PublicLayout>
 		);
@@ -340,8 +349,8 @@ function CheckoutPage() {
 
 				{reserve.isError ? (
 					<div className="island-shell space-y-3 rounded-xl p-6">
-						<p className="text-sm text-destructive">
-							{getUserFacingErrorMessage(reserve.error)}
+						<p className="text-sm text-muted-foreground">
+							No se pudo reservar tus entradas.
 						</p>
 						<Button
 							variant="outline"

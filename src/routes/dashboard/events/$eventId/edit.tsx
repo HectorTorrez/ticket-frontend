@@ -6,6 +6,14 @@ import { toast } from "sonner";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import {
@@ -19,6 +27,7 @@ import { Separator } from "#/components/ui/separator";
 import { Skeleton } from "#/components/ui/skeleton";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { ApiError } from "#/lib/api/errors";
 import type { TicketTier } from "#/lib/api/schemas";
 import {
@@ -57,11 +66,17 @@ function EditEventPage() {
 		queryFn: () => fetchOrganizerEventDetail(eventId),
 	});
 
+	useErrorToast(
+		q.isError ? q.error : null,
+		"No pudimos cargar el evento",
+	);
+
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [startsAt, setStartsAt] = useState("");
 	const [endsAt, setEndsAt] = useState("");
 	const [venue, setVenue] = useState("");
+	const [deleteOpen, setDeleteOpen] = useState(false);
 
 	useEffect(() => {
 		if (!q.data) return;
@@ -165,8 +180,8 @@ function EditEventPage() {
 	if (q.isPending) return <Skeleton className="h-96 rounded-xl" />;
 	if (q.isError || !q.data)
 		return (
-			<p className="text-destructive">
-				{(q.error as Error)?.message ?? "No encontrado"}
+			<p className="text-muted-foreground">
+				No pudimos cargar el evento.
 			</p>
 		);
 
@@ -288,13 +303,41 @@ function EditEventPage() {
 				<Button
 					type="button"
 					variant="destructive"
-					onClick={() => {
-						if (confirm("¿Eliminar este evento? Esta acción no se puede deshacer."))
-							remove.mutate();
-					}}
+					onClick={() => setDeleteOpen(true)}
 				>
 					Eliminar
 				</Button>
+				<Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+					<DialogContent showCloseButton={false}>
+						<DialogHeader>
+							<DialogTitle>¿Eliminar este evento?</DialogTitle>
+							<DialogDescription>
+								Esta acción no se puede deshacer. Se eliminarán también los
+								tipos de entrada asociados.
+							</DialogDescription>
+						</DialogHeader>
+						<DialogFooter>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setDeleteOpen(false)}
+							>
+								Cancelar
+							</Button>
+							<Button
+								type="button"
+								variant="destructive"
+								disabled={remove.isPending}
+								onClick={() => {
+									setDeleteOpen(false);
+									remove.mutate();
+								}}
+							>
+								Eliminar evento
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
 			</div>
 
 			<Separator />
