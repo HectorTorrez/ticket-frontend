@@ -1,15 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { DateRange } from "react-day-picker";
 import { z } from "zod";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { QueryErrorAlert } from "#/components/query-error-alert";
 import { Button } from "#/components/ui/button";
+import { DateRangePicker } from "#/components/ui/date-range-picker";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Skeleton } from "#/components/ui/skeleton";
 import { fetchEventsList } from "#/lib/api/ticket-api";
+import {
+	parseSearchDate,
+	toFilterFromDate,
+	toFilterToDate,
+} from "#/lib/dates";
 import { eventsKeys } from "#/lib/query-keys";
 import { EventCard } from "#/routes/events/-components/event-card";
 
@@ -26,10 +34,27 @@ export const Route = createFileRoute("/events/")({
 	component: EventsListPage,
 });
 
+function searchParamsToDateRange(
+	from?: string,
+	to?: string,
+): DateRange | undefined {
+	const fromDate = parseSearchDate(from);
+	const toDate = parseSearchDate(to);
+	if (!fromDate && !toDate) return undefined;
+	return { from: fromDate, to: toDate };
+}
+
 function EventsListPage() {
 	const search = Route.useSearch();
 	const { page, limit, q, from, to } = search;
 	const navigate = Route.useNavigate();
+	const [dateRange, setDateRange] = useState<DateRange | undefined>(() =>
+		searchParamsToDateRange(from, to),
+	);
+
+	useEffect(() => {
+		setDateRange(searchParamsToDateRange(from, to));
+	}, [from, to]);
 
 	const query = useQuery({
 		queryKey: eventsKeys.list({
@@ -71,15 +96,17 @@ function EventsListPage() {
 						e.preventDefault();
 						const fd = new FormData(e.currentTarget);
 						const nq = String(fd.get("q") ?? "").trim();
-						const nf = String(fd.get("from") ?? "").trim();
-						const nt = String(fd.get("to") ?? "").trim();
 						navigate({
 							search: {
 								page: 1,
 								limit,
 								q: nq || undefined,
-								from: nf || undefined,
-								to: nt || undefined,
+								from: dateRange?.from
+									? toFilterFromDate(dateRange.from)
+									: undefined,
+								to: dateRange?.to
+									? toFilterToDate(dateRange.to)
+									: undefined,
 							},
 						});
 					}}
@@ -97,22 +124,24 @@ function EventsListPage() {
 							/>
 						</div>
 					</div>
-					<div className="w-full space-y-2 md:w-44">
-						<Label htmlFor="from">Desde</Label>
-						<Input
-							id="from"
-							name="from"
-							type="datetime-local"
-							defaultValue={from ?? ""}
-						/>
-					</div>
-					<div className="w-full space-y-2 md:w-44">
-						<Label htmlFor="to">Hasta</Label>
-						<Input
-							id="to"
-							name="to"
-							type="datetime-local"
-							defaultValue={to ?? ""}
+					<div className="w-full space-y-2 md:w-auto">
+						<Label htmlFor="date-range">Fechas</Label>
+						<DateRangePicker
+							id="date-range"
+							value={dateRange}
+							onChange={setDateRange}
+							onClear={() => {
+								if (from || to) {
+									navigate({
+										search: {
+											page: 1,
+											limit,
+											q: q || undefined,
+										},
+									});
+								}
+							}}
+							placeholder="Cualquier fecha"
 						/>
 					</div>
 					<Button type="submit">Aplicar filtros</Button>
