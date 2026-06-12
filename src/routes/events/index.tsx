@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { Search } from "lucide-react";
 import { z } from "zod";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
@@ -52,18 +53,20 @@ function EventsListPage() {
 
 	return (
 		<PublicLayout>
-			<div className="page-wrap space-y-10 py-12">
-				<header className="space-y-2">
-					<h1 className="display-title text-3xl font-semibold">
+			<div className="page-wrap space-y-10 py-12 md:py-16">
+				<header className="rise-in space-y-3">
+					<p className="island-kicker">Discover</p>
+					<h1 className="display-title text-3xl font-semibold md:text-4xl">
 						Browse events
 					</h1>
-					<p className="text-muted-foreground">
-						Discover live experiences and grab tickets before they are gone.
+					<p className="max-w-xl text-muted-foreground">
+						Live experiences with real-time availability. Grab tickets before
+						they're gone.
 					</p>
 				</header>
 
 				<form
-					className="island-shell flex flex-col gap-4 rounded-xl p-6 md:flex-row md:flex-wrap md:items-end"
+					className="island-shell rise-in stagger-1 flex flex-col gap-4 rounded-xl p-6 md:flex-row md:flex-wrap md:items-end"
 					onSubmit={(e) => {
 						e.preventDefault();
 						const fd = new FormData(e.currentTarget);
@@ -83,12 +86,16 @@ function EventsListPage() {
 				>
 					<div className="min-w-[200px] flex-1 space-y-2">
 						<Label htmlFor="q">Search</Label>
-						<Input
-							id="q"
-							name="q"
-							placeholder="Title or slug"
-							defaultValue={q ?? ""}
-						/>
+						<div className="relative">
+							<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+							<Input
+								id="q"
+								name="q"
+								placeholder="Title or venue"
+								defaultValue={q ?? ""}
+								className="pl-9"
+							/>
+						</div>
 					</div>
 					<div className="w-full space-y-2 md:w-44">
 						<Label htmlFor="from">From</Label>
@@ -108,7 +115,7 @@ function EventsListPage() {
 							defaultValue={to ?? ""}
 						/>
 					</div>
-					<Button type="submit">Apply</Button>
+					<Button type="submit">Apply filters</Button>
 				</form>
 
 				{query.isPending ? (
@@ -134,19 +141,35 @@ function EventsListPage() {
 				) : null}
 
 				{query.data && query.data.items.length === 0 ? (
-					<div className="island-shell rounded-xl p-10 text-center text-muted-foreground">
-						No events match your filters.
+					<div className="island-shell rounded-xl p-12 text-center">
+						<p className="text-muted-foreground">
+							No events match your filters.
+						</p>
+						<Button
+							variant="outline"
+							className="mt-4"
+							onClick={() =>
+								navigate({
+									search: { page: 1, limit },
+								})
+							}
+						>
+							Clear filters
+						</Button>
 					</div>
 				) : null}
 
 				{query.data && query.data.items.length > 0 ? (
 					<>
+						<p className="text-sm text-muted-foreground">
+							{query.data.total} event{query.data.total === 1 ? "" : "s"} found
+						</p>
 						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 							{query.data.items.map((ev) => (
 								<EventCard key={ev.id} event={ev} />
 							))}
 						</div>
-						<div className="flex items-center justify-between gap-4">
+						<div className="flex items-center justify-between gap-4 border-t border-border/60 pt-6">
 							<Button
 								type="button"
 								variant="outline"

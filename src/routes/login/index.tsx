@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
@@ -74,91 +75,98 @@ function LoginPage() {
 
 	return (
 		<PublicLayout>
-			<div className="page-wrap flex max-w-md flex-col gap-8 py-16">
-				<div>
-					<h1 className="display-title text-3xl font-semibold">Welcome back</h1>
-					<p className="mt-2 text-muted-foreground">
-						Sign in to reserve tickets and manage orders.
+			<div className="page-wrap flex justify-center py-16 md:py-20">
+				<div className="w-full max-w-md space-y-8">
+					<div className="rise-in text-center">
+						<div className="mx-auto mb-4 inline-flex rounded-full bg-primary/10 p-3 text-primary">
+							<LogIn className="size-6" />
+						</div>
+						<h1 className="display-title text-3xl font-semibold">
+							Welcome back
+						</h1>
+						<p className="mt-2 text-muted-foreground">
+							Sign in to reserve tickets and view your passes.
+						</p>
+					</div>
+					<form
+						className="auth-shell rise-in stagger-1 space-y-6 p-8"
+						onSubmit={(e) => {
+							e.preventDefault();
+							form.handleSubmit();
+						}}
+					>
+						<form.Field
+							name="email"
+							validators={{
+								onChange: ({ value }) =>
+									z.string().email("Valid email required").safeParse(value)
+										.success
+										? undefined
+										: "Valid email required",
+							}}
+						>
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor="email">Email</Label>
+									<Input
+										id="email"
+										type="email"
+										autoComplete="email"
+										value={field.state.value}
+										onChange={(e) => field.handleChange(e.target.value)}
+										onBlur={field.handleBlur}
+									/>
+									{field.state.meta.errors[0] ? (
+										<p className="text-sm text-destructive">
+											{field.state.meta.errors[0]}
+										</p>
+									) : null}
+								</div>
+							)}
+						</form.Field>
+						<form.Field
+							name="password"
+							validators={{
+								onChange: ({ value }) =>
+									value.length >= 8 ? undefined : "At least 8 characters",
+							}}
+						>
+							{(field) => (
+								<div className="space-y-2">
+									<Label htmlFor="password">Password</Label>
+									<Input
+										id="password"
+										type="password"
+										autoComplete="current-password"
+										value={field.state.value}
+										onChange={(e) => field.handleChange(e.target.value)}
+										onBlur={field.handleBlur}
+									/>
+									{field.state.meta.errors[0] ? (
+										<p className="text-sm text-destructive">
+											{field.state.meta.errors[0]}
+										</p>
+									) : null}
+								</div>
+							)}
+						</form.Field>
+						{formError ? (
+							<p className="text-sm text-destructive">{formError}</p>
+						) : null}
+						<Button type="submit" className="w-full" size="lg">
+							Sign in
+						</Button>
+					</form>
+					<p className="text-center text-sm text-muted-foreground">
+						No account?{" "}
+						<Link
+							to="/register"
+							className="font-medium text-primary underline-offset-4 hover:underline"
+						>
+							Create one
+						</Link>
 					</p>
 				</div>
-				<form
-					className="island-shell space-y-6 rounded-xl p-8"
-					onSubmit={(e) => {
-						e.preventDefault();
-						form.handleSubmit();
-					}}
-				>
-					<form.Field
-						name="email"
-						validators={{
-							onChange: ({ value }) =>
-								z.string().email("Valid email required").safeParse(value)
-									.success
-									? undefined
-									: "Valid email required",
-						}}
-					>
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor="email">Email</Label>
-								<Input
-									id="email"
-									type="email"
-									autoComplete="email"
-									value={field.state.value}
-									onChange={(e) => field.handleChange(e.target.value)}
-									onBlur={field.handleBlur}
-								/>
-								{field.state.meta.errors[0] ? (
-									<p className="text-sm text-destructive">
-										{field.state.meta.errors[0]}
-									</p>
-								) : null}
-							</div>
-						)}
-					</form.Field>
-					<form.Field
-						name="password"
-						validators={{
-							onChange: ({ value }) =>
-								value.length >= 8 ? undefined : "At least 8 characters",
-						}}
-					>
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor="password">Password</Label>
-								<Input
-									id="password"
-									type="password"
-									autoComplete="current-password"
-									value={field.state.value}
-									onChange={(e) => field.handleChange(e.target.value)}
-									onBlur={field.handleBlur}
-								/>
-								{field.state.meta.errors[0] ? (
-									<p className="text-sm text-destructive">
-										{field.state.meta.errors[0]}
-									</p>
-								) : null}
-							</div>
-						)}
-					</form.Field>
-					{formError ? (
-						<p className="text-sm text-destructive">{formError}</p>
-					) : null}
-					<Button type="submit" className="w-full">
-						Sign in
-					</Button>
-				</form>
-				<p className="text-center text-sm text-muted-foreground">
-					No account?{" "}
-					<Link
-						to="/register"
-						className="font-medium text-primary underline-offset-4 hover:underline"
-					>
-						Register
-					</Link>
-				</p>
 			</div>
 		</PublicLayout>
 	);

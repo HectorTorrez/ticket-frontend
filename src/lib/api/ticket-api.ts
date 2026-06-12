@@ -143,8 +143,7 @@ export async function fetchEventDetail(slugOrId: string) {
 
 /**
  * Event detail for **ADMIN** dashboard (drafts are not on public `GET /events/:slugOrId`).
- * Try catalog GET first (works when published); then **`PATCH /events/:id`** with `{}` if the server
- * returns the entity; else paginate **`GET /admin/events`** (`limit` ≤ 100, omit `published`).
+ * Try catalog GET first (works when published); else **`GET /admin/events/:id`** (includes ticket types).
  */
 export async function fetchOrganizerEventDetail(id: string) {
 	try {
@@ -156,12 +155,11 @@ export async function fetchOrganizerEventDetail(id: string) {
 	}
 
 	try {
-		return await apiRequest(`/events/${id}`, eventDetailSchema, {
-			method: "PATCH",
-			body: {},
-		});
-	} catch {
-		/* empty PATCH not supported — use list scan */
+		return await apiRequest(`/admin/events/${id}`, eventDetailSchema);
+	} catch (e) {
+		if (!(e instanceof ApiError) || e.statusCode !== 404) {
+			throw e;
+		}
 	}
 
 	const pageLimit = 100;

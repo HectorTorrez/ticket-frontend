@@ -35,6 +35,14 @@ type PublicLayoutProps = {
 	children: React.ReactNode;
 };
 
+function BrandMark() {
+	return (
+		<span className="brand-mark" aria-hidden>
+			<Ticket className="size-4" strokeWidth={2.25} />
+		</span>
+	);
+}
+
 export function PublicLayout({ children }: PublicLayoutProps) {
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
 	const session = typeof window !== "undefined" ? getSession() : null;
@@ -75,14 +83,17 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
 	return (
 		<div className="flex min-h-dvh flex-col">
-			<header className="sticky top-0 z-50 border-b border-border/80 bg-background/80 backdrop-blur-md">
+			<header className="sticky top-0 z-50 border-b border-border/60 bg-header-bg/90 backdrop-blur-lg">
 				<div className="page-wrap flex h-16 min-w-0 items-center justify-between gap-3">
-					<div className="flex min-w-0 flex-1 items-center gap-4 md:gap-6 md:flex-initial">
+					<div className="flex min-w-0 flex-1 items-center gap-4 md:gap-8 md:flex-initial">
 						<Link
 							to="/"
-							className="display-title truncate text-lg font-semibold tracking-tight text-foreground"
+							className="group flex min-w-0 items-center gap-2.5 text-foreground no-underline"
 						>
-							Tide Tickets
+							<BrandMark />
+							<span className="display-title truncate text-lg font-semibold tracking-tight">
+								Tide Tickets
+							</span>
 						</Link>
 						<nav className="hidden items-center gap-1 md:flex">
 							{navLink("/events", "Events")}
@@ -175,7 +186,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 								className="flex w-[min(100vw-2rem,20rem)] flex-col gap-0 sm:max-w-sm"
 							>
 								<SheetHeader className="text-left">
-									<SheetTitle>Menu</SheetTitle>
+									<SheetTitle className="flex items-center gap-2">
+										<BrandMark />
+										Menu
+									</SheetTitle>
 									{session ? (
 										<SheetDescription className="truncate">
 											Signed in as {session.user.email}
@@ -232,10 +246,36 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 				</div>
 			</header>
 			<main className="flex-1">{children}</main>
-			<footer className="site-footer mt-auto py-10">
-				<div className="page-wrap flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-					<span>Tide Tickets — event discovery and digital passes</span>
-					<span>Reserve seats · pay · QR at the door</span>
+			<footer className="site-footer mt-auto py-12">
+				<div className="page-wrap">
+					<div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+						<div className="flex items-center gap-2.5">
+							<BrandMark />
+							<div>
+								<p className="display-title text-sm font-semibold">
+									Tide Tickets
+								</p>
+								<p className="text-sm text-muted-foreground">
+									Event discovery and digital passes
+								</p>
+							</div>
+						</div>
+						<div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+							<Link to="/events" className="nav-link hover:text-foreground">
+								Events
+							</Link>
+							<Link to="/login" className="nav-link hover:text-foreground">
+								Log in
+							</Link>
+							<Link to="/register" className="nav-link hover:text-foreground">
+								Register
+							</Link>
+						</div>
+					</div>
+					<div className="mt-8 wave-rule max-w-xs" />
+					<p className="mt-4 text-xs text-muted-foreground">
+						Reserve seats · pay · QR at the door
+					</p>
 				</div>
 			</footer>
 		</div>
