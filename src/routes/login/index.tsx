@@ -114,7 +114,9 @@ function LoginPage() {
 						>
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor="email">Correo electrónico</Label>
+									<Label htmlFor="email" required>
+										Correo electrónico
+									</Label>
 									<Input
 										id="email"
 										type="email"
@@ -135,7 +137,9 @@ function LoginPage() {
 						>
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor="password">Contraseña</Label>
+									<Label htmlFor="password" required>
+										Contraseña
+									</Label>
 									<Input
 										id="password"
 										type="password"

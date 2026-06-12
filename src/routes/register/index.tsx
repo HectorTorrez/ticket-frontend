@@ -99,7 +99,9 @@ function RegisterPage() {
 						>
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor="reg-email">Correo electrónico</Label>
+									<Label htmlFor="reg-email" required>
+										Correo electrónico
+									</Label>
 									<Input
 										id="reg-email"
 										type="email"
@@ -120,7 +122,9 @@ function RegisterPage() {
 						>
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor="reg-password">Contraseña</Label>
+									<Label htmlFor="reg-password" required>
+										Contraseña
+									</Label>
 									<Input
 										id="reg-password"
 										type="password"

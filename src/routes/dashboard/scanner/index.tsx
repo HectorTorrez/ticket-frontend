@@ -64,7 +64,9 @@ function ScannerPage() {
 			<div className="island-shell space-y-6 rounded-xl p-8">
 				<QrCameraScanner onScan={handleScan} disabled={isPending} />
 				<div className="space-y-2">
-					<Label htmlFor="code">Código del pase</Label>
+					<Label htmlFor="code" required>
+						Código del pase
+					</Label>
 					<Input
 						id="code"
 						value={code}

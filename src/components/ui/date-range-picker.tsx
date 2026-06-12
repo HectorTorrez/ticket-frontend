@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
 
 import { Button } from "#/components/ui/button";
@@ -31,16 +32,34 @@ function DateRangePicker({
 	className,
 	placeholder = "Seleccionar fechas",
 }: DateRangePickerProps) {
+	const [open, setOpen] = useState(false);
+	const [draft, setDraft] = useState<DateRange | undefined>(value);
 	const hasSelection = Boolean(value?.from);
 
+	useEffect(() => {
+		if (!open) setDraft(value);
+	}, [value, open]);
+
+	const handleOpenChange = (next: boolean) => {
+		setOpen(next);
+		if (next) setDraft(value);
+	};
+
+	const handleAccept = () => {
+		onChange?.(draft);
+		setOpen(false);
+	};
+
 	const handleClear = () => {
+		setDraft(undefined);
 		onChange?.(undefined);
 		onClear?.();
+		setOpen(false);
 	};
 
 	return (
 		<div className={cn("flex gap-1", className)}>
-			<Popover>
+			<Popover open={open} onOpenChange={handleOpenChange}>
 				<PopoverTrigger asChild>
 					<Button
 						id={id}
@@ -71,25 +90,33 @@ function DateRangePicker({
 				<PopoverContent className="w-auto p-0" align="start">
 					<Calendar
 						mode="range"
-						defaultMonth={value?.from}
-						selected={value}
-						onSelect={onChange}
+						defaultMonth={draft?.from ?? value?.from}
+						selected={draft}
+						onSelect={setDraft}
 						numberOfMonths={2}
 						locale={es}
 					/>
-					{hasSelection ? (
-						<div className="border-t p-3">
+					<div className="flex gap-2 border-t p-3">
+						{draft?.from ? (
 							<Button
 								type="button"
 								variant="ghost"
 								size="sm"
-								className="w-full"
-								onClick={handleClear}
+								onClick={() => setDraft(undefined)}
 							>
-								Limpiar fechas
+								Limpiar
 							</Button>
-						</div>
-					) : null}
+						) : null}
+						<Button
+							type="button"
+							size="sm"
+							className="ml-auto"
+							disabled={!draft?.from}
+							onClick={handleAccept}
+						>
+							Aceptar
+						</Button>
+					</div>
 				</PopoverContent>
 			</Popover>
 			{hasSelection ? (

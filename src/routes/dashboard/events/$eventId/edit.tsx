@@ -5,7 +5,6 @@ import { toast } from "sonner";
 
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
@@ -16,14 +15,7 @@ import {
 } from "#/components/ui/dialog";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "#/components/ui/select";
-import { Separator } from "#/components/ui/separator";
+import { DateTimePicker } from "#/components/ui/datetime-picker";
 import { Skeleton } from "#/components/ui/skeleton";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
@@ -40,22 +32,15 @@ import {
 	unpublishEvent,
 	uploadEventBanner,
 } from "#/lib/api/ticket-api";
-import { labelFor, ticketTierLabel } from "#/lib/labels";
 import { eventsKeys } from "#/lib/query-keys";
+import { toLocalDateTimeInput } from "#/lib/dates";
+
+import { AddTicketTypeCollapsible } from "#/routes/dashboard/events/-components/add-ticket-type-collapsible";
+import { TicketTypeEditor } from "#/routes/dashboard/events/-components/ticket-type-editor";
 
 export const Route = createFileRoute("/dashboard/events/$eventId/edit")({
 	component: EditEventPage,
 });
-
-function toLocalInput(iso: string) {
-	try {
-		const d = new Date(iso);
-		const pad = (n: number) => String(n).padStart(2, "0");
-		return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-	} catch {
-		return "";
-	}
-}
 
 function EditEventPage() {
 	const { eventId } = Route.useParams();
@@ -82,8 +67,8 @@ function EditEventPage() {
 		if (!q.data) return;
 		setTitle(q.data.title);
 		setDescription(q.data.description ?? "");
-		setStartsAt(toLocalInput(q.data.startsAt));
-		setEndsAt(toLocalInput(q.data.endsAt));
+		setStartsAt(toLocalDateTimeInput(new Date(q.data.startsAt)));
+		setEndsAt(toLocalDateTimeInput(new Date(q.data.endsAt)));
 		setVenue(q.data.venue ?? "");
 	}, [q.data]);
 
@@ -152,14 +137,17 @@ function EditEventPage() {
 		mutationFn: () =>
 			createTicketType(eventId, {
 				tier,
-				name: ttName,
+				name: ttName.trim(),
 				price: Number(ttPrice),
 				quantity: Number(ttQty),
 			}),
 		onSuccess: async () => {
 			void q.refetch();
 			setTtName("");
-			toast.success("Tipo de entrada añadido");
+			setTier("GENERAL");
+			setTtPrice("0");
+			setTtQty("100");
+			toast.success("Categoría añadida");
 		},
 		onError: (e) =>
 			toast.error(
@@ -171,11 +159,15 @@ function EditEventPage() {
 		mutationFn: (id: string) => deleteTicketType(id),
 		onSuccess: async () => {
 			void q.refetch();
-			toast.success("Eliminado");
+			toast.success("Categoría eliminada");
 		},
 		onError: (e) =>
 			toast.error(e instanceof ApiError ? e.message : "No se pudo eliminar"),
 	});
+
+	const refetchTicketTypes = () => {
+		void q.refetch();
+	};
 
 	if (q.isPending) return <Skeleton className="h-96 rounded-xl" />;
 	if (q.isError || !q.data)
@@ -186,13 +178,19 @@ function EditEventPage() {
 		);
 
 	const ev = q.data;
+	const canAddTier =
+		ttName.trim().length > 0 &&
+		!Number.isNaN(Number(ttPrice)) &&
+		Number(ttPrice) >= 0 &&
+		!Number.isNaN(Number(ttQty)) &&
+		Number(ttQty) >= 1;
 
 	return (
-		<div className="mx-auto max-w-3xl space-y-10">
-			<div className="flex flex-wrap items-center justify-between gap-4">
-				<div>
+		<div className="mx-auto max-w-2xl space-y-10 pb-16">
+			<header className="flex flex-wrap items-start justify-between gap-4">
+				<div className="space-y-3">
 					<h1 className="display-title text-2xl font-semibold">Editar evento</h1>
-					<div className="mt-2 flex flex-wrap items-center gap-3">
+					<div className="flex flex-wrap items-center gap-3">
 						<div className="flex items-center gap-2">
 							<Switch
 								id={`published-${ev.id}`}
@@ -216,29 +214,42 @@ function EditEventPage() {
 						<Badge variant={ev.published ? "default" : "secondary"}>
 							{ev.published ? "En catálogo" : "Oculto"}
 						</Badge>
-						<span className="text-xs text-muted-foreground">
-							Página pública:{" "}
-							<span className="font-mono">/events/{ev.slug}</span>
-						</span>
 					</div>
+					<p className="text-xs text-muted-foreground">
+						Página pública:{" "}
+						<span className="font-mono">/events/{ev.slug}</span>
+					</p>
 				</div>
 				<Button variant="ghost" asChild>
 					<Link to="/dashboard/events">← Todos los eventos</Link>
 				</Button>
-			</div>
+			</header>
 
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-base">Detalles</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
+			<section className="space-y-4">
+				<h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+					Detalles del evento
+				</h2>
+				<form
+					className="island-shell space-y-5 rounded-xl p-8"
+					onSubmit={(e) => {
+						e.preventDefault();
+						save.mutate();
+					}}
+				>
 					<div className="space-y-2">
-						<Label>Título</Label>
-						<Input value={title} onChange={(e) => setTitle(e.target.value)} />
+						<Label htmlFor="title" required>
+							Título
+						</Label>
+						<Input
+							id="title"
+							value={title}
+							onChange={(e) => setTitle(e.target.value)}
+						/>
 					</div>
 					<div className="space-y-2">
-						<Label>Descripción</Label>
+						<Label htmlFor="description">Descripción</Label>
 						<Textarea
+							id="description"
 							rows={4}
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
@@ -246,74 +257,146 @@ function EditEventPage() {
 					</div>
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div className="space-y-2">
-							<Label>Inicio</Label>
-							<Input
-								type="datetime-local"
+							<Label htmlFor="startsAt" required>
+								Inicio
+							</Label>
+							<DateTimePicker
+								id="startsAt"
 								value={startsAt}
-								onChange={(e) => setStartsAt(e.target.value)}
+								onChange={setStartsAt}
+								placeholder="Fecha y hora de inicio"
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label>Fin</Label>
-							<Input
-								type="datetime-local"
+							<Label htmlFor="endsAt" required>
+								Fin
+							</Label>
+							<DateTimePicker
+								id="endsAt"
 								value={endsAt}
-								onChange={(e) => setEndsAt(e.target.value)}
+								onChange={setEndsAt}
+								placeholder="Fecha y hora de fin"
 							/>
 						</div>
 					</div>
 					<div className="space-y-2">
-						<Label>Lugar</Label>
-						<Input value={venue} onChange={(e) => setVenue(e.target.value)} />
+						<Label htmlFor="venue">Lugar</Label>
+						<Input
+							id="venue"
+							value={venue}
+							onChange={(e) => setVenue(e.target.value)}
+						/>
 					</div>
-					<Button
-						type="button"
-						onClick={() => save.mutate()}
-						disabled={save.isPending}
-					>
-						Guardar cambios
+					<Button type="submit" disabled={save.isPending}>
+						{save.isPending ? "Guardando…" : "Guardar cambios"}
 					</Button>
-				</CardContent>
-			</Card>
+				</form>
+			</section>
 
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-base">Banner</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
+			<section className="space-y-4">
+				<h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+					Banner
+				</h2>
+				<div className="island-shell space-y-4 rounded-xl p-8">
 					{ev.bannerUrl ? (
 						<img
 							src={ev.bannerUrl}
 							alt=""
-							className="max-h-48 rounded-lg border object-cover"
+							className="max-h-48 w-full rounded-lg border object-cover"
 						/>
-					) : null}
-					<Input
-						type="file"
-						accept="image/jpeg,image/png,image/webp"
-						onChange={(e) => {
-							const f = e.target.files?.[0];
-							if (f) banner.mutate(f);
-						}}
-					/>
-				</CardContent>
-			</Card>
+					) : (
+						<p className="text-sm text-muted-foreground">
+							Sin imagen. Sube un JPG, PNG o WebP para el catálogo.
+						</p>
+					)}
+					<div className="space-y-2">
+						<Label htmlFor="banner">Imagen del evento</Label>
+						<Input
+							id="banner"
+							type="file"
+							accept="image/jpeg,image/png,image/webp"
+							disabled={banner.isPending}
+							onChange={(e) => {
+								const f = e.target.files?.[0];
+								if (f) banner.mutate(f);
+							}}
+						/>
+					</div>
+				</div>
+			</section>
 
-			<div className="flex flex-wrap gap-2">
-				<Button
-					type="button"
-					variant="destructive"
-					onClick={() => setDeleteOpen(true)}
-				>
-					Eliminar
-				</Button>
+			<section className="space-y-4">
+				<div className="space-y-1">
+					<h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+						Categorías de entrada
+					</h2>
+					<p className="text-sm text-muted-foreground">
+						Define precio, stock y tipo para cada categoría. Puedes cambiar la
+						categoría después de crearla.
+					</p>
+				</div>
+
+				{ev.ticketTypes.length === 0 ? (
+					<div className="island-shell rounded-xl p-8 text-center text-sm text-muted-foreground">
+						Aún no hay categorías. Añade al menos una para vender entradas.
+					</div>
+				) : (
+					<ul className="space-y-3">
+						{ev.ticketTypes.map((t, index) => (
+							<li key={t.id}>
+								<TicketTypeEditor
+									ticketType={t}
+									defaultOpen={index === 0 && ev.ticketTypes.length === 1}
+									onUpdated={refetchTicketTypes}
+									onDelete={() => delTier.mutate(t.id)}
+									isDeleting={delTier.isPending}
+								/>
+							</li>
+						))}
+					</ul>
+				)}
+
+				<AddTicketTypeCollapsible
+					defaultOpen={ev.ticketTypes.length === 0}
+					tier={tier}
+					name={ttName}
+					price={ttPrice}
+					quantity={ttQty}
+					onTierChange={setTier}
+					onNameChange={setTtName}
+					onPriceChange={setTtPrice}
+					onQuantityChange={setTtQty}
+					canSubmit={canAddTier}
+					isPending={addTier.isPending}
+					onSubmit={() => addTier.mutate()}
+				/>
+			</section>
+
+			<section className="space-y-4 border-t pt-10">
+				<h2 className="text-sm font-medium tracking-wide text-destructive uppercase">
+					Zona peligrosa
+				</h2>
+				<div className="island-shell rounded-xl p-8">
+					<p className="text-sm text-muted-foreground">
+						Eliminar el evento borra también todas sus categorías de entrada. No
+						se puede deshacer.
+					</p>
+					<Button
+						type="button"
+						variant="destructive"
+						className="mt-4"
+						onClick={() => setDeleteOpen(true)}
+					>
+						Eliminar evento
+					</Button>
+				</div>
 				<Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
 					<DialogContent showCloseButton={false}>
 						<DialogHeader>
 							<DialogTitle>¿Eliminar este evento?</DialogTitle>
 							<DialogDescription>
-								Esta acción no se puede deshacer. Se eliminarán también los
-								tipos de entrada asociados.
+								Esta acción no se puede deshacer. Se eliminarán también las
+								categorías de entrada asociadas.
 							</DialogDescription>
 						</DialogHeader>
 						<DialogFooter>
@@ -338,95 +421,7 @@ function EditEventPage() {
 						</DialogFooter>
 					</DialogContent>
 				</Dialog>
-			</div>
-
-			<Separator />
-
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-base">Tipos de entrada</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-6">
-					<ul className="space-y-2 text-sm">
-						{ev.ticketTypes.map((t) => (
-							<li
-								key={t.id}
-								className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
-							>
-								<span>
-									{t.name} ({labelFor(ticketTierLabel, t.tier)}) —{" "}
-									{t.quantityRemaining}/{t.quantityTotal ?? "?"} disponibles
-								</span>
-								<Button
-									type="button"
-									variant="ghost"
-									size="sm"
-									className="text-destructive"
-									onClick={() => delTier.mutate(t.id)}
-								>
-									Eliminar
-								</Button>
-							</li>
-						))}
-					</ul>
-					<div className="grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
-						<div className="space-y-2 sm:col-span-2">
-							<Label>Categoría</Label>
-							<Select
-								value={tier}
-								onValueChange={(v) => setTier(v as TicketTier)}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="GENERAL">
-										{ticketTierLabel.GENERAL}
-									</SelectItem>
-									<SelectItem value="VIP">{ticketTierLabel.VIP}</SelectItem>
-									<SelectItem value="EARLY_BIRD">
-										{ticketTierLabel.EARLY_BIRD}
-									</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-						<div className="space-y-2">
-							<Label>Nombre</Label>
-							<Input
-								value={ttName}
-								onChange={(e) => setTtName(e.target.value)}
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label>Precio (USD)</Label>
-							<Input
-								type="number"
-								min={0}
-								step="0.01"
-								value={ttPrice}
-								onChange={(e) => setTtPrice(e.target.value)}
-							/>
-						</div>
-						<div className="space-y-2 sm:col-span-2">
-							<Label>Cantidad</Label>
-							<Input
-								type="number"
-								min={1}
-								value={ttQty}
-								onChange={(e) => setTtQty(e.target.value)}
-							/>
-						</div>
-						<Button
-							type="button"
-							className="sm:col-span-2"
-							onClick={() => addTier.mutate()}
-							disabled={!ttName.trim() || addTier.isPending}
-						>
-							Añadir tipo de entrada
-						</Button>
-					</div>
-				</CardContent>
-			</Card>
+			</section>
 		</div>
 	);
 }

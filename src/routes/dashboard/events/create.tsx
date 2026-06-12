@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "#/components/ui/button";
+import { DateTimePicker } from "#/components/ui/datetime-picker";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Textarea } from "#/components/ui/textarea";
@@ -94,7 +95,7 @@ function CreateEventPage() {
 				<form.Field name="title">
 					{(field) => (
 						<div className="space-y-2">
-							<Label>Título</Label>
+							<Label required>Título</Label>
 							<Input
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
@@ -134,11 +135,12 @@ function CreateEventPage() {
 					<form.Field name="startsAt">
 						{(field) => (
 							<div className="space-y-2">
-								<Label>Inicio</Label>
-								<Input
-									type="datetime-local"
+								<Label required>Inicio</Label>
+								<DateTimePicker
+									id="startsAt"
 									value={field.state.value}
-									onChange={(e) => field.handleChange(e.target.value)}
+									onChange={field.handleChange}
+									placeholder="Fecha y hora de inicio"
 								/>
 							</div>
 						)}
@@ -146,11 +148,12 @@ function CreateEventPage() {
 					<form.Field name="endsAt">
 						{(field) => (
 							<div className="space-y-2">
-								<Label>Fin</Label>
-								<Input
-									type="datetime-local"
+								<Label required>Fin</Label>
+								<DateTimePicker
+									id="endsAt"
 									value={field.state.value}
-									onChange={(e) => field.handleChange(e.target.value)}
+									onChange={field.handleChange}
+									placeholder="Fecha y hora de fin"
 								/>
 							</div>
 						)}
