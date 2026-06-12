@@ -81,7 +81,10 @@ export function getUserFacingErrorMessage(error: unknown): string {
 			lower.includes("load failed") ||
 			msg === "NetworkError when attempting to fetch resource."
 		) {
-			return "No pudimos conectar con la API de entradas. Verifica que el backend esté en ejecución, que VITE_API_BASE_URL en .env coincida con la URL del servidor (esquema, host y puerto) y que la API permita solicitudes desde el navegador (CORS).";
+			if (import.meta.env.DEV) {
+				return "No pudimos conectar con el servidor. Comprueba que el backend esté en ejecución y que VITE_API_BASE_URL en .env apunte a la URL correcta.";
+			}
+			return "No pudimos conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo en unos instantes.";
 		}
 		if (error.name === "AbortError") {
 			return "La solicitud fue cancelada.";

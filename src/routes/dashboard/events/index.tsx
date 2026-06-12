@@ -41,8 +41,8 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 			await qc.invalidateQueries({ queryKey: eventsKeys.all });
 			toast.success(
 				nextPublished
-					? "El evento ya es público"
-					: "El evento ahora es borrador",
+					? "Evento visible en el catálogo"
+					: "Evento oculto del catálogo",
 			);
 		},
 		onError: (e) =>
@@ -59,15 +59,15 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 				size="sm"
 				aria-label={
 					event.published
-						? "El evento es público — desactiva para ocultarlo del catálogo"
-						: "El evento es borrador — activa para publicarlo"
+						? "Visible en el catálogo — desactiva para ocultarlo"
+						: "Oculto del catálogo — activa para publicarlo"
 				}
 				onCheckedChange={(checked) => {
 					if (checked !== event.published) toggle.mutate(checked);
 				}}
 			/>
 			<Badge variant={event.published ? "default" : "secondary"}>
-				{event.published ? "Público" : "Borrador"}
+				{event.published ? "En catálogo" : "Oculto"}
 			</Badge>
 		</div>
 	);
@@ -92,8 +92,7 @@ function DashboardEventsList() {
 				<div>
 					<h1 className="display-title text-2xl font-semibold">Eventos</h1>
 					<p className="text-muted-foreground">
-						Todos los eventos (borrador y públicos). Usa el interruptor para
-						publicar u ocultar del catálogo.
+						Gestiona la visibilidad de cada evento en el catálogo público.
 					</p>
 				</div>
 				<Button asChild>
@@ -116,7 +115,7 @@ function DashboardEventsList() {
 						<TableHeader>
 							<TableRow>
 								<TableHead>Título</TableHead>
-								<TableHead>Slug</TableHead>
+								<TableHead>Enlace</TableHead>
 								<TableHead>Inicio</TableHead>
 								<TableHead>Visibilidad</TableHead>
 								<TableHead className="text-right">Acciones</TableHead>
@@ -126,7 +125,9 @@ function DashboardEventsList() {
 							{q.data.items.map((ev) => (
 								<TableRow key={ev.id}>
 									<TableCell className="font-medium">{ev.title}</TableCell>
-									<TableCell className="font-mono text-xs">{ev.slug}</TableCell>
+									<TableCell className="font-mono text-xs text-muted-foreground">
+										/events/{ev.slug}
+									</TableCell>
 									<TableCell className="text-sm text-muted-foreground">
 										{new Intl.DateTimeFormat("es", {
 											dateStyle: "short",

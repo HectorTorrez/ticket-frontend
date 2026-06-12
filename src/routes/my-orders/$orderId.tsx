@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
 import { fetchMyOrder } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
-import { labelFor, orderStatusLabel } from "#/lib/labels";
+import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/my-orders/$orderId")({
@@ -42,7 +42,7 @@ function OrderDetailPage() {
 					<Card>
 						<CardHeader>
 							<div className="flex items-center justify-between gap-2">
-								<CardTitle>Recibo</CardTitle>
+								<CardTitle>Recibo {formatOrderRef(q.data.id)}</CardTitle>
 								<Badge>{labelFor(orderStatusLabel, q.data.status)}</Badge>
 							</div>
 						</CardHeader>

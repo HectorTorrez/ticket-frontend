@@ -105,12 +105,16 @@ function CreateEventPage() {
 				<form.Field name="slug">
 					{(field) => (
 						<div className="space-y-2">
-							<Label>Slug (opcional)</Label>
+							<Label>Enlace personalizado (opcional)</Label>
 							<Input
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="se genera automáticamente si está vacío"
+								placeholder="mi-evento-especial"
 							/>
+							<p className="text-xs text-muted-foreground">
+								Se verá en /events/tu-enlace. Si lo dejas vacío, se genera
+								automáticamente a partir del título.
+							</p>
 						</div>
 					)}
 				</form.Field>
@@ -164,7 +168,7 @@ function CreateEventPage() {
 					)}
 				</form.Field>
 				<Button type="submit" disabled={mu.isPending}>
-					{mu.isPending ? "Guardando…" : "Crear borrador"}
+					{mu.isPending ? "Guardando…" : "Crear evento"}
 				</Button>
 			</form>
 		</div>

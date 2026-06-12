@@ -175,7 +175,7 @@ export async function fetchOrganizerEventDetail(id: string) {
 			if (e instanceof ApiError && e.statusCode === 403) {
 				throw new ApiError({
 					message:
-						"No se puede cargar el evento (se requiere un token ADMIN con acceso a GET /admin/events).",
+						"No tienes permiso para ver este evento. Inicia sesión como organizador.",
 					statusCode: 403,
 					code: "Prohibido",
 				});

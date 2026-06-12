@@ -15,7 +15,7 @@ import {
 	TableRow,
 } from "#/components/ui/table";
 import { fetchAdminOrders } from "#/lib/api/ticket-api";
-import { labelFor, orderStatusLabel } from "#/lib/labels";
+import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
 import { adminOrdersKeys } from "#/lib/query-keys";
 
 const searchSchema = z.object({
@@ -84,14 +84,14 @@ function AdminOrdersPage() {
 				</div>
 				<div className="space-y-1">
 					<label className="text-xs text-muted-foreground" htmlFor="uid">
-						ID de usuario
+						Correo o ID de cliente
 					</label>
 					<Input
 						id="uid"
 						name="userId"
 						defaultValue={userId ?? ""}
-						placeholder="UUID"
-						className="h-9 w-64 font-mono text-xs"
+						placeholder="cliente@ejemplo.com"
+						className="h-9 w-64 text-sm"
 					/>
 				</div>
 				<Button type="submit" size="sm" variant="secondary">
@@ -119,8 +119,8 @@ function AdminOrdersPage() {
 							<TableBody>
 								{q.data.items.map((o) => (
 									<TableRow key={o.id}>
-										<TableCell className="font-mono text-xs">
-											{o.id.slice(0, 8)}…
+										<TableCell className="text-sm font-medium">
+											{formatOrderRef(o.id)}
 										</TableCell>
 										<TableCell className="text-sm">{o.user.email}</TableCell>
 										<TableCell>

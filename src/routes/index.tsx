@@ -157,7 +157,7 @@ function HomePage() {
 				<div className="rise-in stagger-3 mb-8">
 					<p className="island-kicker">Para ambos lados</p>
 					<h2 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
-						Todo entre el listado y el escaneo
+						Para asistentes y organizadores
 					</h2>
 				</div>
 				<div className="grid gap-4 md:grid-cols-3">
@@ -165,7 +165,7 @@ function HomePage() {
 						{
 							icon: Radio,
 							title: "Inventario en vivo",
-							body: "Las actualizaciones por socket mantienen los cupos al día mientras los clientes navegan — sin sorpresas de agotado.",
+							body: "Los cupos se actualizan al instante mientras otros compran — sin sorpresas de agotado en el último momento.",
 						},
 						{
 							icon: ShieldCheck,

@@ -56,21 +56,20 @@ function ScannerPage() {
 	return (
 		<div className="mx-auto max-w-md space-y-8">
 			<div>
-				<h1 className="display-title text-2xl font-semibold">Control QR</h1>
+				<h1 className="display-title text-2xl font-semibold">Control de acceso</h1>
 				<p className="mt-1 text-sm text-muted-foreground">
-					Escanea el QR del asistente o pega el código / URL de verificación (
-					<code className="text-xs">/check/…</code>).
+					Escanea el código QR del asistente o introduce el código del pase manualmente.
 				</p>
 			</div>
 			<div className="island-shell space-y-6 rounded-xl p-8">
 				<QrCameraScanner onScan={handleScan} disabled={isPending} />
 				<div className="space-y-2">
-					<Label htmlFor="code">Código de entrada</Label>
+					<Label htmlFor="code">Código del pase</Label>
 					<Input
 						id="code"
 						value={code}
 						onChange={(e) => setCode(e.target.value)}
-						placeholder="escanear o pegar publicCode"
+						placeholder="Pega el código o el enlace del pase"
 						className="font-mono text-sm"
 						autoComplete="off"
 					/>

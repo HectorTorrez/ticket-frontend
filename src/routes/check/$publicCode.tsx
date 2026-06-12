@@ -11,7 +11,7 @@ import { Skeleton } from "#/components/ui/skeleton";
 import { ApiError } from "#/lib/api/errors";
 import { fetchPublicTicket, validateQrCode } from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
-import { labelFor, qrResultLabel, ticketStatusLabel, ticketTierLabel } from "#/lib/labels";
+import { labelFor, formatTicketCode, qrResultLabel, ticketStatusLabel, ticketTierLabel } from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/check/$publicCode")({
@@ -121,8 +121,9 @@ function CheckTicketPage() {
 									}).format(new Date(ticket.event.startsAt))}
 								</p>
 							</div>
-							<p className="break-all font-mono text-xs text-muted-foreground/80">
-								{ticket.publicCode}
+							<p className="text-xs text-muted-foreground">
+								Código del pase{" "}
+								<span className="font-mono">{formatTicketCode(ticket.publicCode)}</span>
 							</p>
 						</div>
 					</article>
@@ -132,7 +133,7 @@ function CheckTicketPage() {
 					<div className="island-shell space-y-4 rounded-xl p-6">
 						<div className="flex items-center gap-2 text-sm font-medium">
 							<ShieldCheck className="size-4 text-primary" />
-							Modo personal — {session?.user.email}
+							Personal autorizado — {session?.user.email}
 						</div>
 						{canCheckIn ? (
 							<>
@@ -191,7 +192,7 @@ function CheckTicketPage() {
 								search={{ redirect: `/check/${publicCode}` }}
 								className="font-medium text-primary underline-offset-4 hover:underline"
 							>
-								Inicia sesión como administrador
+								Inicia sesión como organizador
 							</Link>
 						</p>
 					</div>

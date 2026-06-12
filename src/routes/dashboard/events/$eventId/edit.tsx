@@ -96,8 +96,8 @@ function EditEventPage() {
 			await qc.invalidateQueries({ queryKey: eventsKeys.all });
 			toast.success(
 				nextPublished
-					? "El evento ya es público"
-					: "El evento ahora es borrador",
+					? "Evento visible en el catálogo"
+					: "Evento oculto del catálogo",
 			);
 			void q.refetch();
 		},
@@ -194,15 +194,16 @@ function EditEventPage() {
 								className="cursor-pointer text-sm leading-none font-normal"
 							>
 								{ev.published
-									? "Público (visible en el catálogo)"
-									: "Borrador (oculto del catálogo)"}
+									? "Visible en el catálogo"
+									: "Oculto del catálogo"}
 							</Label>
 						</div>
 						<Badge variant={ev.published ? "default" : "secondary"}>
-							{ev.published ? "Público" : "Borrador"}
+							{ev.published ? "En catálogo" : "Oculto"}
 						</Badge>
-						<span className="font-mono text-xs text-muted-foreground">
-							{ev.slug}
+						<span className="text-xs text-muted-foreground">
+							Página pública:{" "}
+							<span className="font-mono">/events/{ev.slug}</span>
 						</span>
 					</div>
 				</div>
@@ -288,7 +289,8 @@ function EditEventPage() {
 					type="button"
 					variant="destructive"
 					onClick={() => {
-						if (confirm("¿Eliminar este evento de forma suave?")) remove.mutate();
+						if (confirm("¿Eliminar este evento? Esta acción no se puede deshacer."))
+							remove.mutate();
 					}}
 				>
 					Eliminar

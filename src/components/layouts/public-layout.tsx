@@ -105,7 +105,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 								navLink("/my-orders", "Pedidos")}
 							{session &&
 								isAdmin(session) &&
-								navLink("/dashboard", "Panel")}
+								navLink("/dashboard", "Organizador")}
 						</nav>
 					</div>
 					<div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -143,7 +143,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 											<DropdownMenuItem asChild>
 												<Link to="/dashboard">
 													<LayoutDashboard className="mr-2 size-4" />
-													Panel
+													Panel de organizador
 												</Link>
 											</DropdownMenuItem>
 										)}
@@ -206,7 +206,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 										sheetNavLink("/my-orders", "Pedidos")}
 									{session &&
 										isAdmin(session) &&
-										sheetNavLink("/dashboard", "Panel")}
+										sheetNavLink("/dashboard", "Organizador")}
 								</nav>
 								<SheetFooter className="mt-auto border-t pt-4">
 									{session ? (
@@ -281,7 +281,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 					</div>
 					<div className="mt-8 wave-rule max-w-xs" />
 					<p className="mt-4 text-xs text-muted-foreground">
-						Reserva · paga · QR en la puerta
+						© {new Date().getFullYear()} Tide Tickets · Reserva · paga · entra con QR
 					</p>
 				</div>
 			</footer>

@@ -71,10 +71,10 @@ function DashboardHome() {
 			<div>
 				<h1 className="display-title text-2xl font-semibold">Resumen</h1>
 				<p className="mt-1 text-muted-foreground">
-					Instantánea en vivo de tu API Nest.
+					Métricas de ventas e inventario de tus eventos.
 				</p>
 				<Badge variant="outline" className="mt-3">
-					Administrador
+					Organizador
 				</Badge>
 			</div>
 			<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

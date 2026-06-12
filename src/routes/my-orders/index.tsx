@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
 import { fetchMyOrders } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
-import { labelFor, orderStatusLabel } from "#/lib/labels";
+import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
 
 const searchSchema = z.object({
@@ -104,8 +104,8 @@ function MyOrdersPage() {
 							<li key={o.id}>
 								<Card>
 									<CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-										<CardTitle className="text-base font-mono text-sm">
-											Pedido {o.id.slice(0, 8)}…
+										<CardTitle className="text-base">
+											Pedido {formatOrderRef(o.id)}
 										</CardTitle>
 										<Badge variant="outline">
 											{labelFor(orderStatusLabel, o.status)}

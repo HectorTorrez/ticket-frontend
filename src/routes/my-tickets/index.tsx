@@ -8,7 +8,6 @@ import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { TicketQrCode } from "#/components/ticket-qr-code";
 import { fetchMyTickets } from "#/lib/api/ticket-api";
-import { ticketCheckUrl } from "#/lib/ticket-code";
 import { requireCustomer } from "#/lib/auth/guards";
 import { labelFor, ticketStatusLabel, ticketTierLabel } from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
@@ -118,9 +117,6 @@ function MyTicketsPage() {
 													</p>
 												) : null}
 											</div>
-											<p className="break-all font-mono text-xs text-muted-foreground/80">
-												{t.publicCode}
-											</p>
 										</div>
 										<div className="flex shrink-0 flex-col items-center gap-2">
 											<div className="rounded-lg border-2 border-dashed border-primary/20 bg-white p-2">
@@ -138,12 +134,9 @@ function MyTicketsPage() {
 													to="/check/$publicCode"
 													params={{ publicCode: t.publicCode }}
 												>
-													Abrir pase
+													Ver pase completo
 												</Link>
 											</Button>
-											<p className="max-w-40 break-all text-center font-mono text-[0.6rem] text-muted-foreground/70">
-												{ticketCheckUrl(t.publicCode)}
-											</p>
 										</div>
 									</div>
 								</article>
