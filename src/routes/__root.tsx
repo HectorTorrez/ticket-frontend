@@ -29,7 +29,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "Tide Tickets — Digital events",
+				title: "Tide Tickets — Eventos digitales",
 			},
 		],
 		links: [
@@ -64,7 +64,7 @@ function RootLayout() {
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html lang="es" suppressHydrationWarning>
 			<head>
 				<HeadContent />
 			</head>

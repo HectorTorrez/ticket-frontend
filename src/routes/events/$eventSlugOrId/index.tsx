@@ -10,6 +10,7 @@ import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { fetchEventDetail } from "#/lib/api/ticket-api";
 import { getSession, isCustomer } from "#/lib/auth/session";
+import { labelFor, ticketTierLabel } from "#/lib/labels";
 import { eventsKeys } from "#/lib/query-keys";
 import { cn } from "#/lib/utils";
 import { useInventorySocket } from "#/routes/events/$eventSlugOrId/-hooks/use-inventory-socket";
@@ -70,7 +71,7 @@ function EventDetailPage() {
 			<PublicLayout>
 				<div className="page-wrap py-16">
 					<QueryErrorAlert
-						title="We couldn't load this event"
+						title="No pudimos cargar este evento"
 						error={q.error}
 					/>
 				</div>
@@ -82,7 +83,7 @@ function EventDetailPage() {
 		return (
 			<PublicLayout>
 				<div className="page-wrap py-16 text-muted-foreground">
-					Event not found.
+					Evento no encontrado.
 				</div>
 			</PublicLayout>
 		);
@@ -117,10 +118,10 @@ function EventDetailPage() {
 							<div className="flex flex-wrap items-center gap-2">
 								{ev.published ? (
 									<Badge className="bg-primary/10 text-primary hover:bg-primary/10">
-										On sale
+										En venta
 									</Badge>
 								) : (
-									<Badge variant="secondary">Unpublished</Badge>
+									<Badge variant="secondary">No publicado</Badge>
 								)}
 							</div>
 							<h1 className="display-title text-3xl font-semibold md:text-4xl">
@@ -129,11 +130,11 @@ function EventDetailPage() {
 							<div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
 								<span className="flex items-center gap-1.5">
 									<MapPin className="size-4 shrink-0 text-primary" />
-									{ev.venue ?? "Venue announced soon"}
+									{ev.venue ?? "Lugar por anunciar pronto"}
 								</span>
 								<span className="flex items-center gap-1.5">
 									<Calendar className="size-4 shrink-0 text-primary" />
-									{new Intl.DateTimeFormat(undefined, {
+									{new Intl.DateTimeFormat("es", {
 										dateStyle: "full",
 										timeStyle: "short",
 									}).format(new Date(ev.startsAt))}
@@ -154,10 +155,10 @@ function EventDetailPage() {
 					<aside className="rise-in stagger-2 lg:sticky lg:top-24">
 						<div className="ticket-edge island-shell rounded-xl p-6">
 							<h2 className="display-title text-lg font-semibold">
-								Select tickets
+								Seleccionar entradas
 							</h2>
 							<p className="mt-1 text-sm text-muted-foreground">
-								Counts update live as others shop.
+								Los cupos se actualizan en vivo mientras otros compran.
 							</p>
 
 							<ul className="mt-5 space-y-3">
@@ -175,7 +176,7 @@ function EventDetailPage() {
 												<div>
 													<p className="font-medium">{t.name}</p>
 													<p className="text-xs uppercase tracking-wide text-muted-foreground">
-														{t.tier}
+														{labelFor(ticketTierLabel, t.tier)}
 													</p>
 												</div>
 												<Badge
@@ -186,11 +187,11 @@ function EventDetailPage() {
 															: ""
 													}
 												>
-													{t.quantityRemaining} left
+													{t.quantityRemaining} disponibles
 												</Badge>
 											</div>
 											<p className="mt-2 text-lg font-semibold">
-												{new Intl.NumberFormat(undefined, {
+												{new Intl.NumberFormat("es", {
 													style: "currency",
 													currency: "USD",
 												}).format(Number(t.price))}
@@ -204,7 +205,7 @@ function EventDetailPage() {
 													onClick={() =>
 														setQuantity(t.id, (qty[t.id] ?? 0) - 1)
 													}
-													aria-label={`Decrease ${t.name} quantity`}
+													aria-label={`Disminuir cantidad de ${t.name}`}
 												>
 													<Minus className="size-4" />
 												</Button>
@@ -219,7 +220,7 @@ function EventDetailPage() {
 													onClick={() =>
 														setQuantity(t.id, (qty[t.id] ?? 0) + 1)
 													}
-													aria-label={`Increase ${t.name} quantity`}
+													aria-label={`Aumentar cantidad de ${t.name}`}
 												>
 													<Plus className="size-4" />
 												</Button>
@@ -233,7 +234,7 @@ function EventDetailPage() {
 								<div className="flex items-center justify-between text-sm">
 									<span className="text-muted-foreground">Subtotal</span>
 									<span className="text-lg font-semibold">
-										{new Intl.NumberFormat(undefined, {
+										{new Intl.NumberFormat("es", {
 											style: "currency",
 											currency: "USD",
 										}).format(total)}
@@ -259,14 +260,14 @@ function EventDetailPage() {
 										});
 									}}
 								>
-									Continue to checkout
+									Continuar al pago
 								</Button>
 								<Button
 									variant="ghost"
 									className="mt-2 w-full"
 									asChild
 								>
-									<Link to="/events">Back to events</Link>
+									<Link to="/events">Volver a eventos</Link>
 								</Button>
 							</div>
 						</div>

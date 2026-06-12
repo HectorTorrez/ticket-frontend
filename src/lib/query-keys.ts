@@ -44,6 +44,8 @@ export const adminOrdersKeys = {
 export const ticketsKeys = {
 	all: ["tickets"] as const,
 	mine: () => [...ticketsKeys.all, "mine"] as const,
+	public: (publicCode: string) =>
+		[...ticketsKeys.all, "public", publicCode] as const,
 };
 
 export const dashboardKeys = {

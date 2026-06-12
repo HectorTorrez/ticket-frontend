@@ -18,6 +18,7 @@ import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as MyOrdersOrderIdRouteImport } from './routes/my-orders/$orderId'
+import { Route as CheckPublicCodeRouteImport } from './routes/check/$publicCode'
 import { Route as EventsEventSlugOrIdIndexRouteImport } from './routes/events/$eventSlugOrId/index'
 import { Route as DashboardScannerIndexRouteImport } from './routes/dashboard/scanner/index'
 import { Route as DashboardOrdersIndexRouteImport } from './routes/dashboard/orders/index'
@@ -71,6 +72,11 @@ const MyOrdersOrderIdRoute = MyOrdersOrderIdRouteImport.update({
   path: '/my-orders/$orderId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckPublicCodeRoute = CheckPublicCodeRouteImport.update({
+  id: '/check/$publicCode',
+  path: '/check/$publicCode',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsEventSlugOrIdIndexRoute =
   EventsEventSlugOrIdIndexRouteImport.update({
     id: '/events/$eventSlugOrId/',
@@ -113,6 +119,7 @@ const DashboardEventsEventIdEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/events/': typeof EventsIndexRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
   '/dashboard': typeof DashboardIndexRoute
   '/events': typeof EventsIndexRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRouteRouteWithChildren
+  '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/events/': typeof EventsIndexRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/check/$publicCode'
     | '/my-orders/$orderId'
     | '/dashboard/'
     | '/events/'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/check/$publicCode'
     | '/my-orders/$orderId'
     | '/dashboard'
     | '/events'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/check/$publicCode'
     | '/my-orders/$orderId'
     | '/dashboard/'
     | '/events/'
@@ -223,6 +235,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
+  CheckPublicCodeRoute: typeof CheckPublicCodeRoute
   MyOrdersOrderIdRoute: typeof MyOrdersOrderIdRoute
   EventsIndexRoute: typeof EventsIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
@@ -296,6 +309,13 @@ declare module '@tanstack/react-router' {
       path: '/my-orders/$orderId'
       fullPath: '/my-orders/$orderId'
       preLoaderRoute: typeof MyOrdersOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/check/$publicCode': {
+      id: '/check/$publicCode'
+      path: '/check/$publicCode'
+      fullPath: '/check/$publicCode'
+      preLoaderRoute: typeof CheckPublicCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/$eventSlugOrId/': {
@@ -375,6 +395,7 @@ const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
+  CheckPublicCodeRoute: CheckPublicCodeRoute,
   MyOrdersOrderIdRoute: MyOrdersOrderIdRoute,
   EventsIndexRoute: EventsIndexRoute,
   LoginIndexRoute: LoginIndexRoute,

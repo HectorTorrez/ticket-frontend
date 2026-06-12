@@ -31,6 +31,7 @@ import {
 	unpublishEvent,
 	uploadEventBanner,
 } from "#/lib/api/ticket-api";
+import { labelFor, ticketTierLabel } from "#/lib/labels";
 import { eventsKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/dashboard/events/$eventId/edit")({
@@ -82,10 +83,10 @@ function EditEventPage() {
 			}),
 		onSuccess: async () => {
 			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success("Saved");
+			toast.success("Guardado");
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Save failed"),
+			toast.error(e instanceof ApiError ? e.message : "Error al guardar"),
 	});
 
 	const togglePublished = useMutation({
@@ -94,13 +95,15 @@ function EditEventPage() {
 		onSuccess: async (_data, nextPublished) => {
 			await qc.invalidateQueries({ queryKey: eventsKeys.all });
 			toast.success(
-				nextPublished ? "Event is now public" : "Event is now a draft",
+				nextPublished
+					? "El evento ya es público"
+					: "El evento ahora es borrador",
 			);
 			void q.refetch();
 		},
 		onError: (e) =>
 			toast.error(
-				e instanceof ApiError ? e.message : "Could not update visibility",
+				e instanceof ApiError ? e.message : "No se pudo actualizar la visibilidad",
 			),
 	});
 
@@ -108,21 +111,21 @@ function EditEventPage() {
 		mutationFn: () => deleteEvent(eventId),
 		onSuccess: async () => {
 			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success("Event deleted");
+			toast.success("Evento eliminado");
 			window.location.href = "/dashboard/events";
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Delete failed"),
+			toast.error(e instanceof ApiError ? e.message : "Error al eliminar"),
 	});
 
 	const banner = useMutation({
 		mutationFn: (file: File) => uploadEventBanner(eventId, file),
 		onSuccess: async () => {
 			void q.refetch();
-			toast.success("Banner updated");
+			toast.success("Banner actualizado");
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Upload failed"),
+			toast.error(e instanceof ApiError ? e.message : "Error al subir"),
 	});
 
 	const [tier, setTier] = useState<TicketTier>("GENERAL");
@@ -141,27 +144,29 @@ function EditEventPage() {
 		onSuccess: async () => {
 			void q.refetch();
 			setTtName("");
-			toast.success("Ticket type added");
+			toast.success("Tipo de entrada añadido");
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Could not add tier"),
+			toast.error(
+				e instanceof ApiError ? e.message : "No se pudo añadir la categoría",
+			),
 	});
 
 	const delTier = useMutation({
 		mutationFn: (id: string) => deleteTicketType(id),
 		onSuccess: async () => {
 			void q.refetch();
-			toast.success("Removed");
+			toast.success("Eliminado");
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Could not remove"),
+			toast.error(e instanceof ApiError ? e.message : "No se pudo eliminar"),
 	});
 
 	if (q.isPending) return <Skeleton className="h-96 rounded-xl" />;
 	if (q.isError || !q.data)
 		return (
 			<p className="text-destructive">
-				{(q.error as Error)?.message ?? "Not found"}
+				{(q.error as Error)?.message ?? "No encontrado"}
 			</p>
 		);
 
@@ -171,7 +176,7 @@ function EditEventPage() {
 		<div className="mx-auto max-w-3xl space-y-10">
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div>
-					<h1 className="display-title text-2xl font-semibold">Edit event</h1>
+					<h1 className="display-title text-2xl font-semibold">Editar evento</h1>
 					<div className="mt-2 flex flex-wrap items-center gap-3">
 						<div className="flex items-center gap-2">
 							<Switch
@@ -189,12 +194,12 @@ function EditEventPage() {
 								className="cursor-pointer text-sm leading-none font-normal"
 							>
 								{ev.published
-									? "Public (visible in catalog)"
-									: "Draft (hidden from catalog)"}
+									? "Público (visible en el catálogo)"
+									: "Borrador (oculto del catálogo)"}
 							</Label>
 						</div>
 						<Badge variant={ev.published ? "default" : "secondary"}>
-							{ev.published ? "Public" : "Draft"}
+							{ev.published ? "Público" : "Borrador"}
 						</Badge>
 						<span className="font-mono text-xs text-muted-foreground">
 							{ev.slug}
@@ -202,21 +207,21 @@ function EditEventPage() {
 					</div>
 				</div>
 				<Button variant="ghost" asChild>
-					<Link to="/dashboard/events">← All events</Link>
+					<Link to="/dashboard/events">← Todos los eventos</Link>
 				</Button>
 			</div>
 
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-base">Details</CardTitle>
+					<CardTitle className="text-base">Detalles</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="space-y-2">
-						<Label>Title</Label>
+						<Label>Título</Label>
 						<Input value={title} onChange={(e) => setTitle(e.target.value)} />
 					</div>
 					<div className="space-y-2">
-						<Label>Description</Label>
+						<Label>Descripción</Label>
 						<Textarea
 							rows={4}
 							value={description}
@@ -225,7 +230,7 @@ function EditEventPage() {
 					</div>
 					<div className="grid gap-4 sm:grid-cols-2">
 						<div className="space-y-2">
-							<Label>Starts</Label>
+							<Label>Inicio</Label>
 							<Input
 								type="datetime-local"
 								value={startsAt}
@@ -233,7 +238,7 @@ function EditEventPage() {
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label>Ends</Label>
+							<Label>Fin</Label>
 							<Input
 								type="datetime-local"
 								value={endsAt}
@@ -242,7 +247,7 @@ function EditEventPage() {
 						</div>
 					</div>
 					<div className="space-y-2">
-						<Label>Venue</Label>
+						<Label>Lugar</Label>
 						<Input value={venue} onChange={(e) => setVenue(e.target.value)} />
 					</div>
 					<Button
@@ -250,7 +255,7 @@ function EditEventPage() {
 						onClick={() => save.mutate()}
 						disabled={save.isPending}
 					>
-						Save changes
+						Guardar cambios
 					</Button>
 				</CardContent>
 			</Card>
@@ -283,10 +288,10 @@ function EditEventPage() {
 					type="button"
 					variant="destructive"
 					onClick={() => {
-						if (confirm("Soft-delete this event?")) remove.mutate();
+						if (confirm("¿Eliminar este evento de forma suave?")) remove.mutate();
 					}}
 				>
-					Delete
+					Eliminar
 				</Button>
 			</div>
 
@@ -294,7 +299,7 @@ function EditEventPage() {
 
 			<Card>
 				<CardHeader>
-					<CardTitle className="text-base">Ticket types</CardTitle>
+					<CardTitle className="text-base">Tipos de entrada</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					<ul className="space-y-2 text-sm">
@@ -304,8 +309,8 @@ function EditEventPage() {
 								className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
 							>
 								<span>
-									{t.name} ({t.tier}) — {t.quantityRemaining}/
-									{t.quantityTotal ?? "?"} left
+									{t.name} ({labelFor(ticketTierLabel, t.tier)}) —{" "}
+									{t.quantityRemaining}/{t.quantityTotal ?? "?"} disponibles
 								</span>
 								<Button
 									type="button"
@@ -314,14 +319,14 @@ function EditEventPage() {
 									className="text-destructive"
 									onClick={() => delTier.mutate(t.id)}
 								>
-									Remove
+									Eliminar
 								</Button>
 							</li>
 						))}
 					</ul>
 					<div className="grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
 						<div className="space-y-2 sm:col-span-2">
-							<Label>Tier</Label>
+							<Label>Categoría</Label>
 							<Select
 								value={tier}
 								onValueChange={(v) => setTier(v as TicketTier)}
@@ -330,21 +335,25 @@ function EditEventPage() {
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="GENERAL">GENERAL</SelectItem>
-									<SelectItem value="VIP">VIP</SelectItem>
-									<SelectItem value="EARLY_BIRD">EARLY_BIRD</SelectItem>
+									<SelectItem value="GENERAL">
+										{ticketTierLabel.GENERAL}
+									</SelectItem>
+									<SelectItem value="VIP">{ticketTierLabel.VIP}</SelectItem>
+									<SelectItem value="EARLY_BIRD">
+										{ticketTierLabel.EARLY_BIRD}
+									</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
 						<div className="space-y-2">
-							<Label>Name</Label>
+							<Label>Nombre</Label>
 							<Input
 								value={ttName}
 								onChange={(e) => setTtName(e.target.value)}
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label>Price (USD)</Label>
+							<Label>Precio (USD)</Label>
 							<Input
 								type="number"
 								min={0}
@@ -354,7 +363,7 @@ function EditEventPage() {
 							/>
 						</div>
 						<div className="space-y-2 sm:col-span-2">
-							<Label>Quantity</Label>
+							<Label>Cantidad</Label>
 							<Input
 								type="number"
 								min={1}
@@ -368,7 +377,7 @@ function EditEventPage() {
 							onClick={() => addTier.mutate()}
 							disabled={!ttName.trim() || addTier.isPending}
 						>
-							Add ticket type
+							Añadir tipo de entrada
 						</Button>
 					</div>
 				</CardContent>

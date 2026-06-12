@@ -22,17 +22,17 @@ export class AppErrorBoundary extends Component<Props, State> {
 				<div className="page-wrap py-20">
 					<div className="island-shell rounded-xl p-8">
 						<h1 className="display-title text-2xl font-semibold">
-							Something went wrong
+							Algo salió mal
 						</h1>
 						<p className="mt-2 text-muted-foreground">
-							{this.state.message ?? "An unexpected error occurred."}
+							{this.state.message ?? "Ocurrió un error inesperado."}
 						</p>
 						<Button
 							className="mt-6"
 							type="button"
 							onClick={() => window.location.reload()}
 						>
-							Reload page
+							Recargar página
 						</Button>
 					</div>
 				</div>

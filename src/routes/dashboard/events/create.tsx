@@ -13,11 +13,11 @@ import { createEvent } from "#/lib/api/ticket-api";
 import { eventsKeys } from "#/lib/query-keys";
 
 const schema = z.object({
-	title: z.string().min(2, "Title required"),
+	title: z.string().min(2, "El título es obligatorio"),
 	slug: z.string().optional(),
 	description: z.string().optional(),
-	startsAt: z.string().min(1, "Start required"),
-	endsAt: z.string().min(1, "End required"),
+	startsAt: z.string().min(1, "La fecha de inicio es obligatoria"),
+	endsAt: z.string().min(1, "La fecha de fin es obligatoria"),
 	venue: z.string().optional(),
 });
 
@@ -33,7 +33,7 @@ function CreateEventPage() {
 		mutationFn: (body: z.infer<typeof schema>) => createEvent(body),
 		onSuccess: async (ev) => {
 			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success("Event created");
+			toast.success("Evento creado");
 			void navigate({
 				to: "/dashboard/events/$eventId/edit",
 				params: { eventId: ev.id },
@@ -57,7 +57,7 @@ function CreateEventPage() {
 		onSubmit: async ({ value }) => {
 			const parsed = schema.safeParse(value);
 			if (!parsed.success) {
-				toast.error("Check the form");
+				toast.error("Revisa el formulario");
 				return;
 			}
 			const body = {
@@ -79,9 +79,9 @@ function CreateEventPage() {
 	return (
 		<div className="mx-auto max-w-xl space-y-8">
 			<div className="flex items-center justify-between gap-4">
-				<h1 className="display-title text-2xl font-semibold">Create event</h1>
+				<h1 className="display-title text-2xl font-semibold">Crear evento</h1>
 				<Button variant="ghost" asChild>
-					<Link to="/dashboard/events">Cancel</Link>
+					<Link to="/dashboard/events">Cancelar</Link>
 				</Button>
 			</div>
 			<form
@@ -94,7 +94,7 @@ function CreateEventPage() {
 				<form.Field name="title">
 					{(field) => (
 						<div className="space-y-2">
-							<Label>Title</Label>
+							<Label>Título</Label>
 							<Input
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
@@ -105,11 +105,11 @@ function CreateEventPage() {
 				<form.Field name="slug">
 					{(field) => (
 						<div className="space-y-2">
-							<Label>Slug (optional)</Label>
+							<Label>Slug (opcional)</Label>
 							<Input
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
-								placeholder="auto-generated if empty"
+								placeholder="se genera automáticamente si está vacío"
 							/>
 						</div>
 					)}
@@ -117,7 +117,7 @@ function CreateEventPage() {
 				<form.Field name="description">
 					{(field) => (
 						<div className="space-y-2">
-							<Label>Description</Label>
+							<Label>Descripción</Label>
 							<Textarea
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
@@ -130,7 +130,7 @@ function CreateEventPage() {
 					<form.Field name="startsAt">
 						{(field) => (
 							<div className="space-y-2">
-								<Label>Starts at</Label>
+								<Label>Inicio</Label>
 								<Input
 									type="datetime-local"
 									value={field.state.value}
@@ -142,7 +142,7 @@ function CreateEventPage() {
 					<form.Field name="endsAt">
 						{(field) => (
 							<div className="space-y-2">
-								<Label>Ends at</Label>
+								<Label>Fin</Label>
 								<Input
 									type="datetime-local"
 									value={field.state.value}
@@ -155,7 +155,7 @@ function CreateEventPage() {
 				<form.Field name="venue">
 					{(field) => (
 						<div className="space-y-2">
-							<Label>Venue</Label>
+							<Label>Lugar</Label>
 							<Input
 								value={field.state.value}
 								onChange={(e) => field.handleChange(e.target.value)}
@@ -164,7 +164,7 @@ function CreateEventPage() {
 					)}
 				</form.Field>
 				<Button type="submit" disabled={mu.isPending}>
-					{mu.isPending ? "Saving…" : "Create draft"}
+					{mu.isPending ? "Guardando…" : "Crear borrador"}
 				</Button>
 			</form>
 		</div>

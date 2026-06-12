@@ -15,6 +15,7 @@ import {
 	TableRow,
 } from "#/components/ui/table";
 import { fetchAdminOrders } from "#/lib/api/ticket-api";
+import { labelFor, orderStatusLabel } from "#/lib/labels";
 import { adminOrdersKeys } from "#/lib/query-keys";
 
 const searchSchema = z.object({
@@ -42,9 +43,9 @@ function AdminOrdersPage() {
 	return (
 		<div className="space-y-8">
 			<div>
-				<h1 className="display-title text-2xl font-semibold">All orders</h1>
+				<h1 className="display-title text-2xl font-semibold">Todos los pedidos</h1>
 				<p className="text-muted-foreground">
-					Every customer reservation and purchase
+					Todas las reservas y compras de clientes
 				</p>
 			</div>
 
@@ -65,7 +66,7 @@ function AdminOrdersPage() {
 			>
 				<div className="space-y-1">
 					<label className="text-xs text-muted-foreground" htmlFor="st">
-						Status
+						Estado
 					</label>
 					<select
 						id="st"
@@ -73,17 +74,17 @@ function AdminOrdersPage() {
 						defaultValue={status ?? ""}
 						className="h-9 rounded-md border border-input bg-background px-2 text-sm"
 					>
-						<option value="">All</option>
-						<option value="PENDING">PENDING</option>
-						<option value="PAID">PAID</option>
-						<option value="FAILED">FAILED</option>
-						<option value="EXPIRED">EXPIRED</option>
-						<option value="CANCELLED">CANCELLED</option>
+						<option value="">Todos</option>
+						<option value="PENDING">{orderStatusLabel.PENDING}</option>
+						<option value="PAID">{orderStatusLabel.PAID}</option>
+						<option value="FAILED">{orderStatusLabel.FAILED}</option>
+						<option value="EXPIRED">{orderStatusLabel.EXPIRED}</option>
+						<option value="CANCELLED">{orderStatusLabel.CANCELLED}</option>
 					</select>
 				</div>
 				<div className="space-y-1">
 					<label className="text-xs text-muted-foreground" htmlFor="uid">
-						User ID
+						ID de usuario
 					</label>
 					<Input
 						id="uid"
@@ -94,7 +95,7 @@ function AdminOrdersPage() {
 					/>
 				</div>
 				<Button type="submit" size="sm" variant="secondary">
-					Apply
+					Aplicar
 				</Button>
 			</form>
 
@@ -109,9 +110,9 @@ function AdminOrdersPage() {
 						<Table>
 							<TableHeader>
 								<TableRow>
-									<TableHead>Order</TableHead>
-									<TableHead>Customer</TableHead>
-									<TableHead>Status</TableHead>
+									<TableHead>Pedido</TableHead>
+									<TableHead>Cliente</TableHead>
+									<TableHead>Estado</TableHead>
 									<TableHead className="text-right">Total</TableHead>
 								</TableRow>
 							</TableHeader>
@@ -123,10 +124,12 @@ function AdminOrdersPage() {
 										</TableCell>
 										<TableCell className="text-sm">{o.user.email}</TableCell>
 										<TableCell>
-											<Badge variant="outline">{o.status}</Badge>
+											<Badge variant="outline">
+												{labelFor(orderStatusLabel, o.status)}
+											</Badge>
 										</TableCell>
 										<TableCell className="text-right">
-											{new Intl.NumberFormat(undefined, {
+											{new Intl.NumberFormat("es", {
 												style: "currency",
 												currency: o.currency,
 											}).format(Number(o.totalAmount))}
@@ -145,7 +148,7 @@ function AdminOrdersPage() {
 								navigate({ search: { ...search, page: page - 1 } })
 							}
 						>
-							Previous
+							Anterior
 						</Button>
 						<Button
 							type="button"
@@ -155,14 +158,16 @@ function AdminOrdersPage() {
 								navigate({ search: { ...search, page: page + 1 } })
 							}
 						>
-							Next
+							Siguiente
 						</Button>
 					</div>
 				</>
 			) : null}
 
 			{q.data && q.data.items.length === 0 ? (
-				<p className="text-muted-foreground">No orders match filters.</p>
+				<p className="text-muted-foreground">
+					Ningún pedido coincide con los filtros.
+				</p>
 			) : null}
 		</div>
 	);

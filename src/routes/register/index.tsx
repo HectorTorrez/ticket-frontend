@@ -13,8 +13,8 @@ import { registerRequest } from "#/lib/api/ticket-api";
 import { getSession, setSession } from "#/lib/auth/session";
 
 const registerSchema = z.object({
-	email: z.string().email("Valid email required"),
-	password: z.string().min(8, "At least 8 characters"),
+	email: z.string().email("Se requiere un correo válido"),
+	password: z.string().min(8, "Al menos 8 caracteres"),
 });
 
 export const Route = createFileRoute("/register/")({
@@ -50,7 +50,7 @@ function RegisterPage() {
 				window.location.href = data.user.role === "ADMIN" ? "/dashboard" : "/";
 			} catch (e) {
 				if (e instanceof ApiError) setFormError(e.message);
-				else setFormError("Could not register");
+				else setFormError("No se pudo registrar la cuenta");
 			}
 		},
 	});
@@ -58,7 +58,7 @@ function RegisterPage() {
 	if (!hydrated) {
 		return (
 			<PublicLayout>
-				<div className="page-wrap py-16">Loading…</div>
+				<div className="page-wrap py-16">Cargando…</div>
 			</PublicLayout>
 		);
 	}
@@ -72,10 +72,11 @@ function RegisterPage() {
 							<UserPlus className="size-6" />
 						</div>
 						<h1 className="display-title text-3xl font-semibold">
-							Create an account
+							Crear una cuenta
 						</h1>
 						<p className="mt-2 text-muted-foreground">
-							Buy tickets, track orders, and keep passes in your wallet.
+							Compra entradas, sigue tus pedidos y guarda tus pases en la
+							cartera.
 						</p>
 					</div>
 					<form
@@ -89,15 +90,15 @@ function RegisterPage() {
 							name="email"
 							validators={{
 								onChange: ({ value }) =>
-									z.string().email("Valid email required").safeParse(value)
+									z.string().email("Se requiere un correo válido").safeParse(value)
 										.success
 										? undefined
-										: "Valid email required",
+										: "Se requiere un correo válido",
 							}}
 						>
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor="reg-email">Email</Label>
+									<Label htmlFor="reg-email">Correo electrónico</Label>
 									<Input
 										id="reg-email"
 										type="email"
@@ -118,12 +119,12 @@ function RegisterPage() {
 							name="password"
 							validators={{
 								onChange: ({ value }) =>
-									value.length >= 8 ? undefined : "At least 8 characters",
+									value.length >= 8 ? undefined : "Al menos 8 caracteres",
 							}}
 						>
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor="reg-password">Password</Label>
+									<Label htmlFor="reg-password">Contraseña</Label>
 									<Input
 										id="reg-password"
 										type="password"
@@ -144,16 +145,16 @@ function RegisterPage() {
 							<p className="text-sm text-destructive">{formError}</p>
 						) : null}
 						<Button type="submit" className="w-full" size="lg">
-							Create account
+							Crear cuenta
 						</Button>
 					</form>
 					<p className="text-center text-sm text-muted-foreground">
-						Already have an account?{" "}
+						¿Ya tienes cuenta?{" "}
 						<Link
 							to="/login"
 							className="font-medium text-primary underline-offset-4 hover:underline"
 						>
-							Sign in
+							Inicia sesión
 						</Link>
 					</p>
 				</div>

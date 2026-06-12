@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
 import { fetchMyOrders } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
+import { labelFor, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
 
 const searchSchema = z.object({
@@ -41,10 +42,10 @@ function MyOrdersPage() {
 				<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 					<div>
 						<h1 className="display-title text-3xl font-semibold">
-							Order history
+							Historial de pedidos
 						</h1>
 						<p className="mt-1 text-muted-foreground">
-							Reservations and purchases on your account.
+							Reservas y compras en tu cuenta.
 						</p>
 					</div>
 					<form
@@ -67,15 +68,19 @@ function MyOrdersPage() {
 							defaultValue={status ?? ""}
 							className="h-9 rounded-md border border-input bg-background px-2 text-sm"
 						>
-							<option value="">All statuses</option>
-							<option value="PENDING">PENDING</option>
-							<option value="PAID">PAID</option>
-							<option value="FAILED">FAILED</option>
-							<option value="EXPIRED">EXPIRED</option>
-							<option value="CANCELLED">CANCELLED</option>
+							<option value="">Todos los estados</option>
+							<option value="PENDING">
+								{orderStatusLabel.PENDING}
+							</option>
+							<option value="PAID">{orderStatusLabel.PAID}</option>
+							<option value="FAILED">{orderStatusLabel.FAILED}</option>
+							<option value="EXPIRED">{orderStatusLabel.EXPIRED}</option>
+							<option value="CANCELLED">
+								{orderStatusLabel.CANCELLED}
+							</option>
 						</select>
 						<Button type="submit" size="sm" variant="secondary">
-							Filter
+							Filtrar
 						</Button>
 					</form>
 				</div>
@@ -88,7 +93,7 @@ function MyOrdersPage() {
 				{q.data && q.data.items.length === 0 ? (
 					<Card>
 						<CardContent className="py-12 text-center text-muted-foreground">
-							No orders yet.
+							Aún no tienes pedidos.
 						</CardContent>
 					</Card>
 				) : null}
@@ -100,13 +105,15 @@ function MyOrdersPage() {
 								<Card>
 									<CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
 										<CardTitle className="text-base font-mono text-sm">
-											Order {o.id.slice(0, 8)}…
+											Pedido {o.id.slice(0, 8)}…
 										</CardTitle>
-										<Badge variant="outline">{o.status}</Badge>
+										<Badge variant="outline">
+											{labelFor(orderStatusLabel, o.status)}
+										</Badge>
 									</CardHeader>
 									<CardContent className="space-y-3 text-sm">
 										<p className="text-lg font-semibold">
-											{new Intl.NumberFormat(undefined, {
+											{new Intl.NumberFormat("es", {
 												style: "currency",
 												currency: o.currency,
 											}).format(Number(o.totalAmount))}
@@ -120,7 +127,7 @@ function MyOrdersPage() {
 										</ul>
 										<Button variant="link" className="h-auto p-0" asChild>
 											<Link to="/my-orders/$orderId" params={{ orderId: o.id }}>
-												View receipt
+												Ver recibo
 											</Link>
 										</Button>
 									</CardContent>
@@ -140,7 +147,7 @@ function MyOrdersPage() {
 								navigate({ search: { ...search, page: page - 1 } })
 							}
 						>
-							Previous
+							Anterior
 						</Button>
 						<Button
 							type="button"
@@ -150,7 +157,7 @@ function MyOrdersPage() {
 								navigate({ search: { ...search, page: page + 1 } })
 							}
 						>
-							Next
+							Siguiente
 						</Button>
 					</div>
 				) : null}

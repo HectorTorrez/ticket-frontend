@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
 import { fetchMyOrder } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
+import { labelFor, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/my-orders/$orderId")({
@@ -29,7 +30,7 @@ function OrderDetailPage() {
 		<PublicLayout>
 			<div className="page-wrap max-w-2xl space-y-8 py-12">
 				<Button variant="ghost" asChild>
-					<Link to="/my-orders">← Orders</Link>
+					<Link to="/my-orders">← Pedidos</Link>
 				</Button>
 
 				{q.isPending ? <Skeleton className="h-56 rounded-xl" /> : null}
@@ -41,13 +42,13 @@ function OrderDetailPage() {
 					<Card>
 						<CardHeader>
 							<div className="flex items-center justify-between gap-2">
-								<CardTitle>Receipt</CardTitle>
-								<Badge>{q.data.status}</Badge>
+								<CardTitle>Recibo</CardTitle>
+								<Badge>{labelFor(orderStatusLabel, q.data.status)}</Badge>
 							</div>
 						</CardHeader>
 						<CardContent className="space-y-6">
 							<p className="text-3xl font-semibold">
-								{new Intl.NumberFormat(undefined, {
+								{new Intl.NumberFormat("es", {
 									style: "currency",
 									currency: q.data.currency,
 								}).format(Number(q.data.totalAmount))}
@@ -62,7 +63,7 @@ function OrderDetailPage() {
 											{l.ticketType.name} × {l.quantity}
 										</span>
 										<span className="text-muted-foreground">
-											{new Intl.NumberFormat(undefined, {
+											{new Intl.NumberFormat("es", {
 												style: "currency",
 												currency: q.data.currency,
 											}).format(Number(l.unitPrice) * l.quantity)}
@@ -72,12 +73,16 @@ function OrderDetailPage() {
 							</ul>
 							{q.data.paidAt ? (
 								<p className="text-sm text-muted-foreground">
-									Paid {q.data.paidAt}
+									Pagado el{" "}
+									{new Intl.DateTimeFormat("es", {
+										dateStyle: "medium",
+										timeStyle: "short",
+									}).format(new Date(q.data.paidAt))}
 								</p>
 							) : null}
 							{q.data.status === "PAID" ? (
 								<Button asChild>
-									<Link to="/my-tickets">View my tickets</Link>
+									<Link to="/my-tickets">Ver mis entradas</Link>
 								</Button>
 							) : null}
 						</CardContent>

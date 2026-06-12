@@ -13,19 +13,25 @@ import { loginRequest } from "#/lib/api/ticket-api";
 import { getSession, setSession } from "#/lib/auth/session";
 
 const loginSchema = z.object({
-	email: z.string().email("Valid email required"),
-	password: z.string().min(8, "At least 8 characters"),
+	email: z.string().email("Se requiere un correo válido"),
+	password: z.string().min(8, "Al menos 8 caracteres"),
 });
 
 export const Route = createFileRoute("/login/")({
 	validateSearch: z.object({
 		redirect: z.string().optional(),
 	}),
-	beforeLoad: () => {
+	beforeLoad: ({ search }) => {
 		const s = getSession();
 		if (!s) return;
-		if (s.user.role === "ADMIN") throw redirect({ to: "/dashboard" });
-		throw redirect({ to: "/" });
+		const safeRedirect =
+			search.redirect?.startsWith("/") && !search.redirect.startsWith("//")
+				? search.redirect
+				: null;
+		if (s.user.role === "ADMIN") {
+			throw redirect({ to: safeRedirect ?? "/dashboard" });
+		}
+		throw redirect({ to: safeRedirect ?? "/" });
 	},
 	component: LoginPage,
 });
@@ -60,7 +66,7 @@ function LoginPage() {
 				window.location.href = target;
 			} catch (e) {
 				if (e instanceof ApiError) setFormError(e.message);
-				else setFormError("Could not sign in");
+				else setFormError("No se pudo iniciar sesión");
 			}
 		},
 	});
@@ -68,7 +74,7 @@ function LoginPage() {
 	if (!hydrated) {
 		return (
 			<PublicLayout>
-				<div className="page-wrap py-16">Loading…</div>
+				<div className="page-wrap py-16">Cargando…</div>
 			</PublicLayout>
 		);
 	}
@@ -82,10 +88,10 @@ function LoginPage() {
 							<LogIn className="size-6" />
 						</div>
 						<h1 className="display-title text-3xl font-semibold">
-							Welcome back
+							Bienvenido de nuevo
 						</h1>
 						<p className="mt-2 text-muted-foreground">
-							Sign in to reserve tickets and view your passes.
+							Inicia sesión para reservar entradas y ver tus pases.
 						</p>
 					</div>
 					<form
@@ -99,15 +105,15 @@ function LoginPage() {
 							name="email"
 							validators={{
 								onChange: ({ value }) =>
-									z.string().email("Valid email required").safeParse(value)
+									z.string().email("Se requiere un correo válido").safeParse(value)
 										.success
 										? undefined
-										: "Valid email required",
+										: "Se requiere un correo válido",
 							}}
 						>
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor="email">Email</Label>
+									<Label htmlFor="email">Correo electrónico</Label>
 									<Input
 										id="email"
 										type="email"
@@ -128,12 +134,12 @@ function LoginPage() {
 							name="password"
 							validators={{
 								onChange: ({ value }) =>
-									value.length >= 8 ? undefined : "At least 8 characters",
+									value.length >= 8 ? undefined : "Al menos 8 caracteres",
 							}}
 						>
 							{(field) => (
 								<div className="space-y-2">
-									<Label htmlFor="password">Password</Label>
+									<Label htmlFor="password">Contraseña</Label>
 									<Input
 										id="password"
 										type="password"
@@ -154,16 +160,16 @@ function LoginPage() {
 							<p className="text-sm text-destructive">{formError}</p>
 						) : null}
 						<Button type="submit" className="w-full" size="lg">
-							Sign in
+							Iniciar sesión
 						</Button>
 					</form>
 					<p className="text-center text-sm text-muted-foreground">
-						No account?{" "}
+						¿No tienes cuenta?{" "}
 						<Link
 							to="/register"
 							className="font-medium text-primary underline-offset-4 hover:underline"
 						>
-							Create one
+							Crea una
 						</Link>
 					</p>
 				</div>

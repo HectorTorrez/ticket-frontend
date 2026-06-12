@@ -17,10 +17,10 @@ import {
 import { cn } from "#/lib/utils";
 
 const links = [
-	{ to: "/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
-	{ to: "/dashboard/events", label: "Events", icon: CalendarSearch },
-	{ to: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
-	{ to: "/dashboard/scanner", label: "Scanner", icon: QrCode },
+	{ to: "/dashboard", label: "Resumen", icon: LayoutDashboard, end: true },
+	{ to: "/dashboard/events", label: "Eventos", icon: CalendarSearch },
+	{ to: "/dashboard/orders", label: "Pedidos", icon: ShoppingBag },
+	{ to: "/dashboard/scanner", label: "Escáner", icon: QrCode },
 ] as const;
 
 type DashboardLayoutProps = {
@@ -93,14 +93,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 								variant="ghost"
 								size="icon"
 								className="lg:hidden"
-								aria-label="Open menu"
+								aria-label="Abrir menú"
 							>
 								<Menu className="size-5" />
 							</Button>
 						</SheetTrigger>
 						<SheetContent side="left" className="w-64 p-0">
 							<div className="flex h-14 items-center border-b px-4 font-semibold">
-								Menu
+								Menú
 							</div>
 							<NavMobile />
 						</SheetContent>
@@ -110,7 +110,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 							to="/"
 							className="text-sm text-muted-foreground hover:text-foreground"
 						>
-							← Back to site
+							← Volver al sitio
 						</Link>
 						<ModeToggle />
 					</div>

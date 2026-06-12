@@ -45,7 +45,7 @@ export function errorMessageFromBody(body: ApiErrorBody): string {
 	const m = body.message;
 	if (Array.isArray(m)) return m.join(", ");
 	if (typeof m === "string") return m;
-	return "Request failed";
+	return "La solicitud falló";
 }
 
 export function toApiError(status: number, body: unknown): ApiError {
@@ -62,11 +62,11 @@ export function toApiError(status: number, body: unknown): ApiError {
 	return new ApiError({
 		message: `HTTP ${status}`,
 		statusCode: status,
-		code: "Unknown",
+		code: "Desconocido",
 	});
 }
 
-/** User-visible copy for TanStack Query / fetch failures (avoids raw "Failed to fetch"). */
+/** Mensajes visibles para el usuario en fallos de TanStack Query / fetch. */
 export function getUserFacingErrorMessage(error: unknown): string {
 	if (error instanceof ApiError) {
 		return error.message;
@@ -81,12 +81,12 @@ export function getUserFacingErrorMessage(error: unknown): string {
 			lower.includes("load failed") ||
 			msg === "NetworkError when attempting to fetch resource."
 		) {
-			return "We could not reach the ticketing API. Check that your backend is running, that VITE_API_BASE_URL in .env matches the server URL (scheme, host, and port), and that the API allows browser requests (CORS).";
+			return "No pudimos conectar con la API de entradas. Verifica que el backend esté en ejecución, que VITE_API_BASE_URL en .env coincida con la URL del servidor (esquema, host y puerto) y que la API permita solicitudes desde el navegador (CORS).";
 		}
 		if (error.name === "AbortError") {
-			return "The request was cancelled.";
+			return "La solicitud fue cancelada.";
 		}
 		return msg;
 	}
-	return "Something went wrong. Please try again.";
+	return "Algo salió mal. Por favor, inténtalo de nuevo.";
 }

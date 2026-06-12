@@ -40,12 +40,14 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 		onSuccess: async (_data, nextPublished) => {
 			await qc.invalidateQueries({ queryKey: eventsKeys.all });
 			toast.success(
-				nextPublished ? "Event is now public" : "Event is now a draft",
+				nextPublished
+					? "El evento ya es público"
+					: "El evento ahora es borrador",
 			);
 		},
 		onError: (e) =>
 			toast.error(
-				e instanceof ApiError ? e.message : "Could not update visibility",
+				e instanceof ApiError ? e.message : "No se pudo actualizar la visibilidad",
 			),
 	});
 
@@ -57,15 +59,15 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 				size="sm"
 				aria-label={
 					event.published
-						? "Event is public — switch off to hide from catalog"
-						: "Event is draft — switch on to publish"
+						? "El evento es público — desactiva para ocultarlo del catálogo"
+						: "El evento es borrador — activa para publicarlo"
 				}
 				onCheckedChange={(checked) => {
 					if (checked !== event.published) toggle.mutate(checked);
 				}}
 			/>
 			<Badge variant={event.published ? "default" : "secondary"}>
-				{event.published ? "Public" : "Draft"}
+				{event.published ? "Público" : "Borrador"}
 			</Badge>
 		</div>
 	);
@@ -88,14 +90,14 @@ function DashboardEventsList() {
 		<div className="space-y-8">
 			<div className="flex flex-wrap items-center justify-between gap-4">
 				<div>
-					<h1 className="display-title text-2xl font-semibold">Events</h1>
+					<h1 className="display-title text-2xl font-semibold">Eventos</h1>
 					<p className="text-muted-foreground">
-						All events (draft and public). Toggle the switch to publish or hide
-						from the catalog.
+						Todos los eventos (borrador y públicos). Usa el interruptor para
+						publicar u ocultar del catálogo.
 					</p>
 				</div>
 				<Button asChild>
-					<Link to="/dashboard/events/create">Create event</Link>
+					<Link to="/dashboard/events/create">Crear evento</Link>
 				</Button>
 			</div>
 
@@ -105,7 +107,7 @@ function DashboardEventsList() {
 			) : null}
 
 			{q.data && q.data.items.length === 0 ? (
-				<p className="text-muted-foreground">No events yet.</p>
+				<p className="text-muted-foreground">Aún no hay eventos.</p>
 			) : null}
 
 			{q.data && q.data.items.length > 0 ? (
@@ -113,11 +115,11 @@ function DashboardEventsList() {
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>Title</TableHead>
+								<TableHead>Título</TableHead>
 								<TableHead>Slug</TableHead>
-								<TableHead>Starts</TableHead>
-								<TableHead>Visibility</TableHead>
-								<TableHead className="text-right">Actions</TableHead>
+								<TableHead>Inicio</TableHead>
+								<TableHead>Visibilidad</TableHead>
+								<TableHead className="text-right">Acciones</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -126,7 +128,7 @@ function DashboardEventsList() {
 									<TableCell className="font-medium">{ev.title}</TableCell>
 									<TableCell className="font-mono text-xs">{ev.slug}</TableCell>
 									<TableCell className="text-sm text-muted-foreground">
-										{new Intl.DateTimeFormat(undefined, {
+										{new Intl.DateTimeFormat("es", {
 											dateStyle: "short",
 										}).format(new Date(ev.startsAt))}
 									</TableCell>
@@ -139,7 +141,7 @@ function DashboardEventsList() {
 												to="/dashboard/events/$eventId/edit"
 												params={{ eventId: ev.id }}
 											>
-												Edit
+												Editar
 											</Link>
 										</Button>
 									</TableCell>

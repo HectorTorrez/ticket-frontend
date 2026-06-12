@@ -96,16 +96,16 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 							</span>
 						</Link>
 						<nav className="hidden items-center gap-1 md:flex">
-							{navLink("/events", "Events")}
+							{navLink("/events", "Eventos")}
 							{session &&
 								session.user.role === "CUSTOMER" &&
-								navLink("/my-tickets", "My tickets")}
+								navLink("/my-tickets", "Mis entradas")}
 							{session &&
 								session.user.role === "CUSTOMER" &&
-								navLink("/my-orders", "Orders")}
+								navLink("/my-orders", "Pedidos")}
 							{session &&
 								isAdmin(session) &&
-								navLink("/dashboard", "Dashboard")}
+								navLink("/dashboard", "Panel")}
 						</nav>
 					</div>
 					<div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -121,20 +121,20 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 										</Button>
 									</DropdownMenuTrigger>
 									<DropdownMenuContent align="end" className="w-56">
-										<DropdownMenuLabel>Account</DropdownMenuLabel>
+										<DropdownMenuLabel>Cuenta</DropdownMenuLabel>
 										<DropdownMenuSeparator />
 										{session.user.role === "CUSTOMER" && (
 											<>
 												<DropdownMenuItem asChild>
 													<Link to="/my-tickets">
 														<Ticket className="mr-2 size-4" />
-														My tickets
+														Mis entradas
 													</Link>
 												</DropdownMenuItem>
 												<DropdownMenuItem asChild>
 													<Link to="/my-orders">
 														<CalendarDays className="mr-2 size-4" />
-														Order history
+														Historial de pedidos
 													</Link>
 												</DropdownMenuItem>
 											</>
@@ -143,13 +143,13 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 											<DropdownMenuItem asChild>
 												<Link to="/dashboard">
 													<LayoutDashboard className="mr-2 size-4" />
-													Dashboard
+													Panel
 												</Link>
 											</DropdownMenuItem>
 										)}
 										<DropdownMenuSeparator />
 										<DropdownMenuItem onClick={() => void signOut()}>
-											Log out
+											Cerrar sesión
 										</DropdownMenuItem>
 									</DropdownMenuContent>
 								</DropdownMenu>
@@ -158,13 +158,13 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 									<Button variant="ghost" size="sm" asChild>
 										<Link to="/login" className="gap-1.5">
 											<LogIn className="size-4" />
-											Log in
+											Iniciar sesión
 										</Link>
 									</Button>
 									<Button size="sm" asChild>
 										<Link to="/register" className="gap-1.5">
 											<UserPlus className="size-4" />
-											Register
+											Registrarse
 										</Link>
 									</Button>
 								</>
@@ -176,7 +176,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 									variant="outline"
 									size="icon"
 									className="md:hidden"
-									aria-label="Open menu"
+									aria-label="Abrir menú"
 								>
 									<Menu className="size-5" />
 								</Button>
@@ -188,25 +188,25 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 								<SheetHeader className="text-left">
 									<SheetTitle className="flex items-center gap-2">
 										<BrandMark />
-										Menu
+										Menú
 									</SheetTitle>
 									{session ? (
 										<SheetDescription className="truncate">
-											Signed in as {session.user.email}
+											Sesión iniciada como {session.user.email}
 										</SheetDescription>
 									) : null}
 								</SheetHeader>
 								<nav className="flex flex-col px-2 pb-2">
-									{sheetNavLink("/events", "Events")}
+									{sheetNavLink("/events", "Eventos")}
 									{session &&
 										session.user.role === "CUSTOMER" &&
-										sheetNavLink("/my-tickets", "My tickets")}
+										sheetNavLink("/my-tickets", "Mis entradas")}
 									{session &&
 										session.user.role === "CUSTOMER" &&
-										sheetNavLink("/my-orders", "Orders")}
+										sheetNavLink("/my-orders", "Pedidos")}
 									{session &&
 										isAdmin(session) &&
-										sheetNavLink("/dashboard", "Dashboard")}
+										sheetNavLink("/dashboard", "Panel")}
 								</nav>
 								<SheetFooter className="mt-auto border-t pt-4">
 									{session ? (
@@ -216,7 +216,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 												className="w-full"
 												onClick={() => void signOut()}
 											>
-												Log out
+												Cerrar sesión
 											</Button>
 										</SheetClose>
 									) : (
@@ -225,7 +225,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 												<Button variant="outline" className="w-full" asChild>
 													<Link to="/login" className="gap-1.5">
 														<LogIn className="size-4" />
-														Log in
+														Iniciar sesión
 													</Link>
 												</Button>
 											</SheetClose>
@@ -233,7 +233,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 												<Button className="w-full" asChild>
 													<Link to="/register" className="gap-1.5">
 														<UserPlus className="size-4" />
-														Register
+														Registrarse
 													</Link>
 												</Button>
 											</SheetClose>
@@ -256,25 +256,32 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 									Tide Tickets
 								</p>
 								<p className="text-sm text-muted-foreground">
-									Event discovery and digital passes
+									Descubre eventos y pases digitales
 								</p>
 							</div>
 						</div>
 						<div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
 							<Link to="/events" className="nav-link hover:text-foreground">
-								Events
+								Eventos
 							</Link>
-							<Link to="/login" className="nav-link hover:text-foreground">
-								Log in
-							</Link>
-							<Link to="/register" className="nav-link hover:text-foreground">
-								Register
-							</Link>
+							{!session ? (
+								<>
+									<Link to="/login" className="nav-link hover:text-foreground">
+										Iniciar sesión
+									</Link>
+									<Link
+										to="/register"
+										className="nav-link hover:text-foreground"
+									>
+										Registrarse
+									</Link>
+								</>
+							) : null}
 						</div>
 					</div>
 					<div className="mt-8 wave-rule max-w-xs" />
 					<p className="mt-4 text-xs text-muted-foreground">
-						Reserve seats · pay · QR at the door
+						Reserva · paga · QR en la puerta
 					</p>
 				</div>
 			</footer>

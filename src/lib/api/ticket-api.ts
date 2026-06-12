@@ -175,9 +175,9 @@ export async function fetchOrganizerEventDetail(id: string) {
 			if (e instanceof ApiError && e.statusCode === 403) {
 				throw new ApiError({
 					message:
-						"Cannot load event (need an ADMIN token with access to GET /admin/events).",
+						"No se puede cargar el evento (se requiere un token ADMIN con acceso a GET /admin/events).",
 					statusCode: 403,
-					code: "Forbidden",
+					code: "Prohibido",
 				});
 			}
 			throw e;
@@ -199,9 +199,9 @@ export async function fetchOrganizerEventDetail(id: string) {
 	}
 
 	throw new ApiError({
-		message: "Event not found",
+		message: "Evento no encontrado",
 		statusCode: 404,
-		code: "Not Found",
+		code: "No encontrado",
 	});
 }
 
@@ -338,9 +338,12 @@ export async function fetchPublicTicket(publicCode: string) {
 	return apiRequest(`/tickets/${enc}`, publicTicketSchema, { skipAuth: true });
 }
 
-export function ticketQrImageUrl(publicCode: string): string {
+export function ticketQrImageUrl(publicCode: string, origin?: string): string {
 	const enc = encodeURIComponent(publicCode);
-	return `${getApiV1Prefix()}/tickets/${enc}/qr`;
+	const sp = new URLSearchParams();
+	if (origin) sp.set("origin", origin.replace(/\/$/, ""));
+	const qs = sp.toString();
+	return `${getApiV1Prefix()}/tickets/${enc}/qr${qs ? `?${qs}` : ""}`;
 }
 
 export async function fetchAdminOrders(params: {

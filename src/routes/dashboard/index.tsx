@@ -13,7 +13,7 @@ export const Route = createFileRoute("/dashboard/")({
 
 function formatMoney(amount: string, currency = "USD") {
 	const n = Number(amount);
-	return new Intl.NumberFormat(undefined, {
+	return new Intl.NumberFormat("es", {
 		style: "currency",
 		currency,
 	}).format(Number.isFinite(n) ? n : 0);
@@ -39,7 +39,7 @@ function DashboardHome() {
 		return (
 			<Card className="border-destructive/50">
 				<CardHeader>
-					<CardTitle>Could not load dashboard</CardTitle>
+					<CardTitle>No se pudo cargar el panel</CardTitle>
 				</CardHeader>
 				<CardContent className="text-sm text-muted-foreground">
 					{(q.error as Error).message}
@@ -69,22 +69,26 @@ function DashboardHome() {
 	return (
 		<div className="space-y-8">
 			<div>
-				<h1 className="display-title text-2xl font-semibold">Overview</h1>
+				<h1 className="display-title text-2xl font-semibold">Resumen</h1>
 				<p className="mt-1 text-muted-foreground">
-					Live snapshot from your Nest API.
+					Instantánea en vivo de tu API Nest.
 				</p>
 				<Badge variant="outline" className="mt-3">
-					Admin
+					Administrador
 				</Badge>
 			</div>
 			<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-				{stat("Tickets sold", String(d.ticketsSold), "All time")}
-				{stat("Revenue", formatMoney(d.totalRevenue), "Paid orders")}
-				{stat("Active events", String(d.activeEvents), "Published & not ended")}
+				{stat("Entradas vendidas", String(d.ticketsSold), "Histórico")}
+				{stat("Ingresos", formatMoney(d.totalRevenue), "Pedidos pagados")}
 				{stat(
-					"Remaining inventory",
+					"Eventos activos",
+					String(d.activeEvents),
+					"Publicados y no finalizados",
+				)}
+				{stat(
+					"Inventario restante",
 					String(d.remainingInventory),
-					"Tickets left to sell",
+					"Entradas por vender",
 				)}
 			</div>
 		</div>

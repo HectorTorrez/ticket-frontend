@@ -9,7 +9,7 @@ type EventItem = z.infer<typeof eventListItemSchema>;
 
 function formatWhen(iso: string) {
 	try {
-		return new Intl.DateTimeFormat(undefined, {
+		return new Intl.DateTimeFormat("es", {
 			month: "short",
 			day: "numeric",
 			hour: "numeric",
@@ -24,7 +24,7 @@ function formatDateChip(iso: string) {
 	try {
 		const d = new Date(iso);
 		return {
-			month: new Intl.DateTimeFormat(undefined, { month: "short" })
+			month: new Intl.DateTimeFormat("es", { month: "short" })
 				.format(d)
 				.toUpperCase(),
 			day: d.getDate(),
@@ -81,7 +81,7 @@ export function EventCard({ event }: EventCardProps) {
 				</div>
 				{soldOut ? (
 					<Badge className="absolute right-3 top-3 bg-phosphor text-white hover:bg-phosphor">
-						Sold out
+						Agotado
 					</Badge>
 				) : null}
 			</div>
@@ -92,7 +92,7 @@ export function EventCard({ event }: EventCardProps) {
 					</h2>
 					<p className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
 						<MapPin className="size-3.5 shrink-0" />
-						{event.venue ?? "Venue TBA"}
+						{event.venue ?? "Lugar por confirmar"}
 					</p>
 				</div>
 				<p className="text-sm text-muted-foreground">
@@ -102,9 +102,9 @@ export function EventCard({ event }: EventCardProps) {
 					<div className="text-sm">
 						{fromPrice !== null ? (
 							<>
-								<span className="text-muted-foreground">From </span>
+								<span className="text-muted-foreground">Desde </span>
 								<span className="font-semibold">
-									{new Intl.NumberFormat(undefined, {
+									{new Intl.NumberFormat("es", {
 										style: "currency",
 										currency: "USD",
 									}).format(fromPrice)}
@@ -112,7 +112,7 @@ export function EventCard({ event }: EventCardProps) {
 							</>
 						) : (
 							<span className="text-muted-foreground">
-								{event.ticketTypes.length} tier
+								{event.ticketTypes.length} categoría
 								{event.ticketTypes.length === 1 ? "" : "s"}
 							</span>
 						)}
@@ -122,7 +122,7 @@ export function EventCard({ event }: EventCardProps) {
 							to="/events/$eventSlugOrId"
 							params={{ eventSlugOrId: event.slug }}
 						>
-							Get tickets
+							Comprar entradas
 							<ArrowRight className="size-3.5" />
 						</Link>
 					</Button>

@@ -22,6 +22,7 @@ import {
 	mockPayOrder,
 } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
+import { labelFor, orderStatusLabel } from "#/lib/labels";
 import { eventsKeys, ordersKeys, ticketsKeys } from "#/lib/query-keys";
 import { cn } from "#/lib/utils";
 import { useInventorySocket } from "#/routes/events/$eventSlugOrId/-hooks/use-inventory-socket";
@@ -130,8 +131,8 @@ function CheckoutPage() {
 			if (paid.status !== "PAID") {
 				toast.error(
 					paid.status === "EXPIRED"
-						? "Your reservation expired. Please start checkout again."
-						: "Payment could not be completed.",
+						? "Tu reserva expiró. Vuelve a iniciar el pago."
+						: "No se pudo completar el pago.",
 				);
 				return;
 			}
@@ -145,14 +146,14 @@ function CheckoutPage() {
 			await qc.invalidateQueries({
 				queryKey: eventsKeys.detail(eventSlugOrId),
 			});
-			toast.success("Payment completed successfully");
+			toast.success("Pago completado correctamente");
 			void navigate({
 				to: "/my-orders/$orderId",
 				params: { orderId: paid.id },
 			});
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Payment request failed"),
+			toast.error(e instanceof ApiError ? e.message : "Error al procesar el pago"),
 	});
 
 	const cancelMu = useMutation({
@@ -161,7 +162,7 @@ function CheckoutPage() {
 			return cancelOrder(order.id);
 		},
 		onSuccess: async () => {
-			toast.message("Reservation cancelled");
+			toast.message("Reserva cancelada");
 			await qc.invalidateQueries({
 				queryKey: eventsKeys.detail(eventSlugOrId),
 			});
@@ -171,7 +172,7 @@ function CheckoutPage() {
 			});
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Could not cancel"),
+			toast.error(e instanceof ApiError ? e.message : "No se pudo cancelar"),
 	});
 
 	const expiresAt = order?.expiresAt;
@@ -211,11 +212,11 @@ function CheckoutPage() {
 					<div className="island-shell rounded-xl p-10 text-center">
 						<Ticket className="mx-auto size-10 text-muted-foreground/50" />
 						<p className="mt-4 text-muted-foreground">
-							No ticket selection found.
+							No se encontró ninguna selección de entradas.
 						</p>
 						<Button className="mt-6" asChild>
 							<Link to="/events/$eventSlugOrId" params={{ eventSlugOrId }}>
-								Back to event
+								Volver al evento
 							</Link>
 						</Button>
 					</div>
@@ -239,7 +240,7 @@ function CheckoutPage() {
 			<PublicLayout>
 				<div className="page-wrap py-16">
 					<QueryErrorAlert
-						title="We couldn't load checkout"
+						title="No pudimos cargar el pago"
 						error={eventQ.error}
 					/>
 				</div>
@@ -251,7 +252,7 @@ function CheckoutPage() {
 		return (
 			<PublicLayout>
 				<div className="page-wrap py-16 text-muted-foreground">
-					Event data unavailable.
+					Datos del evento no disponibles.
 				</div>
 			</PublicLayout>
 		);
@@ -263,7 +264,7 @@ function CheckoutPage() {
 		<PublicLayout>
 			<div className="page-wrap max-w-xl space-y-8 py-12 md:py-16">
 				<div className="rise-in">
-					<p className="island-kicker">Checkout</p>
+					<p className="island-kicker">Pago</p>
 					<h1 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
 						{ev.title}
 					</h1>
@@ -272,9 +273,9 @@ function CheckoutPage() {
 				{/* Steps */}
 				<ol className="rise-in stagger-1 flex items-center gap-2 text-sm">
 					{[
-						{ n: 1, label: "Selection", icon: Ticket },
-						{ n: 2, label: "Payment", icon: CreditCard },
-						{ n: 3, label: "Done", icon: Check },
+						{ n: 1, label: "Selección", icon: Ticket },
+						{ n: 2, label: "Pago", icon: CreditCard },
+						{ n: 3, label: "Listo", icon: Check },
 					].map((s, i) => (
 						<li key={s.n} className="flex items-center gap-2">
 							{i > 0 ? (
@@ -297,7 +298,7 @@ function CheckoutPage() {
 
 				{/* Selection summary */}
 				<div className="ticket-edge island-shell rise-in stagger-2 rounded-xl p-6">
-					<h2 className="font-semibold">Your selection</h2>
+					<h2 className="font-semibold">Tu selección</h2>
 					<ul className="mt-4 space-y-3 text-sm">
 						{lines.map((l) => {
 							const tt = ev.ticketTypes.find((t) => t.id === l.ticketTypeId);
@@ -311,7 +312,7 @@ function CheckoutPage() {
 										{tt.name} × {l.quantity}
 									</span>
 									<span className="font-medium">
-										{new Intl.NumberFormat(undefined, {
+										{new Intl.NumberFormat("es", {
 											style: "currency",
 											currency: "USD",
 										}).format(Number(tt.price) * l.quantity)}
@@ -323,7 +324,7 @@ function CheckoutPage() {
 					<div className="mt-4 flex justify-between border-t border-border/60 pt-4 font-semibold">
 						<span>Subtotal</span>
 						<span>
-							{new Intl.NumberFormat(undefined, {
+							{new Intl.NumberFormat("es", {
 								style: "currency",
 								currency: "USD",
 							}).format(selectionTotal)}
@@ -333,7 +334,7 @@ function CheckoutPage() {
 
 				{reserve.isPending && !order ? (
 					<p className="text-sm text-muted-foreground">
-						Holding your seats…
+						Reservando tus entradas…
 					</p>
 				) : null}
 
@@ -348,7 +349,7 @@ function CheckoutPage() {
 							onClick={() => reserve.mutate()}
 							disabled={reserve.isPending}
 						>
-							Retry reservation
+							Reintentar reserva
 						</Button>
 					</div>
 				) : null}
@@ -357,9 +358,10 @@ function CheckoutPage() {
 					<div className="ticket-edge island-shell rise-in rounded-xl border-primary/30 p-6">
 						<div className="flex flex-wrap items-start justify-between gap-4">
 							<div>
-								<h2 className="font-semibold">Reservation held</h2>
+								<h2 className="font-semibold">Reserva confirmada</h2>
 								<p className="mt-1 text-sm text-muted-foreground">
-									Status: <strong>{order.status}</strong>
+									Estado:{" "}
+									<strong>{labelFor(orderStatusLabel, order.status)}</strong>
 								</p>
 							</div>
 							{secondsLeft !== null && order.status === "PENDING" ? (
@@ -381,7 +383,7 @@ function CheckoutPage() {
 						</div>
 
 						<p className="mt-4 text-3xl font-semibold">
-							{new Intl.NumberFormat(undefined, {
+							{new Intl.NumberFormat("es", {
 								style: "currency",
 								currency: order.currency,
 							}).format(Number(order.totalAmount))}
@@ -396,14 +398,14 @@ function CheckoutPage() {
 									disabled={pay.isPending}
 								>
 									<CreditCard className="size-4" />
-									Complete payment
+									Completar pago
 								</Button>
 								<Button
 									variant="outline"
 									onClick={() => cancelMu.mutate()}
 									disabled={cancelMu.isPending}
 								>
-									Release hold
+									Liberar reserva
 								</Button>
 							</div>
 						) : null}
@@ -412,7 +414,7 @@ function CheckoutPage() {
 
 				<Button variant="ghost" asChild>
 					<Link to="/events/$eventSlugOrId" params={{ eventSlugOrId }}>
-						← Edit selection
+						← Editar selección
 					</Link>
 				</Button>
 			</div>

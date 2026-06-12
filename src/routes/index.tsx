@@ -13,6 +13,7 @@ import { PublicLayout } from "#/components/layouts/public-layout";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { fetchEventsList } from "#/lib/api/ticket-api";
+import { getSession } from "#/lib/auth/session";
 import { eventsKeys } from "#/lib/query-keys";
 import { EventCard } from "#/routes/events/-components/event-card";
 
@@ -23,22 +24,23 @@ export const Route = createFileRoute("/")({
 const flow = [
 	{
 		step: "01",
-		title: "Pick your night",
-		body: "Browse live listings with real-time availability — counts update as others shop.",
+		title: "Elige tu noche",
+		body: "Explora eventos en vivo con disponibilidad en tiempo real: los cupos se actualizan mientras otros compran.",
 	},
 	{
 		step: "02",
-		title: "Hold your seats",
-		body: "Reserve inventory with a timed hold. Checkout when you're ready, not when you're rushed.",
+		title: "Reserva tus entradas",
+		body: "Apartamos el inventario con una reserva temporizada. Paga cuando quieras, sin prisas.",
 	},
 	{
 		step: "03",
-		title: "Walk in with QR",
-		body: "Digital passes land in your account. Show the code at the door — no printing, no fuss.",
+		title: "Entra con QR",
+		body: "Tus pases digitales quedan en tu cuenta. Muestra el código en la puerta — sin imprimir, sin complicaciones.",
 	},
 ];
 
 function HomePage() {
+	const session = typeof window !== "undefined" ? getSession() : null;
 	const featured = useQuery({
 		queryKey: eventsKeys.list({ page: 1, limit: 3, publishedOnly: true }),
 		queryFn: () =>
@@ -54,31 +56,33 @@ function HomePage() {
 						<div className="space-y-6">
 							<p className="island-kicker">Tide Tickets</p>
 							<h1 className="display-title max-w-2xl text-4xl font-semibold leading-[1.08] tracking-tight md:text-5xl lg:text-[3.25rem]">
-								Your pass to the{" "}
-								<em className="not-italic text-primary">next</em> show starts
-								here
+								Tu pase al{" "}
+								<em className="not-italic text-primary">próximo</em> evento
+								empieza aquí
 							</h1>
 							<p className="max-w-lg text-lg text-muted-foreground md:text-xl">
-								Discover events, reserve seats in real time, and carry every
-								pass on your phone. Organizers publish, scan, and sell from one
-								dashboard.
+								Descubre eventos, reserva entradas en tiempo real y lleva todos
+								tus pases en el móvil. Los organizadores publican, escanean y
+								venden desde un solo panel.
 							</p>
 							<div className="flex flex-wrap gap-3 pt-1">
 								<Button size="lg" className="gap-2" asChild>
 									<Link to="/events">
-										Browse events
+										Explorar eventos
 										<ArrowRight className="size-4" />
 									</Link>
 								</Button>
-								<Button size="lg" variant="outline" asChild>
-									<Link to="/register">Create account</Link>
-								</Button>
+								{!session ? (
+									<Button size="lg" variant="outline" asChild>
+										<Link to="/register">Crear cuenta</Link>
+									</Button>
+								) : null}
 							</div>
 						</div>
 						<div className="ticket-edge island-shell rounded-xl p-6 md:p-8">
 							<div className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
 								<Waves className="size-4 text-primary" />
-								<span>How it works</span>
+								<span>Cómo funciona</span>
 							</div>
 							<ul className="mt-5 space-y-4">
 								{flow.map((f) => (
@@ -106,14 +110,14 @@ function HomePage() {
 			<section className="page-wrap space-y-8 py-14 md:py-16">
 				<div className="rise-in stagger-1 flex flex-wrap items-end justify-between gap-4">
 					<div>
-						<p className="island-kicker">Coming up</p>
+						<p className="island-kicker">Próximamente</p>
 						<h2 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
-							Events on sale now
+							Eventos a la venta
 						</h2>
 					</div>
 					<Button variant="outline" className="gap-2" asChild>
 						<Link to="/events">
-							View all
+							Ver todos
 							<ArrowRight className="size-4" />
 						</Link>
 					</Button>
@@ -139,10 +143,10 @@ function HomePage() {
 					<div className="island-shell rise-in rounded-xl p-10 text-center">
 						<Ticket className="mx-auto size-10 text-muted-foreground/60" />
 						<p className="mt-4 text-muted-foreground">
-							No events published yet. Check back soon.
+							Aún no hay eventos publicados. Vuelve pronto.
 						</p>
 						<Button className="mt-6" variant="outline" asChild>
-							<Link to="/events">Explore events</Link>
+							<Link to="/events">Explorar eventos</Link>
 						</Button>
 					</div>
 				) : null}
@@ -151,27 +155,27 @@ function HomePage() {
 			{/* Capabilities */}
 			<section className="page-wrap pb-16 md:pb-24">
 				<div className="rise-in stagger-3 mb-8">
-					<p className="island-kicker">Built for both sides</p>
+					<p className="island-kicker">Para ambos lados</p>
 					<h2 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
-						Everything between listing and scan
+						Todo entre el listado y el escaneo
 					</h2>
 				</div>
 				<div className="grid gap-4 md:grid-cols-3">
 					{[
 						{
 							icon: Radio,
-							title: "Live inventory",
-							body: "Socket updates keep ticket counts honest while customers browse — no stale sold-out surprises.",
+							title: "Inventario en vivo",
+							body: "Las actualizaciones por socket mantienen los cupos al día mientras los clientes navegan — sin sorpresas de agotado.",
 						},
 						{
 							icon: ShieldCheck,
-							title: "Timed checkout",
-							body: "Reservations hold your seats with a countdown. Pay when ready, or release the hold.",
+							title: "Pago con tiempo límite",
+							body: "Las reservas apartan tus entradas con una cuenta regresiva. Paga cuando quieras o libera la reserva.",
 						},
 						{
 							icon: QrCode,
-							title: "QR at the door",
-							body: "Passes live in your account. Staff validate codes from the admin scanner in seconds.",
+							title: "QR en la entrada",
+							body: "Los pases viven en tu cuenta. El personal valida los códigos desde el escáner del panel en segundos.",
 						},
 					].map((c, i) => (
 						<div

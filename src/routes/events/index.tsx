@@ -55,13 +55,13 @@ function EventsListPage() {
 		<PublicLayout>
 			<div className="page-wrap space-y-10 py-12 md:py-16">
 				<header className="rise-in space-y-3">
-					<p className="island-kicker">Discover</p>
+					<p className="island-kicker">Descubre</p>
 					<h1 className="display-title text-3xl font-semibold md:text-4xl">
-						Browse events
+						Explorar eventos
 					</h1>
 					<p className="max-w-xl text-muted-foreground">
-						Live experiences with real-time availability. Grab tickets before
-						they're gone.
+						Experiencias en vivo con disponibilidad en tiempo real. Consigue
+						entradas antes de que se agoten.
 					</p>
 				</header>
 
@@ -85,20 +85,20 @@ function EventsListPage() {
 					}}
 				>
 					<div className="min-w-[200px] flex-1 space-y-2">
-						<Label htmlFor="q">Search</Label>
+						<Label htmlFor="q">Buscar</Label>
 						<div className="relative">
 							<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 							<Input
 								id="q"
 								name="q"
-								placeholder="Title or venue"
+								placeholder="Título o lugar"
 								defaultValue={q ?? ""}
 								className="pl-9"
 							/>
 						</div>
 					</div>
 					<div className="w-full space-y-2 md:w-44">
-						<Label htmlFor="from">From</Label>
+						<Label htmlFor="from">Desde</Label>
 						<Input
 							id="from"
 							name="from"
@@ -107,7 +107,7 @@ function EventsListPage() {
 						/>
 					</div>
 					<div className="w-full space-y-2 md:w-44">
-						<Label htmlFor="to">To</Label>
+						<Label htmlFor="to">Hasta</Label>
 						<Input
 							id="to"
 							name="to"
@@ -115,7 +115,7 @@ function EventsListPage() {
 							defaultValue={to ?? ""}
 						/>
 					</div>
-					<Button type="submit">Apply filters</Button>
+					<Button type="submit">Aplicar filtros</Button>
 				</form>
 
 				{query.isPending ? (
@@ -135,7 +135,7 @@ function EventsListPage() {
 
 				{query.isError ? (
 					<QueryErrorAlert
-						title="We couldn't load events"
+						title="No pudimos cargar los eventos"
 						error={query.error}
 					/>
 				) : null}
@@ -143,7 +143,7 @@ function EventsListPage() {
 				{query.data && query.data.items.length === 0 ? (
 					<div className="island-shell rounded-xl p-12 text-center">
 						<p className="text-muted-foreground">
-							No events match your filters.
+							Ningún evento coincide con tus filtros.
 						</p>
 						<Button
 							variant="outline"
@@ -154,7 +154,7 @@ function EventsListPage() {
 								})
 							}
 						>
-							Clear filters
+							Limpiar filtros
 						</Button>
 					</div>
 				) : null}
@@ -162,7 +162,8 @@ function EventsListPage() {
 				{query.data && query.data.items.length > 0 ? (
 					<>
 						<p className="text-sm text-muted-foreground">
-							{query.data.total} event{query.data.total === 1 ? "" : "s"} found
+							{query.data.total} evento{query.data.total === 1 ? "" : "s"}{" "}
+							encontrado{query.data.total === 1 ? "" : "s"}
 						</p>
 						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 							{query.data.items.map((ev) => (
@@ -178,10 +179,10 @@ function EventsListPage() {
 									navigate({ search: { ...search, page: page - 1 } })
 								}
 							>
-								Previous
+								Anterior
 							</Button>
 							<span className="text-sm text-muted-foreground">
-								Page {page} of{" "}
+								Página {page} de{" "}
 								{Math.max(1, Math.ceil(query.data.total / limit))}
 							</span>
 							<Button
@@ -192,7 +193,7 @@ function EventsListPage() {
 									navigate({ search: { ...search, page: page + 1 } })
 								}
 							>
-								Next
+								Siguiente
 							</Button>
 						</div>
 					</>
