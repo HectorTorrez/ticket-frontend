@@ -1,5 +1,6 @@
 {
   "name": "ticket-frontend",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "imports": {

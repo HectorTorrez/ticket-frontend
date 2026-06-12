@@ -111,4 +111,4 @@ src/
 
 ## License
 
-Private project.
+[MIT](./LICENSE) — free to use, modify, and fork.
