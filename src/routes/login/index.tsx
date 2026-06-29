@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { Button } from "#/components/ui/button";
+import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { ApiError } from "#/lib/api/errors";
@@ -17,6 +18,14 @@ const loginSchema = z.object({
 	email: z.string().email("Se requiere un correo válido"),
 	password: z.string().min(8, "Al menos 8 caracteres"),
 });
+
+const emailValidator = (value: string) =>
+	z.string().email("Se requiere un correo válido").safeParse(value).success
+		? undefined
+		: "Se requiere un correo válido";
+
+const passwordValidator = (value: string) =>
+	value.length >= 8 ? undefined : "Al menos 8 caracteres";
 
 export const Route = createFileRoute("/login/")({
 	validateSearch: z.object({
@@ -50,9 +59,6 @@ function LoginPage() {
 		onSubmit: async ({ value }) => {
 			const parsed = loginSchema.safeParse(value);
 			if (!parsed.success) {
-				toast.error(
-					parsed.error.flatten().formErrors.join(", ") || "Revisa el formulario",
-				);
 				return;
 			}
 			try {
@@ -80,6 +86,8 @@ function LoginPage() {
 		);
 	}
 
+	const submissionAttempts = form.state.submissionAttempts;
+
 	return (
 		<PublicLayout>
 			<div className="page-wrap flex justify-center py-16 md:py-20">
@@ -105,51 +113,70 @@ function LoginPage() {
 						<form.Field
 							name="email"
 							validators={{
-								onChange: ({ value }) =>
-									z.string().email("Se requiere un correo válido").safeParse(value)
-										.success
-										? undefined
-										: "Se requiere un correo válido",
+								onChange: ({ value }) => emailValidator(value),
+								onSubmit: ({ value }) => emailValidator(value),
 							}}
 						>
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor="email" required>
-										Correo electrónico
-									</Label>
-									<Input
-										id="email"
-										type="email"
-										autoComplete="email"
-										value={field.state.value}
-										onChange={(e) => field.handleChange(e.target.value)}
-										onBlur={field.handleBlur}
-									/>
-								</div>
-							)}
+							{(field) => {
+								const showError =
+									field.state.meta.errors.length > 0 &&
+									(field.state.meta.isTouched || submissionAttempts > 0);
+								const errorText = showError
+									? String(field.state.meta.errors[0] ?? "")
+									: undefined;
+
+								return (
+									<div className="space-y-2">
+										<Label htmlFor="email" required>
+											Correo electrónico
+										</Label>
+										<Input
+											id="email"
+											type="email"
+											autoComplete="email"
+											value={field.state.value}
+											onChange={(e) => field.handleChange(e.target.value)}
+											onBlur={field.handleBlur}
+											aria-invalid={showError ? true : undefined}
+										/>
+										<FieldError>{errorText}</FieldError>
+									</div>
+								);
+							}}
 						</form.Field>
 						<form.Field
 							name="password"
 							validators={{
-								onChange: ({ value }) =>
-									value.length >= 8 ? undefined : "Al menos 8 caracteres",
+								onChange: ({ value }) => passwordValidator(value),
+								onSubmit: ({ value }) => passwordValidator(value),
 							}}
 						>
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor="password" required>
-										Contraseña
-									</Label>
-									<Input
-										id="password"
-										type="password"
-										autoComplete="current-password"
-										value={field.state.value}
-										onChange={(e) => field.handleChange(e.target.value)}
-										onBlur={field.handleBlur}
-									/>
-								</div>
-							)}
+							{(field) => {
+								const showError =
+									field.state.meta.errors.length > 0 &&
+									(field.state.meta.isTouched || submissionAttempts > 0);
+								const errorText = showError
+									? String(field.state.meta.errors[0] ?? "")
+									: undefined;
+
+								return (
+									<div className="space-y-2">
+										<Label htmlFor="password" required>
+											Contraseña
+										</Label>
+										<Input
+											id="password"
+											type="password"
+											autoComplete="current-password"
+											value={field.state.value}
+											onChange={(e) => field.handleChange(e.target.value)}
+											onBlur={field.handleBlur}
+											aria-invalid={showError ? true : undefined}
+										/>
+										<FieldError>{errorText}</FieldError>
+									</div>
+								);
+							}}
 						</form.Field>
 						<Button type="submit" className="w-full" size="lg">
 							Iniciar sesión

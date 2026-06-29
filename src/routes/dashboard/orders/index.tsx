@@ -97,7 +97,7 @@ function AdminOrdersPage() {
 						className="h-9 w-64 text-sm"
 					/>
 				</div>
-				<Button type="submit" size="sm" variant="secondary">
+				<Button type="submit" size="sm" variant="outline">
 					Aplicar
 				</Button>
 			</form>

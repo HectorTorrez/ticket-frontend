@@ -72,7 +72,7 @@ export function EventCard({ event }: EventCardProps) {
 				)}
 				<div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 				<div className="absolute left-3 top-3 flex flex-col items-center rounded-lg bg-background/95 px-2.5 py-1.5 text-center shadow-sm backdrop-blur-sm">
-					<span className="text-[0.65rem] font-bold tracking-wider text-primary">
+					<span className="text-xs font-bold tracking-wide text-primary">
 						{dateChip.month}
 					</span>
 					<span className="display-title text-xl font-bold leading-none">

@@ -13,6 +13,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "#/components/ui/dialog";
+import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { DateTimePicker } from "#/components/ui/datetime-picker";
@@ -62,6 +63,22 @@ function EditEventPage() {
 	const [endsAt, setEndsAt] = useState("");
 	const [venue, setVenue] = useState("");
 	const [deleteOpen, setDeleteOpen] = useState(false);
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+	const validateDetails = () => {
+		const errors: Record<string, string> = {};
+		if (title.trim().length < 2) {
+			errors.title = "El título es obligatorio";
+		}
+		if (!startsAt.trim()) {
+			errors.startsAt = "La fecha de inicio es obligatoria";
+		}
+		if (!endsAt.trim()) {
+			errors.endsAt = "La fecha de fin es obligatoria";
+		}
+		setFieldErrors(errors);
+		return Object.keys(errors).length === 0;
+	};
 
 	useEffect(() => {
 		if (!q.data) return;
@@ -226,13 +243,14 @@ function EditEventPage() {
 			</header>
 
 			<section className="space-y-4">
-				<h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+				<h2 className="text-sm font-semibold text-foreground">
 					Detalles del evento
 				</h2>
 				<form
 					className="island-shell space-y-5 rounded-xl p-8"
 					onSubmit={(e) => {
 						e.preventDefault();
+						if (!validateDetails()) return;
 						save.mutate();
 					}}
 				>
@@ -243,8 +261,19 @@ function EditEventPage() {
 						<Input
 							id="title"
 							value={title}
-							onChange={(e) => setTitle(e.target.value)}
+							onChange={(e) => {
+								setTitle(e.target.value);
+								if (fieldErrors.title) {
+									setFieldErrors((prev) => {
+										const next = { ...prev };
+										delete next.title;
+										return next;
+									});
+								}
+							}}
+							aria-invalid={fieldErrors.title ? true : undefined}
 						/>
+						<FieldError>{fieldErrors.title}</FieldError>
 					</div>
 					<div className="space-y-2">
 						<Label htmlFor="description">Descripción</Label>
@@ -263,9 +292,19 @@ function EditEventPage() {
 							<DateTimePicker
 								id="startsAt"
 								value={startsAt}
-								onChange={setStartsAt}
+								onChange={(value) => {
+									setStartsAt(value);
+									if (fieldErrors.startsAt) {
+										setFieldErrors((prev) => {
+											const next = { ...prev };
+											delete next.startsAt;
+											return next;
+										});
+									}
+								}}
 								placeholder="Fecha y hora de inicio"
 							/>
+							<FieldError>{fieldErrors.startsAt}</FieldError>
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="endsAt" required>
@@ -274,9 +313,19 @@ function EditEventPage() {
 							<DateTimePicker
 								id="endsAt"
 								value={endsAt}
-								onChange={setEndsAt}
+								onChange={(value) => {
+									setEndsAt(value);
+									if (fieldErrors.endsAt) {
+										setFieldErrors((prev) => {
+											const next = { ...prev };
+											delete next.endsAt;
+											return next;
+										});
+									}
+								}}
 								placeholder="Fecha y hora de fin"
 							/>
+							<FieldError>{fieldErrors.endsAt}</FieldError>
 						</div>
 					</div>
 					<div className="space-y-2">
@@ -294,9 +343,7 @@ function EditEventPage() {
 			</section>
 
 			<section className="space-y-4">
-				<h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
-					Banner
-				</h2>
+				<h2 className="text-sm font-semibold text-foreground">Banner</h2>
 				<div className="island-shell space-y-4 rounded-xl p-8">
 					{ev.bannerUrl ? (
 						<img
@@ -327,7 +374,7 @@ function EditEventPage() {
 
 			<section className="space-y-4">
 				<div className="space-y-1">
-					<h2 className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+					<h2 className="text-sm font-semibold text-foreground">
 						Categorías de entrada
 					</h2>
 					<p className="text-sm text-muted-foreground">
@@ -373,9 +420,7 @@ function EditEventPage() {
 			</section>
 
 			<section className="space-y-4 border-t pt-10">
-				<h2 className="text-sm font-medium tracking-wide text-destructive uppercase">
-					Zona peligrosa
-				</h2>
+				<h2 className="text-sm font-semibold text-destructive">Zona peligrosa</h2>
 				<div className="island-shell rounded-xl p-8">
 					<p className="text-sm text-muted-foreground">
 						Eliminar el evento borra también todas sus categorías de entrada. No

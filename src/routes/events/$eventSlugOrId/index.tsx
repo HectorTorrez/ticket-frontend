@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Calendar, MapPin, Minus, Plus } from "lucide-react";
+import { AlertTriangle, Calendar, MapPin, Minus, Plus, Eye, EyeOff } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
@@ -124,11 +124,15 @@ function EventDetailPage() {
 						<div className="space-y-4">
 							<div className="flex flex-wrap items-center gap-2">
 								{ev.published ? (
-									<Badge className="bg-primary/10 text-primary hover:bg-primary/10">
+									<Badge className="gap-1 bg-primary/10 text-primary hover:bg-primary/10">
+										<Eye className="size-3 shrink-0" aria-hidden />
 										En venta
 									</Badge>
 								) : (
-									<Badge variant="secondary">No publicado</Badge>
+									<Badge variant="outline" className="gap-1">
+										<EyeOff className="size-3 shrink-0" aria-hidden />
+										No publicado
+									</Badge>
 								)}
 							</div>
 							<h1 className="display-title text-3xl font-semibold md:text-4xl">
@@ -188,13 +192,23 @@ function EventDetailPage() {
 												</div>
 												<Badge
 													variant="outline"
-													className={
-														t.quantityRemaining <= 5
-															? "border-phosphor/50 text-phosphor"
-															: ""
-													}
+													className={cn(
+														"gap-1",
+														t.quantityRemaining <= 5 &&
+															"border-phosphor/50 text-phosphor",
+													)}
 												>
-													{t.quantityRemaining} disponibles
+													{t.quantityRemaining <= 5 ? (
+														<>
+															<AlertTriangle
+																className="size-3 shrink-0"
+																aria-hidden
+															/>
+															Últimas {t.quantityRemaining} entradas
+														</>
+													) : (
+														`${t.quantityRemaining} disponibles`
+													)}
 												</Badge>
 											</div>
 											<p className="mt-2 text-lg font-semibold">

@@ -4,13 +4,19 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { QrCameraScanner } from "#/components/qr-camera-scanner";
+import {
+	StatusIndicator,
+	qrResultTone,
+} from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
+import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { ApiError } from "#/lib/api/errors";
 import { validateQrCode } from "#/lib/api/ticket-api";
 import { labelFor, qrResultLabel } from "#/lib/labels";
 import { normalizeTicketCode } from "#/lib/ticket-code";
+import { cn } from "#/lib/utils";
 
 export const Route = createFileRoute("/dashboard/scanner/")({
 	component: ScannerPage,
@@ -19,11 +25,13 @@ export const Route = createFileRoute("/dashboard/scanner/")({
 function ScannerPage() {
 	const [code, setCode] = useState("");
 	const [last, setLast] = useState<string | null>(null);
+	const [codeError, setCodeError] = useState<string | undefined>();
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: (raw: string) => validateQrCode(normalizeTicketCode(raw)),
 		onSuccess: (r) => {
 			setLast(r.result);
+			setCodeError(undefined);
 			if (r.result === "VALID")
 				toast.success("Válida — entrada marcada como usada");
 			else if (r.result === "ALREADY_USED") toast.message("Ya usada");
@@ -37,9 +45,11 @@ function ScannerPage() {
 		(raw: string) => {
 			const normalized = normalizeTicketCode(raw);
 			if (normalized.length < 8) {
-				toast.error("Código de entrada no reconocido");
+				setCodeError("Introduce un código de al menos 8 caracteres");
+				setLast(null);
 				return;
 			}
+			setCodeError(undefined);
 			setCode(normalized);
 			mutate(raw);
 		},
@@ -70,11 +80,16 @@ function ScannerPage() {
 					<Input
 						id="code"
 						value={code}
-						onChange={(e) => setCode(e.target.value)}
+						onChange={(e) => {
+							setCode(e.target.value);
+							if (codeError) setCodeError(undefined);
+						}}
 						placeholder="Pega el código o el enlace del pase"
 						className="font-mono text-sm"
 						autoComplete="off"
+						aria-invalid={codeError ? true : undefined}
 					/>
+					<FieldError>{codeError}</FieldError>
 				</div>
 				<Button
 					type="button"
@@ -86,10 +101,22 @@ function ScannerPage() {
 				</Button>
 				{last ? (
 					<output
-						className="block text-center text-lg font-semibold"
+						className={cn(
+							"block rounded-lg border px-4 py-3 text-center",
+							last === "VALID" &&
+								"border-green-600/30 bg-green-50 dark:bg-green-950/30",
+							last === "ALREADY_USED" &&
+								"border-amber-600/30 bg-amber-50 dark:bg-amber-950/30",
+							last === "INVALID" &&
+								"border-destructive/30 bg-destructive/5",
+						)}
 						aria-live="polite"
 					>
-						Resultado: {labelFor(qrResultLabel, last)}
+						<StatusIndicator
+							label={`Resultado: ${labelFor(qrResultLabel, last)}`}
+							tone={qrResultTone(last)}
+							className="text-base"
+						/>
 					</output>
 				) : null}
 			</div>

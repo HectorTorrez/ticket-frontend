@@ -82,7 +82,7 @@ function MyOrdersPage() {
 								{orderStatusLabel.CANCELLED}
 							</option>
 						</select>
-						<Button type="submit" size="sm" variant="secondary">
+						<Button type="submit" size="sm" variant="outline">
 							Filtrar
 						</Button>
 					</form>
