@@ -5,14 +5,19 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { Badge } from "#/components/ui/badge";
+import {
+	StatusIndicator,
+	qrResultTone,
+	ticketStatusTone,
+} from "#/components/status-indicator";
+import { TicketDateStub } from "#/components/ticket-date-stub";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { ApiError } from "#/lib/api/errors";
 import { fetchPublicTicket, validateQrCode } from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
-import { labelFor, formatTicketCode, qrResultLabel, ticketStatusLabel, ticketTierLabel } from "#/lib/labels";
+import { labelFor, formatTicketCode, qrResultLabel, ticketStatusLabel } from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/check/$publicCode")({
@@ -90,30 +95,21 @@ function CheckTicketPage() {
 				{ticket ? (
 					<article className="pass-card ticket-edge-left overflow-hidden rounded-xl">
 						<div className="pass-card-stub flex w-20 shrink-0 flex-col items-center justify-center gap-1 px-3 py-6 text-center">
-							<span className="text-[0.6rem] font-bold uppercase tracking-widest text-primary">
-								{new Intl.DateTimeFormat("es", { month: "short" })
-									.format(new Date(ticket.event.startsAt))
-									.toUpperCase()}
-							</span>
-							<span className="display-title text-2xl font-bold leading-none">
-								{new Date(ticket.event.startsAt).getDate()}
-							</span>
-							<span className="mt-2 text-[0.55rem] font-medium uppercase tracking-wider text-muted-foreground">
-								{labelFor(ticketTierLabel, ticket.ticketType.tier)}
-							</span>
+							<TicketDateStub
+								startsAt={ticket.event.startsAt}
+								tier={ticket.ticketType.tier}
+							/>
 						</div>
 						<div className="min-w-0 flex-1 space-y-4 p-6">
 							<div className="flex flex-wrap items-start justify-between gap-2">
 								<h2 className="display-title text-xl font-semibold leading-snug">
 									{ticket.event.title}
 								</h2>
-								<Badge
-									variant={
-										ticket.status === "ACTIVE" ? "default" : "secondary"
-									}
-								>
-									{labelFor(ticketStatusLabel, ticket.status)}
-								</Badge>
+								<StatusIndicator
+									label={labelFor(ticketStatusLabel, ticket.status)}
+									tone={ticketStatusTone(ticket.status)}
+									className="text-sm shrink-0"
+								/>
 							</div>
 							<p className="text-sm text-muted-foreground">
 								{ticket.ticketType.name}
@@ -171,10 +167,14 @@ function CheckTicketPage() {
 						) : null}
 						{lastResult ? (
 							<output
-								className="block text-center text-lg font-semibold"
+								className="block rounded-lg border border-border/60 bg-muted/40 px-4 py-3 text-center"
 								aria-live="polite"
 							>
-								Resultado: {labelFor(qrResultLabel, lastResult)}
+								<StatusIndicator
+									label={`Resultado: ${labelFor(qrResultLabel, lastResult)}`}
+									tone={qrResultTone(lastResult)}
+									className="text-base"
+								/>
 							</output>
 						) : null}
 					</div>

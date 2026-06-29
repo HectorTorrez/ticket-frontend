@@ -110,7 +110,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 					</div>
 					<div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
 						<ModeToggle />
-						<div className="hidden items-center gap-2 md:flex">
+						<div className="hidden items-center gap-4 md:flex">
 							{session ? (
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>

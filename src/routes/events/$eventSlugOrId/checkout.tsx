@@ -5,11 +5,12 @@ import {
 	useNavigate,
 	useRouterState,
 } from "@tanstack/react-router";
-import { Check, Clock, CreditCard, Ticket } from "lucide-react";
+import { Check, Clock, CreditCard, Ticket, AlertTriangle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { z } from "zod";
 import { PublicLayout } from "#/components/layouts/public-layout";
+import { StatusIndicator, orderStatusTone } from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
@@ -208,7 +209,15 @@ function CheckoutPage() {
 		}, 0);
 	}, [eventQ.data, lines]);
 
-	const currentStep = order?.status === "PENDING" ? 2 : order ? 2 : 1;
+	const currentStep = order?.status === "PAID" ? 3 : order ? 2 : 1;
+
+	const isStepComplete = (step: number) => {
+		if (step === 1) return currentStep > 1;
+		if (step === 2) return currentStep > 2;
+		return false;
+	};
+
+	const isStepCurrent = (step: number) => currentStep === step;
 
 	if (!lines || lines.length === 0) {
 		return (
@@ -284,25 +293,43 @@ function CheckoutPage() {
 					{[
 						{ n: 1, label: "Selección", icon: Ticket },
 						{ n: 2, label: "Pago", icon: CreditCard },
-						{ n: 3, label: "Listo", icon: Check },
-					].map((s, i) => (
-						<li key={s.n} className="flex items-center gap-2">
-							{i > 0 ? (
-								<span className="h-px w-6 bg-border sm:w-10" />
-							) : null}
-							<span
-								className={cn(
-									"flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium transition-colors",
-									currentStep >= s.n
-										? "bg-primary/10 text-primary"
-										: "bg-muted text-muted-foreground",
-								)}
-							>
-								<s.icon className="size-3.5" />
-								{s.label}
-							</span>
-						</li>
-					))}
+						{ n: 3, label: "Confirmación", icon: Check },
+					].map((s, i) => {
+						const complete = isStepComplete(s.n);
+						const current = isStepCurrent(s.n);
+
+						return (
+							<li key={s.n} className="flex items-center gap-2">
+								{i > 0 ? (
+									<span
+										className={cn(
+											"h-px w-6 sm:w-10",
+											complete || current ? "bg-primary/40" : "bg-border",
+										)}
+									/>
+								) : null}
+								<span
+									className={cn(
+										"flex items-center gap-1.5 rounded-full border px-3 py-2 font-medium transition-colors",
+										complete &&
+											"border-primary/40 bg-primary/5 text-primary",
+										current &&
+											"border-2 border-primary bg-primary/10 text-primary ring-2 ring-primary/15",
+										!complete &&
+											!current &&
+											"border-transparent bg-muted text-muted-foreground",
+									)}
+								>
+									{complete ? (
+										<Check className="size-3.5 shrink-0" aria-hidden />
+									) : (
+										<s.icon className="size-3.5 shrink-0" aria-hidden />
+									)}
+									{s.label}
+								</span>
+							</li>
+						);
+					})}
 				</ol>
 
 				{/* Selection summary */}
@@ -370,7 +397,11 @@ function CheckoutPage() {
 								<h2 className="font-semibold">Reserva confirmada</h2>
 								<p className="mt-1 text-sm text-muted-foreground">
 									Estado:{" "}
-									<strong>{labelFor(orderStatusLabel, order.status)}</strong>
+									<StatusIndicator
+										label={labelFor(orderStatusLabel, order.status)}
+										tone={orderStatusTone(order.status)}
+										className="text-sm"
+									/>
 								</p>
 							</div>
 							{secondsLeft !== null && order.status === "PENDING" ? (
@@ -399,7 +430,7 @@ function CheckoutPage() {
 						</p>
 
 						{order.status === "PENDING" ? (
-							<div className="mt-6 flex flex-wrap gap-2">
+							<div className="mt-6 flex flex-wrap gap-4">
 								<Button
 									size="lg"
 									className="gap-2"

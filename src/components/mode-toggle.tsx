@@ -12,7 +12,7 @@ export function ModeToggle() {
 			size="icon"
 			type="button"
 			aria-label="Cambiar tema"
-			className="relative"
+			className="relative size-12"
 			onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
 		>
 			<Sun className="size-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />

@@ -3,14 +3,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Calendar, MapPin, Ticket } from "lucide-react";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { Badge } from "#/components/ui/badge";
+import { StatusIndicator, ticketStatusTone } from "#/components/status-indicator";
+import { TicketDateStub } from "#/components/ticket-date-stub";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { TicketQrCode } from "#/components/ticket-qr-code";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMyTickets } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
-import { labelFor, ticketStatusLabel, ticketTierLabel } from "#/lib/labels";
+import { labelFor, ticketStatusLabel } from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/my-tickets/")({
@@ -76,19 +77,10 @@ function MyTicketsPage() {
 							<li key={t.id}>
 								<article className="pass-card ticket-edge-left flex overflow-hidden rounded-xl">
 									<div className="pass-card-stub flex w-20 shrink-0 flex-col items-center justify-center gap-1 px-3 py-6 text-center">
-										<span className="text-[0.6rem] font-bold uppercase tracking-widest text-primary">
-											{new Intl.DateTimeFormat("es", {
-												month: "short",
-											})
-												.format(new Date(t.event.startsAt))
-												.toUpperCase()}
-										</span>
-										<span className="display-title text-2xl font-bold leading-none">
-											{new Date(t.event.startsAt).getDate()}
-										</span>
-										<span className="mt-2 text-[0.55rem] font-medium uppercase tracking-wider text-muted-foreground">
-											{labelFor(ticketTierLabel, t.ticketType.tier)}
-										</span>
+										<TicketDateStub
+											startsAt={t.event.startsAt}
+											tier={t.ticketType.tier}
+										/>
 									</div>
 									<div className="flex min-w-0 flex-1 flex-col gap-4 p-5 sm:flex-row sm:items-center">
 										<div className="min-w-0 flex-1 space-y-2">
@@ -96,13 +88,12 @@ function MyTicketsPage() {
 												<h2 className="display-title font-semibold leading-snug">
 													{t.event.title}
 												</h2>
-												<Badge
-													variant={
-														t.status === "ACTIVE" ? "default" : "secondary"
-													}
-												>
-													{labelFor(ticketStatusLabel, t.status)}
-												</Badge>
+												<StatusIndicator
+													label={labelFor(ticketStatusLabel, t.status)}
+													tone={ticketStatusTone(t.status)}
+													className="text-xs shrink-0"
+													iconClassName="size-3"
+												/>
 											</div>
 											<p className="text-sm text-muted-foreground">
 												{t.ticketType.name}
@@ -131,7 +122,7 @@ function MyTicketsPage() {
 													className="rounded"
 												/>
 											</div>
-											<span className="text-[0.65rem] font-medium uppercase tracking-wider text-muted-foreground">
+											<span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
 												Escanear en la entrada
 											</span>
 											<Button variant="link" size="sm" className="h-auto p-0 text-xs" asChild>
