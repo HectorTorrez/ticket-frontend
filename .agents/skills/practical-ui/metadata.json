@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "organization": "Adham Dannaway (Practical UI)",
+  "date": "June 2026",
+  "abstract": "Logic-driven UI design guidelines from Practical UI by Adham Dannaway. Contains actionable rules across 8 categories for building intuitive, accessible interfaces using spacing systems, typography, colour, copywriting, forms, and buttons. Optimized for AI agents implementing or reviewing UI.",
+  "references": [
+    "https://www.practical-ui.com/",
+    "https://www.adhamdannaway.com/blog/ui-design/ui-design-tips",
+    "https://www.adhamdannaway.com/blog/ui-design/ui-design-tips-14",
+    "https://www.adhamdannaway.com/blog/ui-design/button-design-tips"
+  ]
+}
