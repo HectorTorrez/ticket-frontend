@@ -225,6 +225,18 @@ export const myTicketSchema = z.object({
 	ticketType: myTicketTypeSchema,
 });
 
+export const myTicketsListSchema = z.object({
+	items: z.array(myTicketSchema),
+	total: z.number(),
+	page: z.number(),
+	limit: z.number(),
+	counts: z.object({
+		upcoming: z.number(),
+		past: z.number(),
+		total: z.number(),
+	}),
+});
+
 export const publicTicketSchema = z.object({
 	publicCode: z.string(),
 	status: ticketStatusSchema,

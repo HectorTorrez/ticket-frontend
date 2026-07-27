@@ -32,7 +32,7 @@ import {
 	healthReadySchema,
 	eventListItemSchema,
 	logoutResponseSchema,
-	myTicketSchema,
+	myTicketsListSchema,
 	orderDetailSchema,
 	paginatedAdminOrdersSchema,
 	paginatedCustomerOrdersSchema,
@@ -353,8 +353,19 @@ export async function cancelOrder(id: string) {
 	});
 }
 
-export async function fetchMyTickets() {
-	return apiRequest("/me/tickets", z.array(myTicketSchema));
+export async function fetchMyTickets(params: {
+	when?: "upcoming" | "past" | "all";
+	page?: number;
+	limit?: number;
+} = {}) {
+	const when = params.when ?? "upcoming";
+	const page = params.page ?? 1;
+	const limit = params.limit ?? 5;
+	const sp = new URLSearchParams();
+	sp.set("when", when);
+	sp.set("page", String(page));
+	sp.set("limit", String(limit));
+	return apiRequest(`/me/tickets?${sp.toString()}`, myTicketsListSchema);
 }
 
 export async function fetchPublicTicket(publicCode: string) {
