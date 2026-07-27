@@ -10,16 +10,37 @@ type QrCameraScannerProps = {
 	disabled?: boolean;
 };
 
+/** Minimal surface used by this component; E2E can replace the ctor on `window`. */
+type ScannerInstance = {
+	start: (
+		cameraIdOrConfig: string | MediaTrackConstraints,
+		configuration: { fps: number; qrbox: { width: number; height: number } },
+		qrCodeSuccessCallback: (decodedText: string) => void,
+		qrCodeErrorCallback?: (errorMessage: string) => void,
+	) => Promise<null>;
+	stop: () => Promise<void>;
+	clear: () => void;
+};
+
+type ScannerCtor = new (elementId: string) => ScannerInstance;
+
+function resolveScannerCtor(): ScannerCtor {
+	const override = (
+		window as Window & { __E2E_Html5Qrcode?: ScannerCtor }
+	).__E2E_Html5Qrcode;
+	return override ?? (Html5Qrcode as unknown as ScannerCtor);
+}
+
 export function QrCameraScanner({ onScan, disabled = false }: QrCameraScannerProps) {
 	const regionId = useId().replace(/:/g, "");
-	const scannerRef = useRef<Html5Qrcode | null>(null);
+	const scannerRef = useRef<ScannerInstance | null>(null);
 	const lastScanRef = useRef("");
 	const [active, setActive] = useState(false);
 
 	useEffect(() => {
 		if (!active || disabled) return;
 
-		const scanner = new Html5Qrcode(regionId);
+		const scanner = new (resolveScannerCtor())(regionId);
 		scannerRef.current = scanner;
 		let cancelled = false;
 

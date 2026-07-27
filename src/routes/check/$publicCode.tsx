@@ -191,16 +191,18 @@ function CheckTicketPage() {
 								Ya ingresaste con este pase.
 							</p>
 						) : null}
-						<p className="text-xs text-muted-foreground">
-							¿Eres personal del evento?{" "}
-							<Link
-								to="/login"
-								search={{ redirect: `/check/${publicCode}` }}
-								className="font-medium text-primary underline-offset-4 hover:underline"
-							>
-								Inicia sesión como organizador
-							</Link>
-						</p>
+						{!session ? (
+							<p className="text-xs text-muted-foreground">
+								¿Eres personal del evento?{" "}
+								<Link
+									to="/login"
+									search={{ redirect: `/check/${publicCode}` }}
+									className="font-medium text-primary underline-offset-4 hover:underline"
+								>
+									Inicia sesión como organizador
+								</Link>
+							</p>
+						) : null}
 					</div>
 				) : null}
 			</div>

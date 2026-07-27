@@ -7,7 +7,7 @@ import {
 	purchaseTicket,
 	registerCustomer,
 } from "./helpers/api";
-import { injectSession, loginViaUi } from "./helpers/auth";
+import { injectSession, loginViaUi, mockQrCameraScan } from "./helpers/auth";
 
 test.describe("Admin", () => {
 	test("dashboard, eventos y pedidos son visibles", async ({ page }) => {
@@ -70,6 +70,27 @@ test.describe("Admin", () => {
 		await expect(page.getByText(/resultado:\s*ya usada/i)).toBeVisible({
 			timeout: 15_000,
 		});
+	});
+
+	test("escáner con cámara valida el enlace del QR", async ({ page, baseURL }) => {
+		const admin = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
+		const event = await createPublishedEventWithTickets(admin.accessToken);
+		const customer = await registerCustomer(`cam_${Date.now()}@e2e.local`);
+		const { publicCode } = await purchaseTicket(
+			customer.accessToken,
+			event.ticketTypeId,
+		);
+		const origin = (baseURL ?? "http://localhost:3000").replace(/\/$/, "");
+		const qrPayload = `${origin}/check/${publicCode}`;
+
+		await injectSession(page, admin);
+		await mockQrCameraScan(page, qrPayload);
+		await page.goto("/dashboard/scanner/");
+		await page.getByRole("button", { name: /escanear con cámara/i }).click();
+		await expect(page.getByText(/resultado:\s*válida/i)).toBeVisible({
+			timeout: 15_000,
+		});
+		await expect(page.getByLabel(/código del pase/i)).toHaveValue(publicCode);
 	});
 
 	test("admin puede abrir formulario de crear evento", async ({ page }) => {

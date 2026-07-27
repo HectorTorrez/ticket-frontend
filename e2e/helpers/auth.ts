@@ -13,6 +13,31 @@ export async function injectSession(page: Page, auth: AuthPayload) {
 	);
 }
 
+/** Mock Html5Qrcode so "Escanear con cámara" immediately emits a decoded payload. */
+export async function mockQrCameraScan(page: Page, decodedText: string) {
+	await page.addInitScript((payload) => {
+		class MockHtml5Qrcode {
+			start(
+				_camera: unknown,
+				_config: unknown,
+				onSuccess: (decoded: string) => void,
+			) {
+				queueMicrotask(() => onSuccess(payload));
+				return Promise.resolve(null);
+			}
+			stop() {
+				return Promise.resolve();
+			}
+			clear() {}
+		}
+		(
+			window as Window & {
+				__E2E_Html5Qrcode?: new (id: string) => MockHtml5Qrcode;
+			}
+		).__E2E_Html5Qrcode = MockHtml5Qrcode;
+	}, decodedText);
+}
+
 export async function loginViaUi(
 	page: Page,
 	email: string,
