@@ -100,7 +100,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 							{navLink("/events", "Eventos")}
 							{session &&
 								session.user.role === "CUSTOMER" &&
-								navLink("/my-tickets", "Mis entradas")}
+								navLink("/my-tickets", "Mis pases")}
 							{session &&
 								session.user.role === "CUSTOMER" &&
 								navLink("/my-orders", "Pedidos")}
@@ -129,7 +129,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 												<DropdownMenuItem asChild>
 													<Link to="/my-tickets">
 														<Ticket className="mr-2 size-4" />
-														Mis entradas
+														Mis pases
 													</Link>
 												</DropdownMenuItem>
 												<DropdownMenuItem asChild>
@@ -207,7 +207,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 									{sheetNavLink("/events", "Eventos")}
 									{session &&
 										session.user.role === "CUSTOMER" &&
-										sheetNavLink("/my-tickets", "Mis entradas")}
+										sheetNavLink("/my-tickets", "Mis pases")}
 									{session &&
 										session.user.role === "CUSTOMER" &&
 										sheetNavLink("/my-orders", "Pedidos")}
@@ -265,7 +265,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 									Tide Tickets
 								</p>
 								<p className="text-sm text-muted-foreground">
-									Descubre eventos y pases digitales
+									Cartelera, entradas y pases digitales
 								</p>
 							</div>
 						</div>
@@ -288,9 +288,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 							) : null}
 						</div>
 					</div>
-					<div className="mt-8 wave-rule max-w-xs" />
-					<p className="mt-4 text-xs text-muted-foreground">
-						© {new Date().getFullYear()} Tide Tickets · Reserva · paga · entra con QR
+					<div className="mt-8 h-px max-w-xs bg-border" />
+					<p className="font-ticket-code mt-4 text-xs text-muted-foreground">
+						© {new Date().getFullYear()} Tide Tickets · Reserva · paga · entra
+						con QR
 					</p>
 				</div>
 			</footer>
