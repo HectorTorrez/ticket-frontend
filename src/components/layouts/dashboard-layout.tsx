@@ -6,6 +6,7 @@ import {
 	Menu,
 	QrCode,
 	ShoppingBag,
+	Users,
 } from "lucide-react";
 import { ModeToggle } from "#/components/mode-toggle";
 import { Button } from "#/components/ui/button";
@@ -23,6 +24,7 @@ const links = [
 	{ to: "/dashboard", label: "Resumen", icon: LayoutDashboard, end: true },
 	{ to: "/dashboard/events", label: "Eventos", icon: CalendarSearch },
 	{ to: "/dashboard/orders", label: "Pedidos", icon: ShoppingBag },
+	{ to: "/dashboard/users", label: "Usuarios", icon: Users },
 	{ to: "/dashboard/scanner", label: "Escáner", icon: QrCode },
 ] as const;
 
@@ -147,6 +149,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 							← Volver al sitio
 						</Link>
 						<div className="flex items-center gap-1.5">
+							<Button variant="ghost" size="sm" className="gap-1.5" asChild>
+								<Link to="/change-password">
+									<span className="hidden sm:inline">Cambiar contraseña</span>
+								</Link>
+							</Button>
 							<Button
 								variant="ghost"
 								size="sm"

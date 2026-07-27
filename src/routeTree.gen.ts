@@ -17,9 +17,11 @@ import { Route as MyOrdersIndexRouteImport } from './routes/my-orders/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as ChangePasswordIndexRouteImport } from './routes/change-password/index'
 import { Route as MyOrdersOrderIdRouteImport } from './routes/my-orders/$orderId'
 import { Route as CheckPublicCodeRouteImport } from './routes/check/$publicCode'
 import { Route as EventsEventSlugOrIdIndexRouteImport } from './routes/events/$eventSlugOrId/index'
+import { Route as DashboardUsersIndexRouteImport } from './routes/dashboard/users/index'
 import { Route as DashboardScannerIndexRouteImport } from './routes/dashboard/scanner/index'
 import { Route as DashboardOrdersIndexRouteImport } from './routes/dashboard/orders/index'
 import { Route as DashboardEventsIndexRouteImport } from './routes/dashboard/events/index'
@@ -67,6 +69,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const ChangePasswordIndexRoute = ChangePasswordIndexRouteImport.update({
+  id: '/change-password/',
+  path: '/change-password/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyOrdersOrderIdRoute = MyOrdersOrderIdRouteImport.update({
   id: '/my-orders/$orderId',
   path: '/my-orders/$orderId',
@@ -83,6 +90,11 @@ const EventsEventSlugOrIdIndexRoute =
     path: '/events/$eventSlugOrId/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DashboardUsersIndexRoute = DashboardUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardScannerIndexRoute = DashboardScannerIndexRouteImport.update({
   id: '/scanner/',
   path: '/scanner/',
@@ -121,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
+  '/change-password/': typeof ChangePasswordIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/events/': typeof EventsIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -132,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/events/': typeof DashboardEventsIndexRoute
   '/dashboard/orders/': typeof DashboardOrdersIndexRoute
   '/dashboard/scanner/': typeof DashboardScannerIndexRoute
+  '/dashboard/users/': typeof DashboardUsersIndexRoute
   '/events/$eventSlugOrId/': typeof EventsEventSlugOrIdIndexRoute
   '/dashboard/events/$eventId/edit': typeof DashboardEventsEventIdEditRoute
 }
@@ -139,6 +153,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
+  '/change-password': typeof ChangePasswordIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/events': typeof EventsIndexRoute
   '/login': typeof LoginIndexRoute
@@ -150,6 +165,7 @@ export interface FileRoutesByTo {
   '/dashboard/events': typeof DashboardEventsIndexRoute
   '/dashboard/orders': typeof DashboardOrdersIndexRoute
   '/dashboard/scanner': typeof DashboardScannerIndexRoute
+  '/dashboard/users': typeof DashboardUsersIndexRoute
   '/events/$eventSlugOrId': typeof EventsEventSlugOrIdIndexRoute
   '/dashboard/events/$eventId/edit': typeof DashboardEventsEventIdEditRoute
 }
@@ -159,6 +175,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
+  '/change-password/': typeof ChangePasswordIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/events/': typeof EventsIndexRoute
   '/login/': typeof LoginIndexRoute
@@ -170,6 +187,7 @@ export interface FileRoutesById {
   '/dashboard/events/': typeof DashboardEventsIndexRoute
   '/dashboard/orders/': typeof DashboardOrdersIndexRoute
   '/dashboard/scanner/': typeof DashboardScannerIndexRoute
+  '/dashboard/users/': typeof DashboardUsersIndexRoute
   '/events/$eventSlugOrId/': typeof EventsEventSlugOrIdIndexRoute
   '/dashboard/events/$eventId/edit': typeof DashboardEventsEventIdEditRoute
 }
@@ -180,6 +198,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/check/$publicCode'
     | '/my-orders/$orderId'
+    | '/change-password/'
     | '/dashboard/'
     | '/events/'
     | '/login/'
@@ -191,6 +210,7 @@ export interface FileRouteTypes {
     | '/dashboard/events/'
     | '/dashboard/orders/'
     | '/dashboard/scanner/'
+    | '/dashboard/users/'
     | '/events/$eventSlugOrId/'
     | '/dashboard/events/$eventId/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -198,6 +218,7 @@ export interface FileRouteTypes {
     | '/'
     | '/check/$publicCode'
     | '/my-orders/$orderId'
+    | '/change-password'
     | '/dashboard'
     | '/events'
     | '/login'
@@ -209,6 +230,7 @@ export interface FileRouteTypes {
     | '/dashboard/events'
     | '/dashboard/orders'
     | '/dashboard/scanner'
+    | '/dashboard/users'
     | '/events/$eventSlugOrId'
     | '/dashboard/events/$eventId/edit'
   id:
@@ -217,6 +239,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/check/$publicCode'
     | '/my-orders/$orderId'
+    | '/change-password/'
     | '/dashboard/'
     | '/events/'
     | '/login/'
@@ -228,6 +251,7 @@ export interface FileRouteTypes {
     | '/dashboard/events/'
     | '/dashboard/orders/'
     | '/dashboard/scanner/'
+    | '/dashboard/users/'
     | '/events/$eventSlugOrId/'
     | '/dashboard/events/$eventId/edit'
   fileRoutesById: FileRoutesById
@@ -237,6 +261,7 @@ export interface RootRouteChildren {
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   CheckPublicCodeRoute: typeof CheckPublicCodeRoute
   MyOrdersOrderIdRoute: typeof MyOrdersOrderIdRoute
+  ChangePasswordIndexRoute: typeof ChangePasswordIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
   MyOrdersIndexRoute: typeof MyOrdersIndexRoute
@@ -304,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/change-password/': {
+      id: '/change-password/'
+      path: '/change-password'
+      fullPath: '/change-password/'
+      preLoaderRoute: typeof ChangePasswordIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-orders/$orderId': {
       id: '/my-orders/$orderId'
       path: '/my-orders/$orderId'
@@ -324,6 +356,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/events/$eventSlugOrId/'
       preLoaderRoute: typeof EventsEventSlugOrIdIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/users/': {
+      id: '/dashboard/users/'
+      path: '/users'
+      fullPath: '/dashboard/users/'
+      preLoaderRoute: typeof DashboardUsersIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
     '/dashboard/scanner/': {
       id: '/dashboard/scanner/'
@@ -376,6 +415,7 @@ interface DashboardRouteRouteChildren {
   DashboardEventsIndexRoute: typeof DashboardEventsIndexRoute
   DashboardOrdersIndexRoute: typeof DashboardOrdersIndexRoute
   DashboardScannerIndexRoute: typeof DashboardScannerIndexRoute
+  DashboardUsersIndexRoute: typeof DashboardUsersIndexRoute
   DashboardEventsEventIdEditRoute: typeof DashboardEventsEventIdEditRoute
 }
 
@@ -385,6 +425,7 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardEventsIndexRoute: DashboardEventsIndexRoute,
   DashboardOrdersIndexRoute: DashboardOrdersIndexRoute,
   DashboardScannerIndexRoute: DashboardScannerIndexRoute,
+  DashboardUsersIndexRoute: DashboardUsersIndexRoute,
   DashboardEventsEventIdEditRoute: DashboardEventsEventIdEditRoute,
 }
 
@@ -397,6 +438,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   CheckPublicCodeRoute: CheckPublicCodeRoute,
   MyOrdersOrderIdRoute: MyOrdersOrderIdRoute,
+  ChangePasswordIndexRoute: ChangePasswordIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
   MyOrdersIndexRoute: MyOrdersIndexRoute,

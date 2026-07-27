@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
 	CalendarDays,
+	KeyRound,
 	LayoutDashboard,
 	LogIn,
 	Menu,
@@ -147,6 +148,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 												</Link>
 											</DropdownMenuItem>
 										)}
+										<DropdownMenuItem asChild>
+											<Link to="/change-password">
+												<KeyRound className="mr-2 size-4" />
+												Cambiar contraseña
+											</Link>
+										</DropdownMenuItem>
 										<DropdownMenuSeparator />
 										<DropdownMenuItem onClick={() => void signOut()}>
 											Cerrar sesión
@@ -207,6 +214,8 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 									{session &&
 										isAdmin(session) &&
 										sheetNavLink("/dashboard", "Organizador")}
+									{session &&
+										sheetNavLink("/change-password", "Cambiar contraseña")}
 								</nav>
 								<SheetFooter className="mt-auto border-t pt-4">
 									{session ? (
