@@ -2,12 +2,8 @@ import { redirect } from "@tanstack/react-router";
 
 import { getSession, isAdmin, isCustomer } from "#lib/auth/session";
 
-function isBrowser(): boolean {
-	return typeof window !== "undefined";
-}
-
+/** Auth from localStorage — must run on the client (routes use `ssr: false`). */
 export function requireAuthRedirect(loginTo = "/login" as const) {
-	if (!isBrowser()) return;
 	const s = getSession();
 	if (!s) {
 		throw redirect({
@@ -18,7 +14,6 @@ export function requireAuthRedirect(loginTo = "/login" as const) {
 }
 
 export function requireCustomer() {
-	if (!isBrowser()) return;
 	const s = getSession();
 	if (!s || !isCustomer(s)) {
 		throw redirect({
@@ -29,7 +24,6 @@ export function requireCustomer() {
 }
 
 export function requireAdmin() {
-	if (!isBrowser()) return;
 	const s = getSession();
 	if (!s || !isAdmin(s)) {
 		throw redirect({ to: "/" });

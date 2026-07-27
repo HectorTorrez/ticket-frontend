@@ -28,6 +28,7 @@ const passwordValidator = (value: string) =>
 	value.length >= 8 ? undefined : "Al menos 8 caracteres";
 
 export const Route = createFileRoute("/register/")({
+	ssr: false,
 	beforeLoad: () => {
 		const s = getSession();
 		if (!s) return;

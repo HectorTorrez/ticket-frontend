@@ -13,6 +13,7 @@ import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/my-orders/$orderId")({
+	ssr: false,
 	beforeLoad: () => {
 		requireCustomer();
 	},

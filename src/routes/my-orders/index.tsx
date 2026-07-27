@@ -20,6 +20,7 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/my-orders/")({
+	ssr: false,
 	validateSearch: (s) => searchSchema.parse(s),
 	beforeLoad: () => {
 		requireCustomer();

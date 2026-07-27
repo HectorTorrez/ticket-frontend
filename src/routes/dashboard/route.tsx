@@ -4,6 +4,7 @@ import { DashboardLayout } from "#/components/layouts/dashboard-layout";
 import { requireAdmin } from "#/lib/auth/guards";
 
 export const Route = createFileRoute("/dashboard")({
+	ssr: false,
 	beforeLoad: () => {
 		requireAdmin();
 	},

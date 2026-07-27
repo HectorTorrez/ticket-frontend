@@ -15,6 +15,7 @@ import { labelFor, ticketStatusLabel } from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/my-tickets/")({
+	ssr: false,
 	beforeLoad: () => {
 		requireCustomer();
 	},

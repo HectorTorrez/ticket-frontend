@@ -79,6 +79,7 @@ function useCheckoutLines(eventSlugOrId: string): CheckoutLine[] | null {
 }
 
 export const Route = createFileRoute("/events/$eventSlugOrId/checkout")({
+	ssr: false,
 	beforeLoad: () => {
 		requireCustomer();
 	},

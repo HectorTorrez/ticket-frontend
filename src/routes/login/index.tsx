@@ -28,6 +28,7 @@ const passwordValidator = (value: string) =>
 	value.length >= 8 ? undefined : "Al menos 8 caracteres";
 
 export const Route = createFileRoute("/login/")({
+	ssr: false,
 	validateSearch: z.object({
 		redirect: z.string().optional(),
 	}),
