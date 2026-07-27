@@ -1,9 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { AlertTriangle, Calendar, MapPin, Minus, Plus, Eye, EyeOff } from "lucide-react";
+import {
+	AlertTriangle,
+	Calendar,
+	Eye,
+	EyeOff,
+	MapPin,
+	Minus,
+	Plus,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
+import { PageHeader } from "#/components/page-header";
+import { PosterSurface } from "#/components/poster-surface";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
@@ -28,10 +38,7 @@ function EventDetailPage() {
 		queryFn: () => fetchEventDetail(eventSlugOrId),
 	});
 
-	useErrorToast(
-		q.isError ? q.error : null,
-		"No pudimos cargar este evento",
-	);
+	useErrorToast(q.isError ? q.error : null, "No pudimos cargar este evento");
 
 	useInventorySocket(eventSlugOrId, q.data?.id);
 
@@ -101,17 +108,16 @@ function EventDetailPage() {
 	return (
 		<PublicLayout>
 			<div className="page-wrap py-10 md:py-12">
-				{/* Banner */}
-				<div className="rise-in overflow-hidden rounded-2xl border border-border/80 bg-card shadow-lg">
+				<div className="poster-frame poster-reveal overflow-hidden rounded-lg">
 					{ev.bannerUrl ? (
 						<img
 							src={ev.bannerUrl}
-							alt=""
+							alt={`Cartel de ${ev.title}`}
 							className="aspect-[21/9] w-full object-cover"
 						/>
 					) : (
-						<div className="flex aspect-[21/9] w-full items-center justify-center bg-gradient-to-br from-primary/15 to-primary/5">
-							<span className="display-title text-6xl font-bold text-primary/20">
+						<div className="flex aspect-[21/9] w-full items-center justify-center bg-secondary">
+							<span className="display-title text-6xl font-bold text-primary/30">
 								{ev.title.charAt(0)}
 							</span>
 						</div>
@@ -120,11 +126,11 @@ function EventDetailPage() {
 
 				<div className="mt-10 grid gap-10 lg:grid-cols-[1fr_340px] lg:items-start">
 					{/* Main content */}
-					<div className="rise-in stagger-1 space-y-8">
+					<div className="space-y-8">
 						<div className="space-y-4">
 							<div className="flex flex-wrap items-center gap-2">
 								{ev.published ? (
-									<Badge className="gap-1 bg-primary/10 text-primary hover:bg-primary/10">
+									<Badge variant="success" className="gap-1">
 										<Eye className="size-3 shrink-0" aria-hidden />
 										En venta
 									</Badge>
@@ -135,9 +141,7 @@ function EventDetailPage() {
 									</Badge>
 								)}
 							</div>
-							<h1 className="display-title text-3xl font-semibold md:text-4xl">
-								{ev.title}
-							</h1>
+							<PageHeader eyebrow="En cartelera" title={ev.title} />
 							<div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
 								<span className="flex items-center gap-1.5">
 									<MapPin className="size-4 shrink-0 text-primary" />
@@ -163,8 +167,8 @@ function EventDetailPage() {
 					</div>
 
 					{/* Sticky ticket panel */}
-					<aside className="rise-in stagger-2 lg:sticky lg:top-24">
-						<div className="ticket-edge island-shell rounded-xl p-6">
+					<aside className="lg:sticky lg:top-24">
+						<PosterSurface variant="receipt" padding="default">
 							<h2 className="display-title text-lg font-semibold">
 								Seleccionar entradas
 							</h2>
@@ -191,12 +195,10 @@ function EventDetailPage() {
 													</p>
 												</div>
 												<Badge
-													variant="outline"
-													className={cn(
-														"gap-1",
-														t.quantityRemaining <= 5 &&
-															"border-phosphor/50 text-phosphor",
-													)}
+													variant={
+														t.quantityRemaining <= 5 ? "live" : "outline"
+													}
+													className={cn("gap-1")}
 												>
 													{t.quantityRemaining <= 5 ? (
 														<>
@@ -211,7 +213,7 @@ function EventDetailPage() {
 													)}
 												</Badge>
 											</div>
-											<p className="mt-2 text-lg font-semibold">
+											<p className="display-title mt-2 text-xl font-semibold">
 												{new Intl.NumberFormat("es", {
 													style: "currency",
 													currency: "USD",
@@ -254,7 +256,7 @@ function EventDetailPage() {
 							<div className="mt-6 border-t border-border/60 pt-4">
 								<div className="flex items-center justify-between text-sm">
 									<span className="text-muted-foreground">Subtotal</span>
-									<span className="text-lg font-semibold">
+									<span className="display-title text-2xl font-semibold">
 										{new Intl.NumberFormat("es", {
 											style: "currency",
 											currency: "USD",
@@ -283,15 +285,11 @@ function EventDetailPage() {
 								>
 									Continuar al pago
 								</Button>
-								<Button
-									variant="ghost"
-									className="mt-2 w-full"
-									asChild
-								>
+								<Button variant="ghost" className="mt-2 w-full" asChild>
 									<Link to="/events">Volver a eventos</Link>
 								</Button>
 							</div>
-						</div>
+						</PosterSurface>
 					</aside>
 				</div>
 			</div>

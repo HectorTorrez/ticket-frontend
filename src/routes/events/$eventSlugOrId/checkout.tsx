@@ -5,12 +5,19 @@ import {
 	useNavigate,
 	useRouterState,
 } from "@tanstack/react-router";
-import { Check, Clock, CreditCard, Ticket, AlertTriangle } from "lucide-react";
+import { Check, Clock, CreditCard, Ticket } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { z } from "zod";
+import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { StatusIndicator, orderStatusTone } from "#/components/status-indicator";
+import { PageHeader } from "#/components/page-header";
+import { PosterSurface } from "#/components/poster-surface";
+import {
+	orderStatusTone,
+	StatusIndicator,
+} from "#/components/status-indicator";
+import { StatusPanel } from "#/components/status-panel";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
@@ -160,7 +167,9 @@ function CheckoutPage() {
 			});
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Error al procesar el pago"),
+			toast.error(
+				e instanceof ApiError ? e.message : "Error al procesar el pago",
+			),
 	});
 
 	const cancelMu = useMutation({
@@ -224,17 +233,18 @@ function CheckoutPage() {
 		return (
 			<PublicLayout>
 				<div className="page-wrap space-y-6 py-16">
-					<div className="island-shell rounded-xl p-10 text-center">
-						<Ticket className="mx-auto size-10 text-muted-foreground/50" />
-						<p className="mt-4 text-muted-foreground">
-							No se encontró ninguna selección de entradas.
-						</p>
-						<Button className="mt-6" asChild>
-							<Link to="/events/$eventSlugOrId" params={{ eventSlugOrId }}>
-								Volver al evento
-							</Link>
-						</Button>
-					</div>
+					<EmptyState
+						icon={Ticket}
+						title="Tu selección está vacía"
+						description="Elige al menos una entrada antes de continuar al pago."
+						action={
+							<Button asChild>
+								<Link to="/events/$eventSlugOrId" params={{ eventSlugOrId }}>
+									Volver al evento
+								</Link>
+							</Button>
+						}
+					/>
 				</div>
 			</PublicLayout>
 		);
@@ -254,9 +264,7 @@ function CheckoutPage() {
 		return (
 			<PublicLayout>
 				<div className="page-wrap py-16 text-center">
-					<p className="text-muted-foreground">
-						No pudimos cargar el pago.
-					</p>
+					<p className="text-muted-foreground">No pudimos cargar el pago.</p>
 					<Button className="mt-6" variant="outline" asChild>
 						<Link to="/events/$eventSlugOrId" params={{ eventSlugOrId }}>
 							Volver al evento
@@ -282,15 +290,17 @@ function CheckoutPage() {
 	return (
 		<PublicLayout>
 			<div className="page-wrap max-w-xl space-y-8 py-12 md:py-16">
-				<div className="rise-in">
-					<p className="island-kicker">Pago</p>
-					<h1 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
-						{ev.title}
-					</h1>
-				</div>
+				<PageHeader
+					eyebrow="Tu entrada"
+					title={ev.title}
+					description="Revisa la selección y completa el pago antes de que termine la reserva."
+				/>
 
 				{/* Steps */}
-				<ol className="rise-in stagger-1 flex items-center gap-2 text-sm">
+				<ol
+					className="flex items-center gap-2 text-sm"
+					aria-label="Progreso del pago"
+				>
 					{[
 						{ n: 1, label: "Selección", icon: Ticket },
 						{ n: 2, label: "Pago", icon: CreditCard },
@@ -311,9 +321,8 @@ function CheckoutPage() {
 								) : null}
 								<span
 									className={cn(
-										"flex items-center gap-1.5 rounded-full border px-3 py-2 font-medium transition-colors",
-										complete &&
-											"border-primary/40 bg-primary/5 text-primary",
+										"flex items-center gap-1.5 rounded-sm border px-3 py-2 font-medium transition-colors",
+										complete && "border-primary/40 bg-primary/5 text-primary",
 										current &&
 											"border-2 border-primary bg-primary/10 text-primary ring-2 ring-primary/15",
 										!complete &&
@@ -334,7 +343,7 @@ function CheckoutPage() {
 				</ol>
 
 				{/* Selection summary */}
-				<div className="ticket-edge island-shell rise-in stagger-2 rounded-xl p-6">
+				<PosterSurface variant="receipt" padding="default">
 					<h2 className="font-semibold">Tu selección</h2>
 					<ul className="mt-4 space-y-3 text-sm">
 						{lines.map((l) => {
@@ -358,16 +367,16 @@ function CheckoutPage() {
 							);
 						})}
 					</ul>
-					<div className="mt-4 flex justify-between border-t border-border/60 pt-4 font-semibold">
+					<div className="mt-4 flex justify-between border-t border-dashed border-border pt-4 font-semibold">
 						<span>Subtotal</span>
-						<span>
+						<span className="display-title text-2xl">
 							{new Intl.NumberFormat("es", {
 								style: "currency",
 								currency: "USD",
 							}).format(selectionTotal)}
 						</span>
 					</div>
-				</div>
+				</PosterSurface>
 
 				{reserve.isPending && !order ? (
 					<p className="text-sm text-muted-foreground">
@@ -376,23 +385,29 @@ function CheckoutPage() {
 				) : null}
 
 				{reserve.isError ? (
-					<div className="island-shell space-y-3 rounded-xl p-6">
-						<p className="text-sm text-muted-foreground">
-							No se pudo reservar tus entradas.
-						</p>
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={() => reserve.mutate()}
-							disabled={reserve.isPending}
-						>
-							Reintentar reserva
-						</Button>
-					</div>
+					<StatusPanel
+						tone="error"
+						title="No se pudo crear la reserva"
+						description="El inventario pudo cambiar mientras elegías tus entradas."
+						action={
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => reserve.mutate()}
+								disabled={reserve.isPending}
+							>
+								Reintentar reserva
+							</Button>
+						}
+					/>
 				) : null}
 
 				{order ? (
-					<div className="ticket-edge island-shell rise-in rounded-xl border-primary/30 p-6">
+					<PosterSurface
+						variant="receipt"
+						padding="default"
+						className="border-primary/30"
+					>
 						<div className="flex flex-wrap items-start justify-between gap-4">
 							<div>
 								<h2 className="font-semibold">Reserva confirmada</h2>
@@ -408,9 +423,7 @@ function CheckoutPage() {
 							{secondsLeft !== null && order.status === "PENDING" ? (
 								<div
 									className="countdown-ring"
-									style={
-										{ "--progress": progress } as React.CSSProperties
-									}
+									style={{ "--progress": progress } as React.CSSProperties}
 								>
 									<div className="countdown-ring-inner">
 										<span className="flex flex-col items-center leading-tight">
@@ -423,7 +436,7 @@ function CheckoutPage() {
 							) : null}
 						</div>
 
-						<p className="mt-4 text-3xl font-semibold">
+						<p className="display-title mt-4 text-4xl font-semibold">
 							{new Intl.NumberFormat("es", {
 								style: "currency",
 								currency: order.currency,
@@ -450,7 +463,7 @@ function CheckoutPage() {
 								</Button>
 							</div>
 						) : null}
-					</div>
+					</PosterSurface>
 				) : null}
 
 				<Button variant="ghost" asChild>
