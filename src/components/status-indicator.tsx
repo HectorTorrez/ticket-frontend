@@ -4,22 +4,22 @@ import {
 	Clock,
 	HelpCircle,
 	XCircle,
-} from "lucide-react"
+} from "lucide-react";
 
-import { cn } from "#/lib/utils"
+import { cn } from "#/lib/utils";
 
-type StatusTone = "success" | "warning" | "error" | "info" | "neutral"
+type StatusTone = "success" | "warning" | "error" | "info" | "neutral";
 
 const toneStyles: Record<
 	StatusTone,
 	{ className: string; icon: typeof CheckCircle2 }
 > = {
 	success: {
-		className: "text-green-700 dark:text-green-400",
+		className: "text-success",
 		icon: CheckCircle2,
 	},
 	warning: {
-		className: "text-amber-700 dark:text-amber-400",
+		className: "text-warning",
 		icon: AlertCircle,
 	},
 	error: {
@@ -34,56 +34,56 @@ const toneStyles: Record<
 		className: "text-muted-foreground",
 		icon: HelpCircle,
 	},
-}
+};
 
 export function orderStatusTone(status: string): StatusTone {
 	switch (status) {
 		case "PAID":
-			return "success"
+			return "success";
 		case "PENDING":
-			return "info"
+			return "info";
 		case "FAILED":
 		case "CANCELLED":
-			return "error"
+			return "error";
 		case "EXPIRED":
-			return "warning"
+			return "warning";
 		default:
-			return "neutral"
+			return "neutral";
 	}
 }
 
 export function ticketStatusTone(status: string): StatusTone {
 	switch (status) {
 		case "ACTIVE":
-			return "success"
+			return "success";
 		case "USED":
-			return "warning"
+			return "warning";
 		case "CANCELLED":
-			return "error"
+			return "error";
 		default:
-			return "neutral"
+			return "neutral";
 	}
 }
 
 export function qrResultTone(result: string): StatusTone {
 	switch (result) {
 		case "VALID":
-			return "success"
+			return "success";
 		case "ALREADY_USED":
-			return "warning"
+			return "warning";
 		case "INVALID":
-			return "error"
+			return "error";
 		default:
-			return "neutral"
+			return "neutral";
 	}
 }
 
 type StatusIndicatorProps = {
-	label: string
-	tone: StatusTone
-	className?: string
-	iconClassName?: string
-}
+	label: string;
+	tone: StatusTone;
+	className?: string;
+	iconClassName?: string;
+};
 
 export function StatusIndicator({
 	label,
@@ -91,7 +91,7 @@ export function StatusIndicator({
 	className,
 	iconClassName,
 }: StatusIndicatorProps) {
-	const { className: toneClass, icon: Icon } = toneStyles[tone]
+	const { className: toneClass, icon: Icon } = toneStyles[tone];
 
 	return (
 		<span
@@ -104,5 +104,5 @@ export function StatusIndicator({
 			<Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden />
 			<span>{label}</span>
 		</span>
-	)
+	);
 }
