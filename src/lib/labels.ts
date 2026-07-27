@@ -8,9 +8,9 @@ export const orderStatusLabel: Record<string, string> = {
 };
 
 export const ticketStatusLabel: Record<string, string> = {
-	ACTIVE: "Activa",
-	USED: "Usada",
-	CANCELLED: "Cancelada",
+	ACTIVE: "Activo",
+	USED: "Usado",
+	CANCELLED: "Cancelado",
 };
 
 export const ticketTierLabel: Record<string, string> = {
@@ -37,10 +37,7 @@ export function formatTicketCode(code: string): string {
 	return `${code.slice(0, 6)}···${code.slice(-4)}`;
 }
 
-export function labelFor(
-	map: Record<string, string>,
-	value: string,
-): string {
+export function labelFor(map: Record<string, string>, value: string): string {
 	if (map[value]) return map[value];
 	return value
 		.split("_")
