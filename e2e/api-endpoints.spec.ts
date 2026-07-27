@@ -179,9 +179,9 @@ test.describe("API endpoints", () => {
 
 		const tickets = await api("/me/tickets", { headers: auth });
 		expect(tickets.status).toBe(200);
-		const list = tickets.body as Array<{ publicCode: string }>;
-		expect(list.length).toBeGreaterThan(0);
-		const code = list[0].publicCode;
+		const list = tickets.body as { items: Array<{ publicCode: string }> };
+		expect(list.items.length).toBeGreaterThan(0);
+		const code = list.items[0].publicCode;
 
 		const publicTicket = await api(`/tickets/${code}`);
 		expect(publicTicket.status).toBe(200);

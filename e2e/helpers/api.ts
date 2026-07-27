@@ -141,15 +141,17 @@ export async function purchaseTicket(
 		throw new Error(`Pay failed: ${JSON.stringify(paid.body)}`);
 	}
 
-	const tickets = await api<Array<{ publicCode: string }>>("/me/tickets", {
+	const tickets = await api<{
+		items: Array<{ publicCode: string }>;
+	}>("/me/tickets", {
 		headers: { Authorization: `Bearer ${customerToken}` },
 	});
-	if (tickets.status >= 400 || !tickets.body[0]?.publicCode) {
+	if (tickets.status >= 400 || !tickets.body.items[0]?.publicCode) {
 		throw new Error(`Tickets failed: ${JSON.stringify(tickets.body)}`);
 	}
 
 	return {
 		orderId: paid.body.id,
-		publicCode: tickets.body[0].publicCode,
+		publicCode: tickets.body.items[0].publicCode,
 	};
 }
