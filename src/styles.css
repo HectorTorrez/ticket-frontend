@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,700&family=Manrope:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
@@ -7,82 +7,86 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Coastal palette — deep water, foam, phosphor accent */
-  --sea-ink: #0a1628;
-  --sea-ink-soft: #3d4f66;
-  --lagoon: #0e7490;
-  --lagoon-deep: #155e75;
-  --phosphor: #f97316;
-  --phosphor-soft: #fdba74;
-  --palm: #134e4a;
-  --sand: #f8f4ef;
-  --foam: #f0fdfa;
-  --surface: rgba(255, 255, 255, 0.88);
-  --surface-strong: rgba(255, 255, 255, 0.96);
-  --line: rgba(10, 22, 40, 0.1);
-  --inset-glint: rgba(255, 255, 255, 0.9);
-  --kicker: #0e7490;
-  --bg-base: #eef6f8;
-  --header-bg: rgba(248, 252, 253, 0.88);
-  --chip-bg: rgba(255, 255, 255, 0.92);
-  --chip-line: rgba(10, 22, 40, 0.12);
-  --link-bg-hover: rgba(255, 255, 255, 0.98);
-  --hero-a: rgba(14, 116, 144, 0.14);
-  --hero-b: rgba(249, 115, 22, 0.08);
+  /* Coastal Poster — ink, tide, paper and a single live accent */
+  --sea-ink: #102a33;
+  --sea-ink-soft: #56686b;
+  --lagoon: #146c6e;
+  --lagoon-deep: #0d5153;
+  --phosphor: #c9563d;
+  --phosphor-soft: #efb19f;
+  --palm: #27755f;
+  --sand: #f6f1e8;
+  --foam: #dce8e4;
+  --surface: #fbf8f2;
+  --surface-strong: #fffdf9;
+  --line: rgba(16, 42, 51, 0.16);
+  --inset-glint: rgba(255, 255, 255, 0.72);
+  --kicker: #146c6e;
+  --bg-base: #f6f1e8;
+  --header-bg: rgba(246, 241, 232, 0.94);
+  --chip-bg: #fffdf9;
+  --chip-line: rgba(16, 42, 51, 0.18);
+  --link-bg-hover: #dce8e4;
+  --hero-a: rgba(20, 108, 110, 0.12);
+  --hero-b: rgba(201, 86, 61, 0.08);
   --ticket-notch: var(--bg-base);
 
-  --background: oklch(0.985 0.008 200);
-  --foreground: oklch(0.2 0.04 240);
-  --card: oklch(0.995 0.004 200);
-  --card-foreground: oklch(0.2 0.04 240);
-  --popover: oklch(0.995 0.004 200);
-  --popover-foreground: oklch(0.2 0.04 240);
-  --primary: oklch(0.52 0.12 210);
-  --primary-foreground: oklch(0.99 0.01 200);
-  --secondary: oklch(0.95 0.02 200);
-  --secondary-foreground: oklch(0.28 0.06 210);
-  --muted: oklch(0.95 0.015 200);
-  --muted-foreground: oklch(0.48 0.04 220);
-  --accent: oklch(0.93 0.04 200);
-  --accent-foreground: oklch(0.32 0.08 210);
-  --destructive: oklch(0.55 0.2 35);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.02 200);
-  --input: oklch(0.9 0.02 200);
-  --ring: oklch(0.52 0.12 210);
+  --background: #f6f1e8;
+  --foreground: #102a33;
+  --card: #fffdf9;
+  --card-foreground: #102a33;
+  --popover: #fffdf9;
+  --popover-foreground: #102a33;
+  --primary: #146c6e;
+  --primary-foreground: #ffffff;
+  --secondary: #dce8e4;
+  --secondary-foreground: #102a33;
+  --muted: #e9ece7;
+  --muted-foreground: #56686b;
+  --accent: #dce8e4;
+  --accent-foreground: #102a33;
+  --destructive: #ad3f35;
+  --destructive-foreground: #ffffff;
+  --success: #27755f;
+  --success-foreground: #ffffff;
+  --warning: #a86b24;
+  --warning-foreground: #ffffff;
+  --border: #cfd9d5;
+  --input: #bfcfca;
+  --ring: #146c6e;
   --chart-1: oklch(0.52 0.12 210);
   --chart-2: oklch(0.62 0.14 200);
   --chart-3: oklch(0.68 0.16 55);
   --chart-4: oklch(0.72 0.1 180);
   --chart-5: oklch(0.78 0.08 220);
-  --radius: 0.75rem;
-  --sidebar: oklch(0.98 0.006 200);
-  --sidebar-foreground: oklch(0.2 0.04 240);
-  --sidebar-primary: oklch(0.52 0.12 210);
-  --sidebar-primary-foreground: oklch(0.99 0.01 200);
-  --sidebar-accent: oklch(0.95 0.02 200);
-  --sidebar-accent-foreground: oklch(0.28 0.06 210);
-  --sidebar-border: oklch(0.9 0.02 200);
-  --sidebar-ring: oklch(0.52 0.12 210);
+  --radius: 0.5rem;
+  --sidebar: #f1ece3;
+  --sidebar-foreground: #102a33;
+  --sidebar-primary: #146c6e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dce8e4;
+  --sidebar-accent-foreground: #102a33;
+  --sidebar-border: #cfd9d5;
+  --sidebar-ring: #146c6e;
 }
 
 .dark {
-  --sea-ink: #e8f4f8;
-  --sea-ink-soft: #94a8b8;
-  --lagoon: #67e8f9;
-  --lagoon-deep: #a5f3fc;
-  --phosphor: #fb923c;
-  --phosphor-soft: #fed7aa;
-  --palm: #5eead4;
-  --sand: #0c1520;
-  --foam: #0a121c;
-  --surface: rgba(14, 24, 36, 0.9);
-  --surface-strong: rgba(18, 30, 44, 0.96);
-  --line: rgba(232, 244, 248, 0.12);
+  --sea-ink: #eef6f3;
+  --sea-ink-soft: #a8b8b5;
+  --lagoon: #73c8c2;
+  --lagoon-deep: #a8ddd8;
+  --phosphor: #ef8b72;
+  --phosphor-soft: #f5b9aa;
+  --palm: #78c7a7;
+  --sand: #101d21;
+  --foam: #172a2d;
+  --surface: #152428;
+  --surface-strong: #1a2c30;
+  --line: rgba(238, 246, 243, 0.16);
   --inset-glint: rgba(255, 255, 255, 0.05);
   --kicker: #67e8f9;
-  --bg-base: #070d14;
-  --header-bg: rgba(7, 13, 20, 0.92);
+  --bg-base: #101d21;
+  --header-bg: rgba(16, 29, 33, 0.94);
   --chip-bg: rgba(16, 26, 38, 0.94);
   --chip-line: rgba(232, 244, 248, 0.16);
   --link-bg-hover: rgba(22, 34, 48, 0.96);
@@ -90,42 +94,48 @@
   --hero-b: rgba(251, 146, 60, 0.06);
   --ticket-notch: var(--bg-base);
 
-  --background: oklch(0.14 0.02 240);
-  --foreground: oklch(0.96 0.01 200);
-  --card: oklch(0.18 0.025 230);
-  --card-foreground: oklch(0.96 0.01 200);
-  --popover: oklch(0.18 0.025 230);
-  --popover-foreground: oklch(0.96 0.01 200);
-  --primary: oklch(0.72 0.12 200);
-  --primary-foreground: oklch(0.14 0.04 220);
-  --secondary: oklch(0.24 0.03 220);
-  --secondary-foreground: oklch(0.94 0.02 200);
-  --muted: oklch(0.24 0.03 220);
-  --muted-foreground: oklch(0.72 0.04 210);
-  --accent: oklch(0.28 0.04 220);
-  --accent-foreground: oklch(0.92 0.04 200);
-  --destructive: oklch(0.62 0.2 35);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.3 0.03 220);
-  --input: oklch(0.3 0.03 220);
-  --ring: oklch(0.72 0.12 200);
+  --background: #101d21;
+  --foreground: #eef6f3;
+  --card: #1a2c30;
+  --card-foreground: #eef6f3;
+  --popover: #1a2c30;
+  --popover-foreground: #eef6f3;
+  --primary: #73c8c2;
+  --primary-foreground: #102a33;
+  --secondary: #263b3e;
+  --secondary-foreground: #eef6f3;
+  --muted: #26373a;
+  --muted-foreground: #a8b8b5;
+  --accent: #294247;
+  --accent-foreground: #eef6f3;
+  --destructive: #e06d61;
+  --destructive-foreground: #101d21;
+  --success: #78c7a7;
+  --success-foreground: #101d21;
+  --warning: #d9a25c;
+  --warning-foreground: #101d21;
+  --border: #385054;
+  --input: #4a6467;
+  --ring: #73c8c2;
   --chart-1: oklch(0.72 0.12 200);
   --chart-2: oklch(0.65 0.1 190);
   --chart-3: oklch(0.72 0.16 55);
   --chart-4: oklch(0.78 0.08 180);
   --chart-5: oklch(0.85 0.06 210);
-  --sidebar: oklch(0.16 0.025 230);
-  --sidebar-foreground: oklch(0.96 0.01 200);
-  --sidebar-primary: oklch(0.72 0.12 200);
-  --sidebar-primary-foreground: oklch(0.14 0.04 220);
-  --sidebar-accent: oklch(0.24 0.03 220);
-  --sidebar-accent-foreground: oklch(0.94 0.02 200);
-  --sidebar-border: oklch(0.3 0.03 220);
-  --sidebar-ring: oklch(0.72 0.12 200);
+  --sidebar: #152428;
+  --sidebar-foreground: #eef6f3;
+  --sidebar-primary: #73c8c2;
+  --sidebar-primary-foreground: #102a33;
+  --sidebar-accent: #263b3e;
+  --sidebar-accent-foreground: #eef6f3;
+  --sidebar-border: #385054;
+  --sidebar-ring: #73c8c2;
 }
 
 @theme inline {
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -142,6 +152,10 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -181,45 +195,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   background-color: var(--bg-base);
-  background:
-    radial-gradient(1200px 640px at -8% -12%, var(--hero-a), transparent 58%),
-    radial-gradient(900px 500px at 105% -5%, var(--hero-b), transparent 55%),
-    radial-gradient(800px 400px at 50% 110%, color-mix(in oklab, var(--lagoon) 6%, transparent), transparent 60%),
-    linear-gradient(
-      175deg,
-      color-mix(in oklab, var(--foam) 70%, var(--sand)) 0%,
-      var(--background) 42%,
-      var(--bg-base) 100%
-    );
+  background: var(--background);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.35;
-  background:
-    radial-gradient(circle at 18% 8%, color-mix(in oklab, var(--lagoon) 12%, transparent), transparent 42%),
-    radial-gradient(circle at 82% 18%, color-mix(in oklab, var(--phosphor) 8%, transparent), transparent 38%);
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.08;
-  background-image:
-    linear-gradient(rgba(14, 116, 144, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14, 116, 144, 0.08) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(circle at 50% 20%, black, transparent 82%);
 }
 
 a:not([data-slot="button"]):not(.nav-link) {
@@ -267,36 +246,26 @@ pre code {
 }
 
 .display-title {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-optical-sizing: auto;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .island-shell {
   border: 1px solid var(--line);
-  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 22px 44px color-mix(in oklab, var(--sea-ink) 6%, transparent),
-    0 6px 18px color-mix(in oklab, var(--sea-ink) 4%, transparent);
-  backdrop-filter: blur(8px);
+  background: var(--surface-strong);
+  box-shadow: 0 12px 30px color-mix(in oklab, var(--sea-ink) 7%, transparent);
 }
 
 .feature-card {
-  background: linear-gradient(165deg, color-mix(in oklab, var(--surface-strong) 94%, var(--lagoon) 6%), var(--surface));
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 18px 34px color-mix(in oklab, var(--sea-ink) 5%, transparent),
-    0 4px 14px color-mix(in oklab, var(--sea-ink) 3%, transparent);
+  background: var(--surface-strong);
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--sea-ink) 6%, transparent);
 }
 
 .feature-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   border-color: color-mix(in oklab, var(--lagoon) 28%, var(--line));
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 24px 40px color-mix(in oklab, var(--lagoon) 10%, transparent),
-    0 8px 20px color-mix(in oklab, var(--sea-ink) 5%, transparent);
+  box-shadow: 0 14px 32px color-mix(in oklab, var(--sea-ink) 10%, transparent);
 }
 
 button,
@@ -449,16 +418,9 @@ a {
 .hero-poster {
   position: relative;
   border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 8px);
-  background: linear-gradient(
-    145deg,
-    color-mix(in oklab, var(--surface-strong) 85%, var(--lagoon) 15%),
-    var(--surface)
-  );
-  box-shadow:
-    0 1px 0 var(--inset-glint) inset,
-    0 32px 64px color-mix(in oklab, var(--lagoon) 12%, transparent),
-    0 8px 24px color-mix(in oklab, var(--sea-ink) 6%, transparent);
+  border-radius: calc(var(--radius) + 6px);
+  background: var(--surface-strong);
+  box-shadow: 0 24px 56px color-mix(in oklab, var(--sea-ink) 12%, transparent);
   overflow: hidden;
 }
 
@@ -466,24 +428,15 @@ a {
   content: '';
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 100% 0%, color-mix(in oklab, var(--phosphor) 14%, transparent), transparent 55%),
-    radial-gradient(ellipse 60% 50% at 0% 100%, color-mix(in oklab, var(--lagoon) 16%, transparent), transparent 50%);
+  width: 0.5rem;
+  right: auto;
+  background: var(--phosphor);
   pointer-events: none;
 }
 
 .wave-rule {
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--lagoon) 20%,
-    var(--phosphor) 50%,
-    var(--lagoon) 80%,
-    transparent
-  );
-  border-radius: 2px;
-  opacity: 0.7;
+  height: 1px;
+  background: var(--line);
 }
 
 .tier-card {
@@ -544,9 +497,11 @@ a {
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(135deg, var(--lagoon), color-mix(in oklab, var(--lagoon) 60%, var(--phosphor)));
-  color: white;
+  border-radius: 0.25rem;
+  border: 1px solid color-mix(in oklab, var(--lagoon) 72%, var(--sea-ink));
+  background: var(--lagoon);
+  color: var(--primary-foreground);
+  box-shadow: 3px 3px 0 var(--phosphor);
   flex-shrink: 0;
 }
 
@@ -561,11 +516,54 @@ a {
 }
 
 .flow-step-num {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 1.75rem;
   font-weight: 700;
   line-height: 1;
   color: color-mix(in oklab, var(--lagoon) 70%, var(--foreground));
+}
+
+.poster-frame {
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  box-shadow: 0 10px 26px color-mix(in oklab, var(--sea-ink) 7%, transparent);
+}
+
+.poster-date-rail {
+  background: var(--sea-ink);
+  color: var(--sand);
+}
+
+.stub-shell {
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  box-shadow: 0 10px 28px color-mix(in oklab, var(--sea-ink) 8%, transparent);
+}
+
+.font-ticket-code {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.poster-reveal {
+  animation: poster-reveal 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes poster-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) rotate(-0.3deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poster-reveal {
+    animation: none;
+  }
 }
 
 @layer base {
