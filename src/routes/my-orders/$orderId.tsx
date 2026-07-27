@@ -1,15 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ReceiptText } from "lucide-react";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { Badge } from "#/components/ui/badge";
+import { PageHeader } from "#/components/page-header";
+import { PosterSurface } from "#/components/poster-surface";
+import {
+	orderStatusTone,
+	StatusIndicator,
+} from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMyOrder } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
-import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
+import { formatOrderRef, labelFor, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/my-orders/$orderId")({
@@ -39,31 +44,39 @@ function OrderDetailPage() {
 
 				{q.isPending ? <Skeleton className="h-56 rounded-xl" /> : null}
 				{q.isError ? (
-					<p className="text-muted-foreground">
-						No pudimos cargar el pedido.
-					</p>
+					<p className="text-muted-foreground">No pudimos cargar el pedido.</p>
 				) : null}
 
 				{q.data ? (
-					<Card>
-						<CardHeader>
-							<div className="flex items-center justify-between gap-2">
-								<CardTitle>Recibo {formatOrderRef(q.data.id)}</CardTitle>
-								<Badge>{labelFor(orderStatusLabel, q.data.status)}</Badge>
+					<div className="space-y-6">
+						<PageHeader
+							eyebrow="Recibo digital"
+							title={`Pedido ${formatOrderRef(q.data.id)}`}
+							description={
+								<StatusIndicator
+									label={labelFor(orderStatusLabel, q.data.status)}
+									tone={orderStatusTone(q.data.status)}
+								/>
+							}
+						/>
+						<PosterSurface variant="receipt" padding="large">
+							<div className="flex items-start justify-between gap-4">
+								<div>
+									<p className="text-sm text-muted-foreground">Total</p>
+									<p className="display-title mt-1 text-4xl font-semibold">
+										{new Intl.NumberFormat("es", {
+											style: "currency",
+											currency: q.data.currency,
+										}).format(Number(q.data.totalAmount))}
+									</p>
+								</div>
+								<ReceiptText className="size-7 text-primary" aria-hidden />
 							</div>
-						</CardHeader>
-						<CardContent className="space-y-6">
-							<p className="text-3xl font-semibold">
-								{new Intl.NumberFormat("es", {
-									style: "currency",
-									currency: q.data.currency,
-								}).format(Number(q.data.totalAmount))}
-							</p>
-							<ul className="divide-y rounded-lg border">
+							<ul className="mt-8 divide-y divide-dashed divide-border border-y border-dashed border-border">
 								{q.data.lines.map((l) => (
 									<li
 										key={l.id}
-										className="flex justify-between gap-4 px-4 py-3 text-sm"
+										className="flex justify-between gap-4 py-4 text-sm"
 									>
 										<span>
 											{l.ticketType.name} × {l.quantity}
@@ -78,7 +91,7 @@ function OrderDetailPage() {
 								))}
 							</ul>
 							{q.data.paidAt ? (
-								<p className="text-sm text-muted-foreground">
+								<p className="mt-6 text-sm text-muted-foreground">
 									Pagado el{" "}
 									{new Intl.DateTimeFormat("es", {
 										dateStyle: "medium",
@@ -87,12 +100,14 @@ function OrderDetailPage() {
 								</p>
 							) : null}
 							{q.data.status === "PAID" ? (
-								<Button asChild>
-									<Link to="/my-tickets">Ver mis entradas</Link>
-								</Button>
+								<div className="mt-6">
+									<Button asChild>
+										<Link to="/my-tickets">Ver mis pases</Link>
+									</Button>
+								</div>
 							) : null}
-						</CardContent>
-					</Card>
+						</PosterSurface>
+					</div>
 				) : null}
 			</div>
 		</PublicLayout>

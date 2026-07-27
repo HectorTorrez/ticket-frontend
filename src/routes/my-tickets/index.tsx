@@ -1,17 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Calendar, MapPin, Ticket } from "lucide-react";
+import type { z } from "zod";
 
+import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { StatusIndicator, ticketStatusTone } from "#/components/status-indicator";
+import { PageHeader } from "#/components/page-header";
+import {
+	StatusIndicator,
+	ticketStatusTone,
+} from "#/components/status-indicator";
+import { StatusPanel } from "#/components/status-panel";
 import { TicketDateStub } from "#/components/ticket-date-stub";
+import { TicketQrCode } from "#/components/ticket-qr-code";
+import { TicketStub } from "#/components/ticket-stub";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
-import { TicketQrCode } from "#/components/ticket-qr-code";
 import { useErrorToast } from "#/hooks/use-error-toast";
+import type { myTicketSchema } from "#/lib/api/schemas";
 import { fetchMyTickets } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
-import { labelFor, ticketStatusLabel } from "#/lib/labels";
+import { formatTicketCode, labelFor, ticketStatusLabel } from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/my-tickets/")({
@@ -21,6 +30,8 @@ export const Route = createFileRoute("/my-tickets/")({
 	},
 	component: MyTicketsPage,
 });
+
+type MyTicket = z.infer<typeof myTicketSchema>;
 
 function MyTicketsPage() {
 	const q = useQuery({
@@ -33,16 +44,16 @@ function MyTicketsPage() {
 	return (
 		<PublicLayout>
 			<div className="page-wrap space-y-8 py-12 md:py-16">
-				<div className="rise-in">
-					<p className="island-kicker">Tu cartera</p>
-					<h1 className="display-title mt-2 text-3xl font-semibold md:text-4xl">
-						Mis entradas
-					</h1>
-					<p className="mt-2 text-muted-foreground">
-						Muestra estos pases en la entrada. Cada código es único para tu
-						compra.
-					</p>
-				</div>
+				<PageHeader
+					eyebrow="Tu cartera"
+					title="Mis pases"
+					description={
+						<p>
+							Muestra estos pases en la entrada. Cada código es único para tu
+							compra.
+						</p>
+					}
+				/>
 
 				{q.isPending ? (
 					<div className="grid gap-6 md:grid-cols-2">
@@ -52,38 +63,68 @@ function MyTicketsPage() {
 				) : null}
 
 				{q.isError ? (
-					<div className="island-shell rounded-xl p-8 text-center">
-						<p className="text-muted-foreground">
-							No pudimos cargar tus entradas.
-						</p>
-					</div>
+					<StatusPanel
+						tone="error"
+						title="No pudimos cargar tus pases"
+						description="Revisa tu conexión e inténtalo de nuevo."
+					/>
 				) : null}
 
 				{q.data && q.data.length === 0 ? (
-					<div className="island-shell rise-in rounded-xl p-12 text-center">
-						<Ticket className="mx-auto size-12 text-muted-foreground/50" />
-						<p className="mt-4 text-lg font-medium">Aún no tienes pases</p>
-						<p className="mt-1 text-muted-foreground">
-							Cuando compres entradas, aparecerán aquí listas para escanear.
-						</p>
-						<Button className="mt-6" asChild>
-							<Link to="/events">Explorar eventos</Link>
-						</Button>
-					</div>
+					<EmptyState
+						icon={Ticket}
+						title="Aún no tienes pases"
+						description="Cuando compres entradas, aparecerán aquí listas para escanear."
+						action={
+							<Button asChild>
+								<Link to="/events" search={{ page: 1, limit: 10 }}>
+									Explorar eventos
+								</Link>
+							</Button>
+						}
+					/>
 				) : null}
 
 				{q.data && q.data.length > 0 ? (
-					<ul className="grid gap-6 md:grid-cols-2">
-						{q.data.map((t) => (
+					<ul className="grid gap-6">
+						{q.data.map((t: MyTicket) => (
 							<li key={t.id}>
-								<article className="pass-card ticket-edge-left flex overflow-hidden rounded-xl">
-									<div className="pass-card-stub flex w-20 shrink-0 flex-col items-center justify-center gap-1 px-3 py-6 text-center">
+								<TicketStub
+									rail={
 										<TicketDateStub
 											startsAt={t.event.startsAt}
 											tier={t.ticketType.tier}
 										/>
-									</div>
-									<div className="flex min-w-0 flex-1 flex-col gap-4 p-5 sm:flex-row sm:items-center">
+									}
+									aside={
+										<div className="flex shrink-0 flex-col items-center gap-2">
+											<div className="rounded-md border border-border bg-white p-2">
+												<TicketQrCode
+													publicCode={t.publicCode}
+													alt={`Código QR para ${t.event.title}`}
+													className="rounded"
+												/>
+											</div>
+											<span className="font-ticket-code text-[0.65rem] uppercase tracking-wider text-muted-foreground">
+												{formatTicketCode(t.publicCode)}
+											</span>
+											<Button
+												variant="link"
+												size="sm"
+												className="text-xs"
+												asChild
+											>
+												<Link
+													to="/check/$publicCode"
+													params={{ publicCode: t.publicCode }}
+												>
+													Ver pase completo
+												</Link>
+											</Button>
+										</div>
+									}
+								>
+									<div className="flex min-w-0 flex-1 flex-col gap-4">
 										<div className="min-w-0 flex-1 space-y-2">
 											<div className="flex flex-wrap items-start justify-between gap-2">
 												<h2 className="display-title font-semibold leading-snug">
@@ -115,28 +156,8 @@ function MyTicketsPage() {
 												) : null}
 											</div>
 										</div>
-										<div className="flex shrink-0 flex-col items-center gap-2">
-											<div className="rounded-lg border-2 border-dashed border-primary/20 bg-white p-2">
-												<TicketQrCode
-													publicCode={t.publicCode}
-													alt={`Código QR para ${t.event.title}`}
-													className="rounded"
-												/>
-											</div>
-											<span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-												Escanear en la entrada
-											</span>
-											<Button variant="link" size="sm" className="h-auto p-0 text-xs" asChild>
-												<Link
-													to="/check/$publicCode"
-													params={{ publicCode: t.publicCode }}
-												>
-													Ver pase completo
-												</Link>
-											</Button>
-										</div>
 									</div>
-								</article>
+								</TicketStub>
 							</li>
 						))}
 					</ul>

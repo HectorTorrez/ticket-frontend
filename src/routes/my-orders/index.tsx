@@ -1,16 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ReceiptText } from "lucide-react";
 import { z } from "zod";
 
+import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
-import { Badge } from "#/components/ui/badge";
+import { PageHeader } from "#/components/page-header";
+import {
+	orderStatusTone,
+	StatusIndicator,
+} from "#/components/status-indicator";
+import { TicketStub } from "#/components/ticket-stub";
 import { Button } from "#/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMyOrders } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
-import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
+import { formatOrderRef, labelFor, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
 
 const searchSchema = z.object({
@@ -43,51 +49,45 @@ function MyOrdersPage() {
 	return (
 		<PublicLayout>
 			<div className="page-wrap space-y-8 py-12">
-				<div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-					<div>
-						<h1 className="display-title text-3xl font-semibold">
-							Historial de pedidos
-						</h1>
-						<p className="mt-1 text-muted-foreground">
-							Reservas y compras en tu cuenta.
-						</p>
-					</div>
-					<form
-						className="flex flex-wrap items-center gap-2"
-						onSubmit={(e) => {
-							e.preventDefault();
-							const fd = new FormData(e.currentTarget);
-							const st = String(fd.get("status") ?? "").trim();
-							navigate({
-								search: {
-									page: 1,
-									limit,
-									status: st || undefined,
-								},
-							});
-						}}
-					>
-						<select
-							name="status"
-							defaultValue={status ?? ""}
-							className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+				<PageHeader
+					eyebrow="Tu cartera"
+					title="Pedidos"
+					description="Reservas, pagos y recibos de tus entradas."
+					action={
+						<form
+							className="flex flex-wrap items-center gap-2"
+							onSubmit={(e) => {
+								e.preventDefault();
+								const fd = new FormData(e.currentTarget);
+								const st = String(fd.get("status") ?? "").trim();
+								navigate({
+									search: {
+										page: 1,
+										limit,
+										status: st || undefined,
+									},
+								});
+							}}
 						>
-							<option value="">Todos los estados</option>
-							<option value="PENDING">
-								{orderStatusLabel.PENDING}
-							</option>
-							<option value="PAID">{orderStatusLabel.PAID}</option>
-							<option value="FAILED">{orderStatusLabel.FAILED}</option>
-							<option value="EXPIRED">{orderStatusLabel.EXPIRED}</option>
-							<option value="CANCELLED">
-								{orderStatusLabel.CANCELLED}
-							</option>
-						</select>
-						<Button type="submit" size="sm" variant="outline">
-							Filtrar
-						</Button>
-					</form>
-				</div>
+							<select
+								name="status"
+								defaultValue={status ?? ""}
+								aria-label="Filtrar por estado"
+								className="h-12 rounded-md border border-input bg-background px-3 text-sm"
+							>
+								<option value="">Todos los estados</option>
+								<option value="PENDING">{orderStatusLabel.PENDING}</option>
+								<option value="PAID">{orderStatusLabel.PAID}</option>
+								<option value="FAILED">{orderStatusLabel.FAILED}</option>
+								<option value="EXPIRED">{orderStatusLabel.EXPIRED}</option>
+								<option value="CANCELLED">{orderStatusLabel.CANCELLED}</option>
+							</select>
+							<Button type="submit" variant="outline">
+								Filtrar
+							</Button>
+						</form>
+					}
+				/>
 
 				{q.isPending ? <Skeleton className="h-48 rounded-xl" /> : null}
 				{q.isError ? (
@@ -97,33 +97,58 @@ function MyOrdersPage() {
 				) : null}
 
 				{q.data && q.data.items.length === 0 ? (
-					<Card>
-						<CardContent className="py-12 text-center text-muted-foreground">
-							Aún no tienes pedidos.
-						</CardContent>
-					</Card>
+					<EmptyState
+						icon={ReceiptText}
+						title="Aún no tienes pedidos"
+						description="Tus reservas y pagos aparecerán aquí después de elegir un evento."
+						action={
+							<Button asChild>
+								<Link to="/events">Explorar eventos</Link>
+							</Button>
+						}
+					/>
 				) : null}
 
 				{q.data && q.data.items.length > 0 ? (
 					<ul className="space-y-4">
 						{q.data.items.map((o) => (
 							<li key={o.id}>
-								<Card>
-									<CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-										<CardTitle className="text-base">
-											Pedido {formatOrderRef(o.id)}
-										</CardTitle>
-										<Badge variant="outline">
-											{labelFor(orderStatusLabel, o.status)}
-										</Badge>
-									</CardHeader>
-									<CardContent className="space-y-3 text-sm">
-										<p className="text-lg font-semibold">
-											{new Intl.NumberFormat("es", {
-												style: "currency",
-												currency: o.currency,
-											}).format(Number(o.totalAmount))}
-										</p>
+								<TicketStub
+									rail={
+										<div>
+											<ReceiptText className="mx-auto size-5" aria-hidden />
+											<span className="font-ticket-code mt-2 block text-[0.65rem]">
+												{formatOrderRef(o.id)}
+											</span>
+										</div>
+									}
+									aside={
+										<Button variant="outline" asChild>
+											<Link to="/my-orders/$orderId" params={{ orderId: o.id }}>
+												Ver recibo
+											</Link>
+										</Button>
+									}
+								>
+									<div className="space-y-3 text-sm">
+										<div className="flex flex-wrap items-start justify-between gap-3">
+											<div>
+												<p className="text-sm text-muted-foreground">
+													Pedido {formatOrderRef(o.id)}
+												</p>
+												<p className="display-title mt-1 text-3xl font-semibold">
+													{new Intl.NumberFormat("es", {
+														style: "currency",
+														currency: o.currency,
+													}).format(Number(o.totalAmount))}
+												</p>
+											</div>
+											<StatusIndicator
+												label={labelFor(orderStatusLabel, o.status)}
+												tone={orderStatusTone(o.status)}
+												className="text-sm"
+											/>
+										</div>
 										<ul className="space-1 text-muted-foreground">
 											{o.lines.map((l) => (
 												<li key={l.id}>
@@ -131,13 +156,8 @@ function MyOrdersPage() {
 												</li>
 											))}
 										</ul>
-										<Button variant="link" className="h-auto p-0" asChild>
-											<Link to="/my-orders/$orderId" params={{ orderId: o.id }}>
-												Ver recibo
-											</Link>
-										</Button>
-									</CardContent>
-								</Card>
+									</div>
+								</TicketStub>
 							</li>
 						))}
 					</ul>
