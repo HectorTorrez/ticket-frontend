@@ -4,20 +4,18 @@ import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { z } from "zod";
-
+import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
+import { PageHeader } from "#/components/page-header";
+import { PosterSurface } from "#/components/poster-surface";
 import { Button } from "#/components/ui/button";
-import { useErrorToast } from "#/hooks/use-error-toast";
 import { DateRangePicker } from "#/components/ui/date-range-picker";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchEventsList } from "#/lib/api/ticket-api";
-import {
-	parseSearchDate,
-	toFilterFromDate,
-	toFilterToDate,
-} from "#/lib/dates";
+import { parseSearchDate, toFilterFromDate, toFilterToDate } from "#/lib/dates";
 import { eventsKeys } from "#/lib/query-keys";
 import { EventCard } from "#/routes/events/-components/event-card";
 
@@ -84,73 +82,73 @@ function EventsListPage() {
 	return (
 		<PublicLayout>
 			<div className="page-wrap space-y-10 py-12 md:py-16">
-				<header className="rise-in space-y-3">
-					<p className="island-kicker">Descubre</p>
-					<h1 className="display-title text-3xl font-semibold md:text-4xl">
-						Explorar eventos
-					</h1>
-					<p className="max-w-xl text-muted-foreground">
-						Experiencias en vivo con disponibilidad en tiempo real. Consigue
-						entradas antes de que se agoten.
-					</p>
-				</header>
+				<PageHeader
+					eyebrow="Cartelera"
+					title="Explorar eventos"
+					description={
+						<p>
+							Experiencias en vivo con disponibilidad en tiempo real. Consigue
+							entradas antes de que se agoten.
+						</p>
+					}
+				/>
 
-				<form
-					className="island-shell rise-in stagger-1 flex flex-col gap-4 rounded-xl p-6 md:flex-row md:flex-wrap md:items-end"
-					onSubmit={(e) => {
-						e.preventDefault();
-						const fd = new FormData(e.currentTarget);
-						const nq = String(fd.get("q") ?? "").trim();
-						navigate({
-							search: {
-								page: 1,
-								limit,
-								q: nq || undefined,
-								from: dateRange?.from
-									? toFilterFromDate(dateRange.from)
-									: undefined,
-								to: dateRange?.to
-									? toFilterToDate(dateRange.to)
-									: undefined,
-							},
-						});
-					}}
-				>
-					<div className="min-w-[200px] flex-1 space-y-2">
-						<Label htmlFor="q">Buscar</Label>
-						<div className="relative">
-							<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-							<Input
-								id="q"
-								name="q"
-								placeholder="Título o lugar"
-								defaultValue={q ?? ""}
-								className="pl-9"
+				<PosterSurface variant="flow" padding="none">
+					<form
+						className="flex flex-col gap-4 p-6 md:flex-row md:flex-wrap md:items-end"
+						onSubmit={(e) => {
+							e.preventDefault();
+							const fd = new FormData(e.currentTarget);
+							const nq = String(fd.get("q") ?? "").trim();
+							navigate({
+								search: {
+									page: 1,
+									limit,
+									q: nq || undefined,
+									from: dateRange?.from
+										? toFilterFromDate(dateRange.from)
+										: undefined,
+									to: dateRange?.to ? toFilterToDate(dateRange.to) : undefined,
+								},
+							});
+						}}
+					>
+						<div className="min-w-[200px] flex-1 space-y-2">
+							<Label htmlFor="q">Buscar</Label>
+							<div className="relative">
+								<Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+								<Input
+									id="q"
+									name="q"
+									placeholder="Título o lugar"
+									defaultValue={q ?? ""}
+									className="pl-9"
+								/>
+							</div>
+						</div>
+						<div className="w-full space-y-2 md:w-auto">
+							<Label htmlFor="date-range">Fechas</Label>
+							<DateRangePicker
+								id="date-range"
+								value={dateRange}
+								onChange={setDateRange}
+								onClear={() => {
+									if (from || to) {
+										navigate({
+											search: {
+												page: 1,
+												limit,
+												q: q || undefined,
+											},
+										});
+									}
+								}}
+								placeholder="Cualquier fecha"
 							/>
 						</div>
-					</div>
-					<div className="w-full space-y-2 md:w-auto">
-						<Label htmlFor="date-range">Fechas</Label>
-						<DateRangePicker
-							id="date-range"
-							value={dateRange}
-							onChange={setDateRange}
-							onClear={() => {
-								if (from || to) {
-									navigate({
-										search: {
-											page: 1,
-											limit,
-											q: q || undefined,
-										},
-									});
-								}
-							}}
-							placeholder="Cualquier fecha"
-						/>
-					</div>
-					<Button type="submit">Aplicar filtros</Button>
-				</form>
+						<Button type="submit">Aplicar filtros</Button>
+					</form>
+				</PosterSurface>
 
 				{query.isPending ? (
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -168,30 +166,31 @@ function EventsListPage() {
 				) : null}
 
 				{query.isError ? (
-					<div className="island-shell rounded-xl p-12 text-center">
-						<p className="text-muted-foreground">
-							No pudimos cargar los eventos. Inténtalo de nuevo en unos instantes.
-						</p>
-					</div>
+					<EmptyState
+						icon={Search}
+						title="No pudimos abrir la cartelera"
+						description="Inténtalo de nuevo en unos instantes."
+					/>
 				) : null}
 
 				{query.data && query.data.items.length === 0 ? (
-					<div className="island-shell rounded-xl p-12 text-center">
-						<p className="text-muted-foreground">
-							Ningún evento coincide con tus filtros.
-						</p>
-						<Button
-							variant="outline"
-							className="mt-4"
-							onClick={() =>
-								navigate({
-									search: { page: 1, limit },
-								})
-							}
-						>
-							Limpiar filtros
-						</Button>
-					</div>
+					<EmptyState
+						icon={Search}
+						title="No encontramos esa fecha"
+						description="Ningún evento coincide con los filtros aplicados."
+						action={
+							<Button
+								variant="outline"
+								onClick={() =>
+									navigate({
+										search: { page: 1, limit },
+									})
+								}
+							>
+								Limpiar filtros
+							</Button>
+						}
+					/>
 				) : null}
 
 				{query.data && query.data.items.length > 0 ? (

@@ -54,78 +54,85 @@ export function EventCard({ event }: EventCardProps) {
 	const fromPrice = minPrice(event);
 
 	return (
-		<article className="feature-card ticket-edge group flex flex-col overflow-hidden rounded-xl border border-border/80">
-			<div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
-				{event.bannerUrl ? (
-					<img
-						src={event.bannerUrl}
-						alt=""
-						className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-						loading="lazy"
-					/>
-				) : (
-					<div className="flex size-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/10 to-primary/5 text-muted-foreground">
-						<span className="display-title text-3xl font-bold text-primary/30">
-							{event.title.charAt(0)}
-						</span>
-					</div>
-				)}
-				<div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-				<div className="absolute left-3 top-3 flex flex-col items-center rounded-lg bg-background/95 px-2.5 py-1.5 text-center shadow-sm backdrop-blur-sm">
-					<span className="text-xs font-bold tracking-wide text-primary">
-						{dateChip.month}
-					</span>
-					<span className="display-title text-xl font-bold leading-none">
-						{dateChip.day}
-					</span>
-				</div>
-				{soldOut ? (
-					<Badge className="absolute right-3 top-3 bg-phosphor text-white hover:bg-phosphor">
-						Agotado
-					</Badge>
-				) : null}
+		<article className="poster-frame group grid grid-cols-[4.5rem_1fr] overflow-hidden rounded-lg">
+			<div className="poster-date-rail flex flex-col items-center justify-start gap-1 px-2 py-5 text-center">
+				<span className="text-[0.68rem] font-bold tracking-[0.14em]">
+					{dateChip.month}
+				</span>
+				<span className="display-title text-3xl font-bold leading-none">
+					{dateChip.day}
+				</span>
+				<span className="mt-auto font-ticket-code text-[0.62rem] uppercase tracking-wider opacity-70">
+					En vivo
+				</span>
 			</div>
-			<div className="flex flex-1 flex-col gap-3 p-5">
-				<div>
-					<h2 className="display-title text-lg font-semibold leading-snug">
-						{event.title}
-					</h2>
-					<p className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-						<MapPin className="size-3.5 shrink-0" />
-						{event.venue ?? "Lugar por confirmar"}
-					</p>
-				</div>
-				<p className="text-sm text-muted-foreground">
-					{formatWhen(event.startsAt)}
-				</p>
-				<div className="mt-auto flex items-center justify-between gap-3 border-t border-border/60 pt-4">
-					<div className="text-sm">
-						{fromPrice !== null ? (
-							<>
-								<span className="text-muted-foreground">Desde </span>
-								<span className="font-semibold">
-									{new Intl.NumberFormat("es", {
-										style: "currency",
-										currency: "USD",
-									}).format(fromPrice)}
-								</span>
-							</>
-						) : (
-							<span className="text-muted-foreground">
-								{event.ticketTypes.length} categoría
-								{event.ticketTypes.length === 1 ? "" : "s"}
+			<div className="min-w-0">
+				<div className="relative aspect-[16/9] w-full overflow-hidden bg-muted">
+					{event.bannerUrl ? (
+						<img
+							src={event.bannerUrl}
+							alt={`Cartel de ${event.title}`}
+							className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.025]"
+							loading="lazy"
+						/>
+					) : (
+						<div className="flex size-full items-center justify-center bg-secondary text-primary">
+							<span className="display-title text-5xl font-bold opacity-30">
+								{event.title.charAt(0)}
 							</span>
-						)}
+						</div>
+					)}
+					<div className="absolute inset-0 bg-gradient-to-t from-sea-ink/45 via-transparent to-transparent" />
+					{soldOut ? (
+						<Badge variant="live" className="absolute right-3 top-3">
+							Agotado
+						</Badge>
+					) : null}
+				</div>
+				<div className="flex min-h-52 flex-col gap-3 p-5">
+					<div>
+						<h2 className="display-title text-xl font-semibold leading-tight">
+							{event.title}
+						</h2>
+						<p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+							<MapPin className="size-3.5 shrink-0" />
+							{event.venue ?? "Lugar por confirmar"}
+						</p>
 					</div>
-					<Button size="sm" className="gap-1.5" asChild>
-						<Link
-							to="/events/$eventSlugOrId"
-							params={{ eventSlugOrId: event.slug }}
-						>
-							Comprar entradas
-							<ArrowRight className="size-3.5" />
-						</Link>
-					</Button>
+					<p className="text-sm text-muted-foreground">
+						{formatWhen(event.startsAt)}
+					</p>
+					<div className="mt-auto flex items-end justify-between gap-3 border-t border-dashed border-border pt-4">
+						<div className="text-sm">
+							{fromPrice !== null ? (
+								<>
+									<span className="block text-xs text-muted-foreground">
+										Desde
+									</span>
+									<span className="display-title text-xl font-semibold">
+										{new Intl.NumberFormat("es", {
+											style: "currency",
+											currency: "USD",
+										}).format(fromPrice)}
+									</span>
+								</>
+							) : (
+								<span className="text-muted-foreground">
+									{event.ticketTypes.length} categoría
+									{event.ticketTypes.length === 1 ? "" : "s"}
+								</span>
+							)}
+						</div>
+						<Button size="sm" variant="outline" className="gap-1.5" asChild>
+							<Link
+								to="/events/$eventSlugOrId"
+								params={{ eventSlugOrId: event.slug }}
+							>
+								Ver evento
+								<ArrowRight className="size-3.5" />
+							</Link>
+						</Button>
+					</div>
 				</div>
 			</div>
 		</article>
