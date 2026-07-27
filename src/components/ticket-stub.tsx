@@ -23,7 +23,7 @@ export function TicketStub({
 				className,
 			)}
 		>
-			<div className="poster-date-rail flex min-h-20 items-center justify-center px-3 py-5 text-center">
+			<div className="poster-date-rail flex min-h-20 min-w-0 flex-col items-center justify-center gap-1 px-2 py-5 text-center">
 				{rail}
 			</div>
 			<div className="min-w-0 p-5 md:p-6">{children}</div>

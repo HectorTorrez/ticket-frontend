@@ -127,7 +127,7 @@ function MyTicketsPage() {
 									<div className="flex min-w-0 flex-1 flex-col gap-4">
 										<div className="min-w-0 flex-1 space-y-2">
 											<div className="flex flex-wrap items-start justify-between gap-2">
-												<h2 className="display-title font-semibold leading-snug">
+												<h2 className="display-title min-w-0 wrap-break-word font-semibold leading-snug">
 													{t.event.title}
 												</h2>
 												<StatusIndicator
