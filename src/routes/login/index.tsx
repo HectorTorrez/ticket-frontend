@@ -182,6 +182,10 @@ function LoginPage() {
 						<Button type="submit" className="w-full" size="lg">
 							Iniciar sesión
 						</Button>
+						<p className="text-center text-sm text-muted-foreground">
+							¿Olvidaste tu contraseña? Contacta a un administrador para
+							restablecerla.
+						</p>
 					</form>
 					<p className="text-center text-sm text-muted-foreground">
 						¿No tienes cuenta?{" "}
