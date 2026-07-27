@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Calendar, MapPin, Ticket } from "lucide-react";
-import type { z } from "zod";
+import { z } from "zod";
 
 import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
@@ -16,6 +16,7 @@ import { TicketQrCode } from "#/components/ticket-qr-code";
 import { TicketStub } from "#/components/ticket-stub";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "#/components/ui/tabs";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import type { myTicketSchema } from "#/lib/api/schemas";
 import { fetchMyTickets } from "#/lib/api/ticket-api";
@@ -23,23 +24,65 @@ import { requireCustomer } from "#/lib/auth/guards";
 import { formatTicketCode, labelFor, ticketStatusLabel } from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
 
+const searchSchema = z.object({
+	when: z.enum(["upcoming", "past", "all"]).optional(),
+	page: z.coerce.number().catch(1),
+	limit: z.coerce.number().catch(5),
+});
+
 export const Route = createFileRoute("/my-tickets/")({
 	ssr: false,
+	validateSearch: (search) => searchSchema.parse(search),
 	beforeLoad: () => {
 		requireCustomer();
 	},
 	component: MyTicketsPage,
 });
 
+type WhenFilter = NonNullable<z.infer<typeof searchSchema>["when"]>;
 type MyTicket = z.infer<typeof myTicketSchema>;
 
+const emptyFilterCopy: Record<
+	Exclude<WhenFilter, "all">,
+	{ title: string; description: string }
+> = {
+	upcoming: {
+		title: "No tienes pases próximos",
+		description:
+			"Cuando compres entradas para eventos futuros, aparecerán aquí.",
+	},
+	past: {
+		title: "Aún no tienes pases pasados",
+		description:
+			"Los pases de eventos que ya ocurrieron se mostrarán en esta sección.",
+	},
+};
+
 function MyTicketsPage() {
+	const search = Route.useSearch();
+	const { when: whenParam, page, limit } = search;
+	const when = whenParam ?? "upcoming";
+	const navigate = Route.useNavigate();
 	const q = useQuery({
-		queryKey: ticketsKeys.mine(),
-		queryFn: fetchMyTickets,
+		queryKey: ticketsKeys.mine({ when, page, limit }),
+		queryFn: () => fetchMyTickets({ when, page, limit }),
 	});
 
 	useErrorToast(q.isError ? q.error : null, "No pudimos cargar tus entradas");
+
+	const tickets = q.data?.items ?? [];
+	const totalTickets = q.data?.counts.total ?? 0;
+	const filteredTotal = q.data?.total ?? 0;
+	const hasAnyTickets = totalTickets > 0;
+	const showGlobalEmpty = q.isSuccess && !hasAnyTickets;
+	const filteredCountForWhen =
+		when === "upcoming"
+			? (q.data?.counts.upcoming ?? 0)
+			: when === "past"
+				? (q.data?.counts.past ?? 0)
+				: totalTickets;
+	const showFilteredEmpty =
+		q.isSuccess && hasAnyTickets && filteredCountForWhen === 0 && when !== "all";
 
 	return (
 		<PublicLayout>
@@ -54,6 +97,27 @@ function MyTicketsPage() {
 						</p>
 					}
 				/>
+
+				{hasAnyTickets ? (
+					<Tabs
+						value={when}
+						onValueChange={(value) => {
+							navigate({
+								search: {
+									when: value as WhenFilter,
+									page: 1,
+									limit,
+								},
+							});
+						}}
+					>
+						<TabsList aria-label="Filtrar pases por fecha">
+							<TabsTrigger value="upcoming">Próximos</TabsTrigger>
+							<TabsTrigger value="past">Pasados</TabsTrigger>
+							<TabsTrigger value="all">Todos</TabsTrigger>
+						</TabsList>
+					</Tabs>
+				) : null}
 
 				{q.isPending ? (
 					<div className="grid gap-6 md:grid-cols-2">
@@ -70,7 +134,7 @@ function MyTicketsPage() {
 					/>
 				) : null}
 
-				{q.data && q.data.length === 0 ? (
+				{showGlobalEmpty ? (
 					<EmptyState
 						icon={Ticket}
 						title="Aún no tienes pases"
@@ -85,9 +149,34 @@ function MyTicketsPage() {
 					/>
 				) : null}
 
-				{q.data && q.data.length > 0 ? (
+				{showFilteredEmpty ? (
+					<EmptyState
+						icon={Ticket}
+						title={emptyFilterCopy[when].title}
+						description={emptyFilterCopy[when].description}
+						action={
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => {
+									navigate({
+										search: {
+											when: when === "upcoming" ? "past" : "upcoming",
+											page: 1,
+											limit,
+										},
+									});
+								}}
+							>
+								{when === "upcoming" ? "Ver pasados" : "Ver próximos"}
+							</Button>
+						}
+					/>
+				) : null}
+
+				{tickets.length > 0 ? (
 					<ul className="grid gap-6">
-						{q.data.map((t: MyTicket) => (
+						{tickets.map((t: MyTicket) => (
 							<li key={t.id}>
 								<TicketStub
 									rail={
@@ -161,6 +250,34 @@ function MyTicketsPage() {
 							</li>
 						))}
 					</ul>
+				) : null}
+
+				{q.isSuccess && filteredTotal > 0 ? (
+					<div className="flex items-center justify-between gap-4">
+						<Button
+							type="button"
+							variant="outline"
+							disabled={page <= 1}
+							onClick={() =>
+								navigate({ search: { ...search, when, page: page - 1 } })
+							}
+						>
+							Anterior
+						</Button>
+						<p className="text-sm text-muted-foreground">
+							Página {page} de {Math.max(1, Math.ceil(filteredTotal / limit))}
+						</p>
+						<Button
+							type="button"
+							variant="outline"
+							disabled={page * limit >= filteredTotal}
+							onClick={() =>
+								navigate({ search: { ...search, when, page: page + 1 } })
+							}
+						>
+							Siguiente
+						</Button>
+					</div>
 				) : null}
 			</div>
 		</PublicLayout>
