@@ -5,12 +5,14 @@
  * `/events`, `/events/:slugOrId`, `/tickets/:publicCode`, `/tickets/:publicCode/qr`. Catalog `GET /events*`
  * ignores `Authorization` (still published-only on `:slugOrId`).
  *
+ * **Authenticated (any role + Bearer)** — `POST` `/auth/change-password`.
+ *
  * **Customer (`CUSTOMER` + Bearer)** — `GET` `/me/orders`, `/me/orders/:id`, `/me/tickets`; `POST` `/orders`,
  * `/orders/:id/mock-pay`, `/orders/:id/cancel`. No `/me/events`; use public `/events` routes to browse.
  *
  * **Admin (`ADMIN` + Bearer)** — `GET` `/admin/events` (drafts + published); `POST` `/events`; `PATCH|DELETE` `/events/:id`;
  * `POST` publish/unpublish/banner; `POST` `/events/:eventId/ticket-types`; `PATCH|DELETE` `/ticket-types/:id`;
- * `GET` `/admin/orders`, `/dashboard/summary`; `POST` `/qr/validate`.
+ * `GET` `/admin/orders`, `/dashboard/summary`; `POST` `/admin/users/reset-password`, `/qr/validate`.
  *
  * **Token refresh** is implemented in `client.ts` (`POST /auth/refresh`).
  *
@@ -20,6 +22,7 @@ import { z } from "zod";
 import { ApiError } from "#/lib/api/errors";
 import { apiRequest } from "#lib/api/client";
 import {
+	adminResetPasswordResponseSchema,
 	authResponseSchema,
 	cancelOrderResponseSchema,
 	dashboardSummarySchema,
@@ -61,6 +64,27 @@ export async function loginRequest(body: { email: string; password: string }) {
 		body,
 		skipAuth: true,
 	});
+}
+
+export async function changePasswordRequest(body: {
+	currentPassword: string;
+	newPassword: string;
+}) {
+	return apiRequest("/auth/change-password", authResponseSchema, {
+		method: "POST",
+		body,
+	});
+}
+
+export async function adminResetPasswordRequest(body: { email: string }) {
+	return apiRequest(
+		"/admin/users/reset-password",
+		adminResetPasswordResponseSchema,
+		{
+			method: "POST",
+			body,
+		},
+	);
 }
 
 export async function logoutRequest() {

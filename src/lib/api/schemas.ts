@@ -32,6 +32,15 @@ export const authResponseSchema = z.object({
 
 export type AuthResponse = z.infer<typeof authResponseSchema>;
 
+export const adminResetPasswordResponseSchema = z.object({
+	temporaryPassword: z.string().min(8),
+	user: userSchema,
+});
+
+export type AdminResetPasswordResponse = z.infer<
+	typeof adminResetPasswordResponseSchema
+>;
+
 export const healthOkSchema = z.object({
 	status: z.literal("ok"),
 });
