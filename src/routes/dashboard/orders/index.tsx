@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
@@ -23,6 +23,7 @@ import { fetchAdminOrders } from "#/lib/api/ticket-api";
 import type { ExportColumn } from "#/lib/export/table-export";
 import { formatOrderRef, labelFor, orderStatusLabel } from "#/lib/labels";
 import { adminOrdersKeys } from "#/lib/query-keys";
+import { cn } from "#/lib/utils.ts";
 
 const searchSchema = z.object({
 	page: z.coerce.number().catch(1),
@@ -99,6 +100,7 @@ function AdminOrdersPage() {
 				sortBy: effectiveSort.sortBy,
 				sortOrder: effectiveSort.sortOrder,
 			}),
+		placeholderData: keepPreviousData,
 	});
 
 	useErrorToast(q.isError ? q.error : null, "No pudimos cargar los pedidos");
@@ -206,14 +208,19 @@ function AdminOrdersPage() {
 				</Button>
 			</form>
 
-			{q.isPending ? <Skeleton className="h-72 rounded-xl" /> : null}
+			{q.isLoading ? <Skeleton className="h-72 rounded-xl" /> : null}
 			{q.isError ? (
 				<p className="text-muted-foreground">No pudimos cargar los pedidos.</p>
 			) : null}
 
 			{q.data && q.data.items.length > 0 ? (
 				<>
-					<div className="overflow-x-auto rounded-xl border">
+					<div
+						className={cn(
+							"overflow-x-auto rounded-xl border transition-opacity",
+							q.isFetching && "opacity-60",
+						)}
+					>
 						<Table>
 							<TableHeader>
 								<TableRow>

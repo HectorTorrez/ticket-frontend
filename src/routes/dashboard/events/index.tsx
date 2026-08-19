@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	keepPreviousData,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import type { z as zod } from "zod";
@@ -31,6 +36,7 @@ import {
 } from "#/lib/api/ticket-api";
 import type { ExportColumn } from "#/lib/export/table-export";
 import { eventsKeys } from "#/lib/query-keys";
+import { cn } from "#/lib/utils.ts";
 
 type EventListItem = zod.infer<typeof eventListItemSchema>;
 
@@ -131,6 +137,7 @@ function DashboardEventsList() {
 				sortBy: effectiveSort.sortBy,
 				sortOrder: effectiveSort.sortOrder,
 			}),
+		placeholderData: keepPreviousData,
 	});
 
 	useErrorToast(q.isError ? q.error : null, "No pudimos cargar los eventos");
@@ -187,7 +194,7 @@ function DashboardEventsList() {
 				</div>
 			</div>
 
-			{q.isPending ? <Skeleton className="h-64 w-full rounded-xl" /> : null}
+			{q.isLoading ? <Skeleton className="h-64 w-full rounded-xl" /> : null}
 			{q.isError ? (
 				<p className="text-muted-foreground">No pudimos cargar los eventos.</p>
 			) : null}
@@ -198,7 +205,12 @@ function DashboardEventsList() {
 
 			{q.data && q.data.items.length > 0 ? (
 				<>
-					<div className="overflow-x-auto rounded-xl border">
+					<div
+						className={cn(
+							"overflow-x-auto rounded-xl border transition-opacity",
+							q.isFetching && "opacity-60",
+						)}
+					>
 						<Table>
 							<TableHeader>
 								<TableRow>
