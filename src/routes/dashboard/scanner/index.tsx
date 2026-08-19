@@ -4,10 +4,7 @@ import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { QrCameraScanner } from "#/components/qr-camera-scanner";
-import {
-	StatusIndicator,
-	qrResultTone,
-} from "#/components/status-indicator";
+import { qrResultTone, StatusIndicator } from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
 import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
@@ -66,9 +63,12 @@ function ScannerPage() {
 	return (
 		<div className="mx-auto max-w-md space-y-8">
 			<div>
-				<h1 className="display-title text-2xl font-semibold">Control de acceso</h1>
+				<h1 className="display-title text-2xl font-semibold">
+					Control de acceso
+				</h1>
 				<p className="mt-1 text-sm text-muted-foreground">
-					Escanea el código QR del asistente o introduce el código del pase manualmente.
+					Escanea el código QR del asistente o introduce el código del pase
+					manualmente.
 				</p>
 			</div>
 			<div className="island-shell space-y-6 rounded-xl p-8">
@@ -107,8 +107,7 @@ function ScannerPage() {
 								"border-green-600/30 bg-green-50 dark:bg-green-950/30",
 							last === "ALREADY_USED" &&
 								"border-amber-600/30 bg-amber-50 dark:bg-amber-950/30",
-							last === "INVALID" &&
-								"border-destructive/30 bg-destructive/5",
+							last === "INVALID" && "border-destructive/30 bg-destructive/5",
 						)}
 						aria-live="polite"
 					>

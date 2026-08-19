@@ -35,11 +35,13 @@ export function runViewTransition(
 		return;
 	}
 
-	document.startViewTransition(() => {
-		startTransition(() => {
-			void update();
-		});
-	}).finished.finally(finish);
+	document
+		.startViewTransition(() => {
+			startTransition(() => {
+				void update();
+			});
+		})
+		.finished.finally(finish);
 }
 
 export function eventBannerTransitionName(eventId: string) {

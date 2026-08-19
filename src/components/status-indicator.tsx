@@ -6,9 +6,10 @@ import {
 	XCircle,
 } from "lucide-react";
 
+import { Badge } from "#/components/ui/badge";
 import { cn } from "#/lib/utils";
 
-type StatusTone = "success" | "warning" | "error" | "info" | "neutral";
+export type StatusTone = "success" | "warning" | "error" | "info" | "neutral";
 
 const toneStyles: Record<
 	StatusTone,
@@ -104,5 +105,42 @@ export function StatusIndicator({
 			<Icon className={cn("size-4 shrink-0", iconClassName)} aria-hidden />
 			<span>{label}</span>
 		</span>
+	);
+}
+
+export function statusToneToBadgeVariant(
+	tone: StatusTone,
+): "success" | "warning" | "destructive" | "info" | "outline" {
+	switch (tone) {
+		case "success":
+			return "success";
+		case "warning":
+			return "warning";
+		case "error":
+			return "destructive";
+		case "info":
+			return "info";
+		default:
+			return "outline";
+	}
+}
+
+type StatusBadgeProps = {
+	label: string;
+	tone: StatusTone;
+	className?: string;
+};
+
+export function StatusBadge({ label, tone, className }: StatusBadgeProps) {
+	const { icon: Icon } = toneStyles[tone];
+
+	return (
+		<Badge
+			variant={statusToneToBadgeVariant(tone)}
+			className={cn("gap-1", className)}
+		>
+			<Icon aria-hidden />
+			{label}
+		</Badge>
 	);
 }

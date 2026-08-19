@@ -8,7 +8,8 @@ const localStorageMock: Storage = {
 		store.clear();
 	},
 	getItem(key: string) {
-		return store.has(key) ? store.get(key)! : null;
+		const value = store.get(key);
+		return store.has(key) && value !== undefined ? value : null;
 	},
 	key(index: number) {
 		return Array.from(store.keys())[index] ?? null;

@@ -18,8 +18,8 @@ import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { ApiError } from "#/lib/api/errors";
-import { adminResetPasswordRequest } from "#/lib/api/ticket-api";
 import type { AdminResetPasswordResponse } from "#/lib/api/schemas";
+import { adminResetPasswordRequest } from "#/lib/api/ticket-api";
 
 const emailSchema = z.string().email("Se requiere un correo válido");
 
@@ -33,9 +33,7 @@ export const Route = createFileRoute("/dashboard/users/")({
 });
 
 function AdminUsersPage() {
-	const [result, setResult] = useState<AdminResetPasswordResponse | null>(
-		null,
-	);
+	const [result, setResult] = useState<AdminResetPasswordResponse | null>(null);
 
 	const form = useForm({
 		defaultValues: { email: "" },
@@ -143,8 +141,8 @@ function AdminUsersPage() {
 					<DialogHeader>
 						<DialogTitle>Contraseña temporal generada</DialogTitle>
 						<DialogDescription>
-							Cópiala ahora; no se volverá a mostrar. Entrégasela al usuario
-							por un canal seguro.
+							Cópiala ahora; no se volverá a mostrar. Entrégasela al usuario por
+							un canal seguro.
 						</DialogDescription>
 					</DialogHeader>
 					{result ? (

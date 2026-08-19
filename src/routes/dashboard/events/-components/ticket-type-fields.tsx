@@ -1,4 +1,3 @@
-import type { TicketTier } from "#/lib/api/schemas";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import {
@@ -8,6 +7,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "#/components/ui/select";
+import type { TicketTier } from "#/lib/api/schemas";
 import { ticketTierLabel } from "#/lib/labels";
 
 export const TIER_OPTIONS: { value: TicketTier; label: string }[] = [
@@ -49,7 +49,10 @@ export function TicketTypeFields({
 				<Label htmlFor={`${idPrefix}-tier`} required>
 					Categoría
 				</Label>
-				<Select value={tier} onValueChange={(v) => onTierChange(v as TicketTier)}>
+				<Select
+					value={tier}
+					onValueChange={(v) => onTierChange(v as TicketTier)}
+				>
 					<SelectTrigger id={`${idPrefix}-tier`}>
 						<SelectValue />
 					</SelectTrigger>

@@ -4,8 +4,8 @@ import {
 	getSession,
 	isAdmin,
 	isCustomer,
-	setSession,
 	type PersistedSession,
+	setSession,
 } from "./session";
 
 const sample: PersistedSession = {

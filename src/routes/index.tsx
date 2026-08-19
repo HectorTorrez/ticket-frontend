@@ -172,7 +172,10 @@ function HomePage() {
 								) : null}
 							</div>
 
-							<aside className="hero-admit-stub" aria-label="Cómo funciona tu entrada">
+							<aside
+								className="hero-admit-stub"
+								aria-label="Cómo funciona tu entrada"
+							>
 								<p className="hero-admit-stub__label">Admit one</p>
 								<p className="hero-admit-stub__route">
 									Reserva · Paga · QR en puerta
@@ -216,11 +219,7 @@ function HomePage() {
 				{featured.data && featured.data.items.length > 0 ? (
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 						{featured.data.items.map((ev, index) => (
-							<EventCard
-								key={ev.id}
-								event={ev}
-								revealDelayMs={index * 60}
-							/>
+							<EventCard key={ev.id} event={ev} revealDelayMs={index * 60} />
 						))}
 					</div>
 				) : null}
@@ -271,7 +270,9 @@ function HomePage() {
 					].map((c, i) => (
 						<ScrollReveal key={c.title} as="div" delayMs={i * 70}>
 							<div className="px-0 py-7 md:px-6">
-								<p className="font-ticket-code text-xs text-primary">0{i + 1}</p>
+								<p className="font-ticket-code text-xs text-primary">
+									0{i + 1}
+								</p>
 								<h3 className="font-semibold">{c.title}</h3>
 								<p className="mt-2 text-sm leading-relaxed text-muted-foreground">
 									{c.body}

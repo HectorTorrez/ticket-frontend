@@ -45,7 +45,10 @@ export function buildSiteMeta(overrides?: {
 	const meta: MetaTag[] = [
 		{ title },
 		{ name: "description", content: description },
-		{ name: "robots", content: overrides?.noIndex ? "noindex, nofollow" : "index, follow" },
+		{
+			name: "robots",
+			content: overrides?.noIndex ? "noindex, nofollow" : "index, follow",
+		},
 		{ property: "og:type", content: "website" },
 		{ property: "og:site_name", content: site.name },
 		{ property: "og:locale", content: site.locale },

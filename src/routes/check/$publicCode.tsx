@@ -6,8 +6,8 @@ import { toast } from "sonner";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
 import {
-	StatusIndicator,
 	qrResultTone,
+	StatusIndicator,
 	ticketStatusTone,
 } from "#/components/status-indicator";
 import { TicketDateStub } from "#/components/ticket-date-stub";
@@ -17,7 +17,12 @@ import { useErrorToast } from "#/hooks/use-error-toast";
 import { ApiError } from "#/lib/api/errors";
 import { fetchPublicTicket, validateQrCode } from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
-import { labelFor, formatTicketCode, qrResultLabel, ticketStatusLabel } from "#/lib/labels";
+import {
+	formatTicketCode,
+	labelFor,
+	qrResultLabel,
+	ticketStatusLabel,
+} from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
 
 export const Route = createFileRoute("/check/$publicCode")({
@@ -74,9 +79,7 @@ function CheckTicketPage() {
 					</h1>
 				</div>
 
-				{ticketQ.isPending ? (
-					<Skeleton className="h-72 rounded-xl" />
-				) : null}
+				{ticketQ.isPending ? <Skeleton className="h-72 rounded-xl" /> : null}
 
 				{ticketQ.isError ? (
 					<div className="island-shell rounded-xl p-8 text-center">
@@ -125,7 +128,9 @@ function CheckTicketPage() {
 							</div>
 							<p className="text-xs text-muted-foreground">
 								Código del pase{" "}
-								<span className="font-mono">{formatTicketCode(ticket.publicCode)}</span>
+								<span className="font-mono">
+									{formatTicketCode(ticket.publicCode)}
+								</span>
 							</p>
 						</div>
 					</article>

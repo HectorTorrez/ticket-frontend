@@ -12,11 +12,7 @@ import { ThemeProvider } from "next-themes";
 import { AppErrorBoundary } from "#/components/app-error-boundary";
 import { JsonLd } from "#/components/json-ld";
 import { Toaster } from "#/components/ui/sonner";
-import {
-	buildSiteMeta,
-	organizationJsonLd,
-	websiteJsonLd,
-} from "#/lib/seo";
+import { buildSiteMeta, organizationJsonLd, websiteJsonLd } from "#/lib/seo";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 

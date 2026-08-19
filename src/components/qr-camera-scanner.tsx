@@ -25,13 +25,15 @@ type ScannerInstance = {
 type ScannerCtor = new (elementId: string) => ScannerInstance;
 
 function resolveScannerCtor(): ScannerCtor {
-	const override = (
-		window as Window & { __E2E_Html5Qrcode?: ScannerCtor }
-	).__E2E_Html5Qrcode;
+	const override = (window as Window & { __E2E_Html5Qrcode?: ScannerCtor })
+		.__E2E_Html5Qrcode;
 	return override ?? (Html5Qrcode as unknown as ScannerCtor);
 }
 
-export function QrCameraScanner({ onScan, disabled = false }: QrCameraScannerProps) {
+export function QrCameraScanner({
+	onScan,
+	disabled = false,
+}: QrCameraScannerProps) {
 	const regionId = useId().replace(/:/g, "");
 	const scannerRef = useRef<ScannerInstance | null>(null);
 	const lastScanRef = useRef("");
@@ -60,9 +62,7 @@ export function QrCameraScanner({ onScan, disabled = false }: QrCameraScannerPro
 			.catch((e: unknown) => {
 				if (!cancelled) {
 					toast.error(
-						e instanceof Error
-							? e.message
-							: "No se pudo acceder a la cámara",
+						e instanceof Error ? e.message : "No se pudo acceder a la cámara",
 					);
 					setActive(false);
 				}
@@ -73,7 +73,10 @@ export function QrCameraScanner({ onScan, disabled = false }: QrCameraScannerPro
 			const instance = scannerRef.current;
 			scannerRef.current = null;
 			if (!instance) return;
-			void instance.stop().then(() => instance.clear()).catch(() => {});
+			void instance
+				.stop()
+				.then(() => instance.clear())
+				.catch(() => {});
 		};
 	}, [active, disabled, onScan, regionId]);
 

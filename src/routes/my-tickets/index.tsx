@@ -82,7 +82,10 @@ function MyTicketsPage() {
 				? (q.data?.counts.past ?? 0)
 				: totalTickets;
 	const showFilteredEmpty =
-		q.isSuccess && hasAnyTickets && filteredCountForWhen === 0 && when !== "all";
+		q.isSuccess &&
+		hasAnyTickets &&
+		filteredCountForWhen === 0 &&
+		when !== "all";
 
 	return (
 		<PublicLayout>

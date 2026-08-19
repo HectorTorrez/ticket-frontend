@@ -89,10 +89,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 		<div className="flex min-h-dvh">
 			<aside className="hidden min-h-dvh w-60 shrink-0 flex-col border-r border-border bg-sidebar text-sidebar-foreground lg:flex">
 				<div className="flex h-16 flex-col justify-center border-b border-sidebar-border px-4">
-					<Link to="/dashboard" className="display-title font-semibold leading-tight">
+					<Link
+						to="/dashboard"
+						className="display-title font-semibold leading-tight"
+					>
 						Tide Tickets
 					</Link>
-					<span className="text-xs text-sidebar-foreground/70">Panel de organizador</span>
+					<span className="text-xs text-sidebar-foreground/70">
+						Panel de organizador
+					</span>
 				</div>
 				<div className="flex flex-1 flex-col">
 					<NavDesktop />
@@ -123,8 +128,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 						</SheetTrigger>
 						<SheetContent side="left" className="flex w-64 flex-col p-0">
 							<div className="flex h-14 flex-col justify-center border-b px-4">
-								<span className="font-semibold leading-tight">Tide Tickets</span>
-								<span className="text-xs text-muted-foreground">Panel de organizador</span>
+								<span className="font-semibold leading-tight">
+									Tide Tickets
+								</span>
+								<span className="text-xs text-muted-foreground">
+									Panel de organizador
+								</span>
 							</div>
 							<NavMobile />
 							<SheetFooter className="mt-auto border-t p-4">

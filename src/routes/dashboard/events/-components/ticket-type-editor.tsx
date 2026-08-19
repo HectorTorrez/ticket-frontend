@@ -64,7 +64,9 @@ export function TicketTypeEditor({
 		setTier(ticketType.tier);
 		setName(ticketType.name);
 		setPrice(ticketType.price);
-		setQuantity(String(ticketType.quantityTotal ?? ticketType.quantityRemaining));
+		setQuantity(
+			String(ticketType.quantityTotal ?? ticketType.quantityRemaining),
+		);
 	}, [ticketType]);
 
 	const isDirty = useMemo(
@@ -72,7 +74,8 @@ export function TicketTypeEditor({
 			tier !== ticketType.tier ||
 			name !== ticketType.name ||
 			price !== ticketType.price ||
-			quantity !== String(ticketType.quantityTotal ?? ticketType.quantityRemaining),
+			quantity !==
+				String(ticketType.quantityTotal ?? ticketType.quantityRemaining),
 		[tier, name, price, quantity, ticketType],
 	);
 

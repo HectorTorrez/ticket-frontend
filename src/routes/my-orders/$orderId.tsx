@@ -5,10 +5,7 @@ import { ReceiptText } from "lucide-react";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { PageHeader } from "#/components/page-header";
 import { PosterSurface } from "#/components/poster-surface";
-import {
-	orderStatusTone,
-	StatusIndicator,
-} from "#/components/status-indicator";
+import { orderStatusTone, StatusBadge } from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
@@ -53,7 +50,7 @@ function OrderDetailPage() {
 							eyebrow="Recibo digital"
 							title={`Pedido ${formatOrderRef(q.data.id)}`}
 							description={
-								<StatusIndicator
+								<StatusBadge
 									label={labelFor(orderStatusLabel, q.data.status)}
 									tone={orderStatusTone(q.data.status)}
 								/>

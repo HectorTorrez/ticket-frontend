@@ -10,9 +10,9 @@ import { FieldError, FieldHint } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Textarea } from "#/components/ui/textarea";
+import { adminEventsDefaultSearch } from "#/lib/admin/default-search";
 import { ApiError, getUserFacingErrorMessage } from "#/lib/api/errors";
 import { createEvent } from "#/lib/api/ticket-api";
-import { adminEventsDefaultSearch } from "#/lib/admin/default-search";
 import { eventsKeys } from "#/lib/query-keys";
 
 const schema = z.object({

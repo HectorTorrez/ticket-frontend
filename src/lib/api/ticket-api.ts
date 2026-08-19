@@ -18,7 +18,7 @@
  *
  * **WebSocket** — Socket.IO namespace `/inventory`; any valid JWT role may connect (`inventory-socket.ts`).
  */
-import { z } from "zod";
+import type { z } from "zod";
 import { ApiError } from "#/lib/api/errors";
 import { apiRequest } from "#lib/api/client";
 import {
@@ -28,9 +28,9 @@ import {
 	dashboardSummarySchema,
 	deleteResponseSchema,
 	eventDetailSchema,
+	type eventListItemSchema,
 	healthOkSchema,
 	healthReadySchema,
-	eventListItemSchema,
 	logoutResponseSchema,
 	myTicketsListSchema,
 	orderDetailSchema,
@@ -210,7 +210,9 @@ export async function fetchOrganizerEventDetail(id: string) {
 			}
 			throw e;
 		}
-		const hit = batch.items.find((eventRow: EventListRow) => eventRow.id === id);
+		const hit = batch.items.find(
+			(eventRow: EventListRow) => eventRow.id === id,
+		);
 		if (hit) {
 			const parsed = eventDetailSchema.safeParse(hit);
 			if (!parsed.success) {
@@ -357,11 +359,13 @@ export async function cancelOrder(id: string) {
 	});
 }
 
-export async function fetchMyTickets(params: {
-	when?: "upcoming" | "past" | "all";
-	page?: number;
-	limit?: number;
-} = {}) {
+export async function fetchMyTickets(
+	params: {
+		when?: "upcoming" | "past" | "all";
+		page?: number;
+		limit?: number;
+	} = {},
+) {
 	const when = params.when ?? "upcoming";
 	const page = params.page ?? 1;
 	const limit = params.limit ?? 5;

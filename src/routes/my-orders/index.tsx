@@ -6,10 +6,7 @@ import { z } from "zod";
 import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { PageHeader } from "#/components/page-header";
-import {
-	orderStatusTone,
-	StatusIndicator,
-} from "#/components/status-indicator";
+import { orderStatusTone, StatusBadge } from "#/components/status-indicator";
 import { TicketStub } from "#/components/ticket-stub";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
@@ -143,10 +140,9 @@ function MyOrdersPage() {
 													}).format(Number(o.totalAmount))}
 												</p>
 											</div>
-											<StatusIndicator
+											<StatusBadge
 												label={labelFor(orderStatusLabel, o.status)}
 												tone={orderStatusTone(o.status)}
-												className="text-sm"
 											/>
 										</div>
 										<ul className="space-1 text-muted-foreground">

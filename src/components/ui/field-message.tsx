@@ -1,16 +1,13 @@
-import { cn } from "#/lib/utils.ts"
+import { cn } from "#/lib/utils.ts";
 
-function FieldHint({
-	className,
-	...props
-}: React.ComponentProps<"p">) {
+function FieldHint({ className, ...props }: React.ComponentProps<"p">) {
 	return (
 		<p
 			data-slot="field-hint"
 			className={cn("text-sm text-muted-foreground", className)}
 			{...props}
 		/>
-	)
+	);
 }
 
 function FieldError({
@@ -18,7 +15,7 @@ function FieldError({
 	children,
 	...props
 }: React.ComponentProps<"p">) {
-	if (!children) return null
+	if (!children) return null;
 
 	return (
 		<p
@@ -29,7 +26,7 @@ function FieldError({
 		>
 			{children}
 		</p>
-	)
+	);
 }
 
-export { FieldHint, FieldError }
+export { FieldHint, FieldError };

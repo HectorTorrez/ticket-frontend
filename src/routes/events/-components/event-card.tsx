@@ -6,7 +6,10 @@ import { ScrollReveal } from "#/components/scroll-reveal";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import type { eventListItemSchema } from "#/lib/api/schemas";
-import { eventBannerTransitionName, runViewTransition } from "#/lib/view-transition";
+import {
+	eventBannerTransitionName,
+	runViewTransition,
+} from "#/lib/view-transition";
 
 type EventItem = z.infer<typeof eventListItemSchema>;
 

@@ -13,10 +13,7 @@ import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { PageHeader } from "#/components/page-header";
 import { PosterSurface } from "#/components/poster-surface";
-import {
-	orderStatusTone,
-	StatusIndicator,
-} from "#/components/status-indicator";
+import { orderStatusTone, StatusBadge } from "#/components/status-indicator";
 import { StatusPanel } from "#/components/status-panel";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
@@ -413,10 +410,9 @@ function CheckoutPage() {
 								<h2 className="font-semibold">Reserva confirmada</h2>
 								<p className="mt-1 text-sm text-muted-foreground">
 									Estado:{" "}
-									<StatusIndicator
+									<StatusBadge
 										label={labelFor(orderStatusLabel, order.status)}
 										tone={orderStatusTone(order.status)}
-										className="text-sm"
 									/>
 								</p>
 							</div>

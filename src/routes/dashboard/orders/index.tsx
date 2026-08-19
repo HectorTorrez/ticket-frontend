@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { SortableTableHead } from "#/components/admin/sortable-table-head";
 import { TableExportMenu } from "#/components/admin/table-export-menu";
-import { Badge } from "#/components/ui/badge";
+import { orderStatusTone, StatusBadge } from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Skeleton } from "#/components/ui/skeleton";
@@ -263,9 +263,10 @@ function AdminOrdersPage() {
 										</TableCell>
 										<TableCell className="text-sm">{o.user.email}</TableCell>
 										<TableCell>
-											<Badge variant="outline">
-												{labelFor(orderStatusLabel, o.status)}
-											</Badge>
+											<StatusBadge
+												label={labelFor(orderStatusLabel, o.status)}
+												tone={orderStatusTone(o.status)}
+											/>
 										</TableCell>
 										<TableCell className="text-right">
 											{new Intl.NumberFormat("es", {

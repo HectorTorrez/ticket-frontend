@@ -7,9 +7,9 @@ describe("normalizeTicketCode", () => {
 	});
 
 	it("extracts code from /check/:code URLs", () => {
-		expect(
-			normalizeTicketCode("http://localhost:3000/check/my-code-99"),
-		).toBe("my-code-99");
+		expect(normalizeTicketCode("http://localhost:3000/check/my-code-99")).toBe(
+			"my-code-99",
+		);
 		expect(
 			normalizeTicketCode("https://tickets.example/check/enc%20oded/"),
 		).toBe("enc oded");

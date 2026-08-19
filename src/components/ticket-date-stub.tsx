@@ -1,12 +1,12 @@
-import { labelFor, ticketTierLabel } from "#/lib/labels"
+import { labelFor, ticketTierLabel } from "#/lib/labels";
 
 type TicketDateStubProps = {
-	startsAt: string
-	tier: string
-}
+	startsAt: string;
+	tier: string;
+};
 
 export function TicketDateStub({ startsAt, tier }: TicketDateStubProps) {
-	const date = new Date(startsAt)
+	const date = new Date(startsAt);
 
 	return (
 		<div className="flex w-full min-w-0 flex-col items-center gap-1 text-center">
@@ -22,5 +22,5 @@ export function TicketDateStub({ startsAt, tier }: TicketDateStubProps) {
 				{labelFor(ticketTierLabel, tier)}
 			</span>
 		</div>
-	)
+	);
 }

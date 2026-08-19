@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { DateTimePicker } from "#/components/ui/datetime-picker";
 import {
 	Dialog,
 	DialogContent,
@@ -16,11 +17,11 @@ import {
 import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
-import { DateTimePicker } from "#/components/ui/datetime-picker";
 import { Skeleton } from "#/components/ui/skeleton";
 import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
 import { useErrorToast } from "#/hooks/use-error-toast";
+import { adminEventsDefaultSearch } from "#/lib/admin/default-search";
 import { ApiError } from "#/lib/api/errors";
 import type { TicketTier } from "#/lib/api/schemas";
 import {
@@ -33,9 +34,8 @@ import {
 	unpublishEvent,
 	uploadEventBanner,
 } from "#/lib/api/ticket-api";
-import { eventsKeys } from "#/lib/query-keys";
-import { adminEventsDefaultSearch } from "#/lib/admin/default-search";
 import { toLocalDateTimeInput } from "#/lib/dates";
+import { eventsKeys } from "#/lib/query-keys";
 
 import { AddTicketTypeCollapsible } from "#/routes/dashboard/events/-components/add-ticket-type-collapsible";
 import { TicketTypeEditor } from "#/routes/dashboard/events/-components/ticket-type-editor";
@@ -53,10 +53,7 @@ function EditEventPage() {
 		queryFn: () => fetchOrganizerEventDetail(eventId),
 	});
 
-	useErrorToast(
-		q.isError ? q.error : null,
-		"No pudimos cargar el evento",
-	);
+	useErrorToast(q.isError ? q.error : null, "No pudimos cargar el evento");
 
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
@@ -121,7 +118,9 @@ function EditEventPage() {
 		},
 		onError: (e) =>
 			toast.error(
-				e instanceof ApiError ? e.message : "No se pudo actualizar la visibilidad",
+				e instanceof ApiError
+					? e.message
+					: "No se pudo actualizar la visibilidad",
 			),
 	});
 
@@ -190,9 +189,7 @@ function EditEventPage() {
 	if (q.isPending) return <Skeleton className="h-96 rounded-xl" />;
 	if (q.isError || !q.data)
 		return (
-			<p className="text-muted-foreground">
-				No pudimos cargar el evento.
-			</p>
+			<p className="text-muted-foreground">No pudimos cargar el evento.</p>
 		);
 
 	const ev = q.data;
@@ -207,7 +204,9 @@ function EditEventPage() {
 		<div className="mx-auto max-w-2xl space-y-10 pb-16">
 			<header className="flex flex-wrap items-start justify-between gap-4">
 				<div className="space-y-3">
-					<h1 className="display-title text-2xl font-semibold">Editar evento</h1>
+					<h1 className="display-title text-2xl font-semibold">
+						Editar evento
+					</h1>
 					<div className="flex flex-wrap items-center gap-3">
 						<div className="flex items-center gap-2">
 							<Switch
@@ -234,8 +233,7 @@ function EditEventPage() {
 						</Badge>
 					</div>
 					<p className="text-xs text-muted-foreground">
-						Página pública:{" "}
-						<span className="font-mono">/events/{ev.slug}</span>
+						Página pública: <span className="font-mono">/events/{ev.slug}</span>
 					</p>
 				</div>
 				<Button variant="ghost" asChild>
@@ -423,7 +421,9 @@ function EditEventPage() {
 			</section>
 
 			<section className="space-y-4 border-t pt-10">
-				<h2 className="text-sm font-semibold text-destructive">Zona peligrosa</h2>
+				<h2 className="text-sm font-semibold text-destructive">
+					Zona peligrosa
+				</h2>
 				<div className="island-shell rounded-xl p-8">
 					<p className="text-sm text-muted-foreground">
 						Eliminar el evento borra también todas sus categorías de entrada. No
