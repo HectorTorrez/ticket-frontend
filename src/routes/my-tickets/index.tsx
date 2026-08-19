@@ -144,9 +144,7 @@ function MyTicketsPage() {
 						description="Cuando compres entradas, aparecerán aquí listas para escanear."
 						action={
 							<Button asChild>
-								<Link to="/events" search={{ page: 1, limit: 10 }}>
-									Explorar eventos
-								</Link>
+								<Link to="/events">Explorar eventos</Link>
 							</Button>
 						}
 					/>

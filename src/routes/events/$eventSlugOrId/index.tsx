@@ -48,10 +48,7 @@ export const Route = createFileRoute("/events/$eventSlugOrId/")({
 function EventDetailPage() {
 	const { eventSlugOrId } = Route.useParams();
 	const navigate = useNavigate();
-	const backToEvents = useTransitionClick(
-		{ to: "/events", search: { page: 1, limit: 10 } },
-		"back",
-	);
+	const backToEvents = useTransitionClick({ to: "/events" }, "back");
 
 	const q = useQuery({
 		queryKey: eventsKeys.detail(eventSlugOrId),
@@ -106,11 +103,7 @@ function EventDetailPage() {
 						No pudimos cargar este evento.
 					</p>
 					<Button className="mt-6" variant="outline" asChild>
-						<Link
-							to="/events"
-							search={{ page: 1, limit: 10 }}
-							onClick={backToEvents}
-						>
+						<Link to="/events" onClick={backToEvents}>
 							Volver a eventos
 						</Link>
 					</Button>
@@ -316,11 +309,7 @@ function EventDetailPage() {
 									Continuar al pago
 								</Button>
 								<Button variant="ghost" className="mt-2 w-full" asChild>
-									<Link
-										to="/events"
-										search={{ page: 1, limit: 10 }}
-										onClick={backToEvents}
-									>
+									<Link to="/events" onClick={backToEvents}>
 										Volver a eventos
 									</Link>
 								</Button>

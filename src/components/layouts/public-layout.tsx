@@ -61,12 +61,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 		onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
 	) => {
 		const active = pathname === to || (to !== "/" && pathname.startsWith(to));
-		const search =
-			to === "/events" ? ({ page: 1, limit: 10 } as const) : undefined;
 		return (
 			<Link
 				to={to}
-				search={search}
 				onClick={onClick}
 				className={`nav-link rounded-md px-3 py-2 text-sm font-medium ${active ? "is-active" : ""}`}
 			>
@@ -84,13 +81,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 		onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
 	) {
 		const active = pathname === to || (to !== "/" && pathname.startsWith(to));
-		const search =
-			to === "/events" ? ({ page: 1, limit: 10 } as const) : undefined;
 		return (
 			<SheetClose key={to} asChild>
 				<Link
 					to={to}
-					search={search}
 					onClick={onClick}
 					className={cn(sheetLinkClass, active && "bg-muted font-semibold")}
 				>
@@ -311,7 +305,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 						<div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
 							<Link
 								to="/events"
-								search={{ page: 1, limit: 10 }}
 								onClick={eventsClick}
 								className="nav-link hover:text-foreground"
 							>
