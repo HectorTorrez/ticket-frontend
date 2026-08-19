@@ -17,6 +17,7 @@ import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchEventsList } from "#/lib/api/ticket-api";
 import { parseSearchDate, toFilterFromDate, toFilterToDate } from "#/lib/dates";
 import { eventsKeys } from "#/lib/query-keys";
+import { buildSiteMeta } from "#/lib/seo";
 import { EventCard } from "#/routes/events/-components/event-card";
 
 const searchSchema = z.object({
@@ -29,6 +30,13 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/events/")({
 	validateSearch: (search) => searchSchema.parse(search),
+	head: () =>
+		buildSiteMeta({
+			title: "Explorar eventos en vivo — Tide Tickets",
+			description:
+				"Busca experiencias en vivo por fecha o nombre. Compra entradas con disponibilidad en tiempo real y pases QR al pagar.",
+			path: "/events",
+		}),
 	component: EventsListPage,
 });
 
@@ -200,8 +208,12 @@ function EventsListPage() {
 							encontrado{query.data.total === 1 ? "" : "s"}
 						</p>
 						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-							{query.data.items.map((ev) => (
-								<EventCard key={ev.id} event={ev} />
+							{query.data.items.map((ev, index) => (
+								<EventCard
+									key={ev.id}
+									event={ev}
+									revealDelayMs={Math.min(index * 50, 200)}
+								/>
 							))}
 						</div>
 						<div className="flex items-center justify-between gap-4 border-t border-border/60 pt-6">

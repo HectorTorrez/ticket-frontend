@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { JsonLd } from "#/components/json-ld";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { PageHeader } from "#/components/page-header";
 import { PosterSurface } from "#/components/poster-surface";
@@ -18,20 +19,39 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
+import { useTransitionClick } from "#/hooks/use-transition-navigate";
 import { fetchEventDetail } from "#/lib/api/ticket-api";
 import { getSession, isCustomer } from "#/lib/auth/session";
 import { labelFor, ticketTierLabel } from "#/lib/labels";
 import { eventsKeys } from "#/lib/query-keys";
+import { buildEventMeta, buildSiteMeta, eventJsonLd } from "#/lib/seo";
 import { cn } from "#/lib/utils";
+import { eventBannerTransitionName } from "#/lib/view-transition";
 import { useInventorySocket } from "#/routes/events/$eventSlugOrId/-hooks/use-inventory-socket";
 
 export const Route = createFileRoute("/events/$eventSlugOrId/")({
+	loader: ({ context, params }) =>
+		context.queryClient.ensureQueryData({
+			queryKey: eventsKeys.detail(params.eventSlugOrId),
+			queryFn: () => fetchEventDetail(params.eventSlugOrId),
+		}),
+	head: ({ loaderData }) =>
+		loaderData
+			? buildEventMeta(loaderData)
+			: buildSiteMeta({
+					title: "Evento — Tide Tickets",
+					path: "/events",
+				}),
 	component: EventDetailPage,
 });
 
 function EventDetailPage() {
 	const { eventSlugOrId } = Route.useParams();
 	const navigate = useNavigate();
+	const backToEvents = useTransitionClick(
+		{ to: "/events", search: { page: 1, limit: 10 } },
+		"back",
+	);
 
 	const q = useQuery({
 		queryKey: eventsKeys.detail(eventSlugOrId),
@@ -86,7 +106,13 @@ function EventDetailPage() {
 						No pudimos cargar este evento.
 					</p>
 					<Button className="mt-6" variant="outline" asChild>
-						<Link to="/events">Volver a eventos</Link>
+						<Link
+							to="/events"
+							search={{ page: 1, limit: 10 }}
+							onClick={backToEvents}
+						>
+							Volver a eventos
+						</Link>
 					</Button>
 				</div>
 			</PublicLayout>
@@ -107,6 +133,7 @@ function EventDetailPage() {
 
 	return (
 		<PublicLayout>
+			<JsonLd data={eventJsonLd(ev)} />
 			<div className="page-wrap py-10 md:py-12">
 				<div className="poster-frame poster-reveal overflow-hidden rounded-lg">
 					{ev.bannerUrl ? (
@@ -114,6 +141,9 @@ function EventDetailPage() {
 							src={ev.bannerUrl}
 							alt={`Cartel de ${ev.title}`}
 							className="aspect-[21/9] w-full object-cover"
+							style={{
+								viewTransitionName: eventBannerTransitionName(ev.id),
+							}}
 						/>
 					) : (
 						<div className="flex aspect-[21/9] w-full items-center justify-center bg-secondary">
@@ -286,7 +316,13 @@ function EventDetailPage() {
 									Continuar al pago
 								</Button>
 								<Button variant="ghost" className="mt-2 w-full" asChild>
-									<Link to="/events">Volver a eventos</Link>
+									<Link
+										to="/events"
+										search={{ page: 1, limit: 10 }}
+										onClick={backToEvents}
+									>
+										Volver a eventos
+									</Link>
 								</Button>
 							</div>
 						</PosterSurface>
