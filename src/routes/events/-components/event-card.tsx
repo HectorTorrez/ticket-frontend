@@ -171,6 +171,7 @@ export function EventCard({ event, revealDelayMs = 0 }: EventCardProps) {
 									to="/events/$eventSlugOrId"
 									params={{ eventSlugOrId: event.slug }}
 									onClick={openEvent}
+								>
 									Ver evento
 									<ArrowRight className="size-3.5" aria-hidden />
 								</Link>
