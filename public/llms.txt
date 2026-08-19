@@ -1,0 +1,37 @@
+# Tide Tickets
+
+> Cartelera de eventos en vivo con entradas digitales, reserva temporizada y pases QR.
+
+Tide Tickets conecta cartelera, compra y validación en puerta en un solo flujo.
+
+## Qué puedes hacer aquí
+
+- Explorar eventos publicados con cupo en tiempo real
+- Reservar entradas con una ventana de pago limitada
+- Recibir pases QR en tu cuenta tras pagar
+- Validar entradas en la puerta con el escáner del organizador
+
+## Rutas principales
+
+- `/` — Inicio y eventos destacados
+- `/events` — Catálogo completo con búsqueda y filtros por fecha
+- `/events/{slug}` — Detalle del evento y selección de entradas
+- `/login` — Acceso de clientes y organizadores
+- `/register` — Crear cuenta de cliente
+
+## Preguntas frecuentes
+
+**¿Cómo compro entradas?**
+Elige un evento, selecciona categorías y cantidades, reserva el inventario y completa el pago antes de que expire la reserva.
+
+**¿Debo imprimir las entradas?**
+No. Tus pases quedan en "Mis pases" con código QR para mostrar en la entrada.
+
+**¿El cupo es confiable?**
+Sí. El inventario se actualiza en vivo mientras otras personas compran.
+
+## Contacto y marca
+
+- Producto: Tide Tickets
+- Idioma: Español (El Salvador / LATAM)
+- Tema visual: cartelera costera, entradas perforadas y pases digitales
