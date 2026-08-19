@@ -3,16 +3,27 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Ticket } from "lucide-react";
 
 import { EmptyState } from "#/components/empty-state";
+import { JsonLd } from "#/components/json-ld";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { PageHeader } from "#/components/page-header";
+import { ScrollReveal } from "#/components/scroll-reveal";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
+import { useTransitionClick } from "#/hooks/use-transition-navigate";
 import { fetchEventsList } from "#/lib/api/ticket-api";
 import { getSession } from "#/lib/auth/session";
 import { eventsKeys } from "#/lib/query-keys";
+import { buildSiteMeta } from "#/lib/seo";
 import { EventCard } from "#/routes/events/-components/event-card";
 
 export const Route = createFileRoute("/")({
+	head: () =>
+		buildSiteMeta({
+			title: "Tide Tickets — cartelera y entradas para eventos en vivo",
+			description:
+				"Explora eventos en vivo, reserva entradas con cupo real y entra con pases QR. Reserva, paga y valida en la puerta sin imprimir.",
+			path: "/",
+		}),
 	component: HomePage,
 });
 
@@ -36,6 +47,10 @@ const flow = [
 
 function HomePage() {
 	const session = typeof window !== "undefined" ? getSession() : null;
+	const eventsClick = useTransitionClick(
+		{ to: "/events", search: { page: 1, limit: 10 } },
+		"forward",
+	);
 	const featured = useQuery({
 		queryKey: eventsKeys.list({ page: 1, limit: 3, publishedOnly: true }),
 		queryFn: () => fetchEventsList({ page: 1, limit: 3, publishedOnly: true }),
@@ -57,9 +72,13 @@ function HomePage() {
 							</p>
 							<div className="flex flex-wrap gap-3 pt-1">
 								<Button size="lg" className="gap-2" asChild>
-									<Link to="/events">
+									<Link
+										to="/events"
+										search={{ page: 1, limit: 10 }}
+										onClick={eventsClick}
+									>
 										Explorar eventos
-										<ArrowRight className="size-4" />
+										<ArrowRight className="size-4" aria-hidden />
 									</Link>
 								</Button>
 								{!session ? (
@@ -92,19 +111,25 @@ function HomePage() {
 			</section>
 
 			<section className="page-wrap space-y-8 py-14 md:py-16">
-				<PageHeader
-					eyebrow="Próximamente"
-					title="Eventos a la venta"
-					headingLevel={2}
-					action={
-						<Button variant="outline" className="gap-2" asChild>
-							<Link to="/events">
-								Ver todos
-								<ArrowRight className="size-4" />
-							</Link>
-						</Button>
-					}
-				/>
+				<ScrollReveal>
+					<PageHeader
+						eyebrow="Próximamente"
+						title="Eventos a la venta"
+						headingLevel={2}
+						action={
+							<Button variant="outline" className="gap-2" asChild>
+								<Link
+									to="/events"
+									search={{ page: 1, limit: 10 }}
+									onClick={eventsClick}
+								>
+									Ver todos
+									<ArrowRight className="size-4" aria-hidden />
+								</Link>
+							</Button>
+						}
+					/>
+				</ScrollReveal>
 
 				{featured.isPending ? (
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -116,8 +141,12 @@ function HomePage() {
 
 				{featured.data && featured.data.items.length > 0 ? (
 					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-						{featured.data.items.map((ev) => (
-							<EventCard key={ev.id} event={ev} />
+						{featured.data.items.map((ev, index) => (
+							<EventCard
+								key={ev.id}
+								event={ev}
+								revealDelayMs={index * 60}
+							/>
 						))}
 					</div>
 				) : null}
@@ -129,7 +158,13 @@ function HomePage() {
 						description="Aún no hay eventos publicados. Vuelve pronto para descubrir la próxima fecha."
 						action={
 							<Button variant="outline" asChild>
-								<Link to="/events">Explorar eventos</Link>
+								<Link
+									to="/events"
+									search={{ page: 1, limit: 10 }}
+									onClick={eventsClick}
+								>
+									Explorar eventos
+								</Link>
 							</Button>
 						}
 					/>
@@ -137,12 +172,14 @@ function HomePage() {
 			</section>
 
 			<section className="page-wrap pb-16 md:pb-24">
-				<div className="mb-8 border-t border-border pt-10">
-					<p className="island-kicker">Para ambos lados</p>
-					<h2 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
-						De la cartelera a la puerta
-					</h2>
-				</div>
+				<ScrollReveal>
+					<div className="mb-8 border-t border-border pt-10">
+						<p className="island-kicker">Para ambos lados</p>
+						<h2 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
+							De la cartelera a la puerta
+						</h2>
+					</div>
+				</ScrollReveal>
 				<div className="grid border-y border-border md:grid-cols-3 md:divide-x md:divide-border">
 					{[
 						{
@@ -158,16 +195,42 @@ function HomePage() {
 							body: "Los pases viven en tu cuenta. El personal valida los códigos desde el escáner del panel en segundos.",
 						},
 					].map((c, i) => (
-						<div key={c.title} className="px-0 py-7 md:px-6">
-							<p className="font-ticket-code text-xs text-primary">0{i + 1}</p>
-							<h3 className="font-semibold">{c.title}</h3>
-							<p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-								{c.body}
-							</p>
-						</div>
+						<ScrollReveal key={c.title} as="div" delayMs={i * 70}>
+							<div className="px-0 py-7 md:px-6">
+								<p className="font-ticket-code text-xs text-primary">0{i + 1}</p>
+								<h3 className="font-semibold">{c.title}</h3>
+								<p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+									{c.body}
+								</p>
+							</div>
+						</ScrollReveal>
 					))}
 				</div>
 			</section>
+			<JsonLd
+				data={{
+					"@context": "https://schema.org",
+					"@type": "FAQPage",
+					mainEntity: [
+						{
+							"@type": "Question",
+							name: "¿Cómo compro entradas en Tide Tickets?",
+							acceptedAnswer: {
+								"@type": "Answer",
+								text: "Explora la cartelera, elige un evento, reserva tus entradas con cupo en vivo y completa el pago antes de que expire la reserva.",
+							},
+						},
+						{
+							"@type": "Question",
+							name: "¿Necesito imprimir mis entradas?",
+							acceptedAnswer: {
+								"@type": "Answer",
+								text: "No. Tus pases digitales quedan en tu cuenta con código QR para validar en la puerta.",
+							},
+						},
+					],
+				}}
+			/>
 		</PublicLayout>
 	);
 }
