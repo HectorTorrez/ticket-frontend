@@ -143,6 +143,8 @@ export type AdminEventsListParams = {
 	from?: string;
 	to?: string;
 	q?: string;
+	sortBy?: string;
+	sortOrder?: "asc" | "desc";
 };
 
 export async function fetchAdminEventsList(params: AdminEventsListParams) {
@@ -153,6 +155,8 @@ export async function fetchAdminEventsList(params: AdminEventsListParams) {
 	if (params.q) sp.set("q", params.q);
 	if (params.from) sp.set("from", params.from);
 	if (params.to) sp.set("to", params.to);
+	if (params.sortBy) sp.set("sortBy", params.sortBy);
+	if (params.sortOrder) sp.set("sortOrder", params.sortOrder);
 	const qs = sp.toString();
 	return apiRequest(
 		`/admin/events${qs ? `?${qs}` : ""}`,
@@ -386,12 +390,16 @@ export async function fetchAdminOrders(params: {
 	limit?: number;
 	status?: string;
 	userId?: string;
+	sortBy?: string;
+	sortOrder?: "asc" | "desc";
 }) {
 	const sp = new URLSearchParams();
 	if (params.page != null) sp.set("page", String(params.page));
 	if (params.limit != null) sp.set("limit", String(params.limit));
 	if (params.status) sp.set("status", params.status);
 	if (params.userId) sp.set("userId", params.userId);
+	if (params.sortBy) sp.set("sortBy", params.sortBy);
+	if (params.sortOrder) sp.set("sortOrder", params.sortOrder);
 	const qs = sp.toString();
 	return apiRequest(
 		`/admin/orders${qs ? `?${qs}` : ""}`,

@@ -16,6 +16,8 @@ export const eventsKeys = {
 		q?: string;
 		from?: string;
 		to?: string;
+		sortBy?: string;
+		sortDirection?: "asc" | "desc" | "default";
 	}) => [...eventsKeys.all, "admin", "list", params] as const,
 	detail: (slugOrId: string) =>
 		[...eventsKeys.all, "detail", slugOrId] as const,
@@ -38,6 +40,8 @@ export const adminOrdersKeys = {
 		limit: number;
 		status?: string;
 		userId?: string;
+		sortBy?: string;
+		sortDirection?: "asc" | "desc" | "default";
 	}) => [...adminOrdersKeys.all, "list", params] as const,
 };
 
