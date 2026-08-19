@@ -75,7 +75,7 @@ function AdminOrdersPage() {
 						id="st"
 						name="status"
 						defaultValue={status ?? ""}
-						className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+						className="h-9 cursor-pointer rounded-md border border-input bg-background px-2 text-sm"
 					>
 						<option value="">Todos</option>
 						<option value="PENDING">{orderStatusLabel.PENDING}</option>

@@ -73,7 +73,7 @@ function MyOrdersPage() {
 								name="status"
 								defaultValue={status ?? ""}
 								aria-label="Filtrar por estado"
-								className="h-12 rounded-md border border-input bg-background px-3 text-sm"
+								className="h-12 cursor-pointer rounded-md border border-input bg-background px-3 text-sm"
 							>
 								<option value="">Todos los estados</option>
 								<option value="PENDING">{orderStatusLabel.PENDING}</option>
