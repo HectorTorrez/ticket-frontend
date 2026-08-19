@@ -49,7 +49,7 @@ function DashboardHome() {
 	const d = q.data;
 
 	const stat = (label: string, value: string, hint?: string) => (
-		<Card className="feature-card border-border/80 transition-transform">
+		<Card className="feature-card border-border/80">
 			<CardHeader className="pb-2">
 				<CardTitle className="text-sm font-medium text-muted-foreground">
 					{label}

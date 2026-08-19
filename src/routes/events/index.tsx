@@ -95,8 +95,8 @@ function EventsListPage() {
 					title="Explorar eventos"
 					description={
 						<p>
-							Experiencias en vivo con disponibilidad en tiempo real. Consigue
-							entradas antes de que se agoten.
+							Busca por nombre o fecha. El cupo se actualiza mientras otros
+							compran.
 						</p>
 					}
 				/>

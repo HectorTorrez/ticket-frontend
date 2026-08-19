@@ -1,10 +1,10 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { AuthFormSkeleton, AuthHeading } from "#/components/auth-heading";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { Button } from "#/components/ui/button";
 import { FieldError } from "#/components/ui/field-message";
@@ -66,7 +66,7 @@ function RegisterPage() {
 	if (!hydrated) {
 		return (
 			<PublicLayout>
-				<div className="page-wrap py-16">Cargando…</div>
+				<AuthFormSkeleton />
 			</PublicLayout>
 		);
 	}
@@ -77,18 +77,11 @@ function RegisterPage() {
 		<PublicLayout>
 			<div className="page-wrap flex justify-center py-16 md:py-20">
 				<div className="w-full max-w-md space-y-8">
-					<div className="rise-in text-center">
-						<div className="mx-auto mb-4 inline-flex rounded-full bg-primary/10 p-3 text-primary">
-							<UserPlus className="size-6" />
-						</div>
-						<h1 className="display-title text-3xl font-semibold">
-							Crear una cuenta
-						</h1>
-						<p className="mt-2 text-muted-foreground">
-							Compra entradas, sigue tus pedidos y guarda tus pases en la
-							cartera.
-						</p>
-					</div>
+					<AuthHeading
+						kicker="Registro"
+						title="Crear una cuenta"
+						description="Compra entradas, sigue tus pedidos y guarda tus pases en la cartera."
+					/>
 					<form
 						className="auth-shell rise-in stagger-1 space-y-6 p-8"
 						onSubmit={(e) => {
@@ -164,11 +157,20 @@ function RegisterPage() {
 								);
 							}}
 						</form.Field>
-						<Button type="submit" className="w-full" size="lg">
-							Crear cuenta
-						</Button>
+						<form.Subscribe selector={(state) => state.isSubmitting}>
+							{(isSubmitting) => (
+								<Button
+									type="submit"
+									className="w-full"
+									size="lg"
+									disabled={isSubmitting}
+								>
+									{isSubmitting ? "Creando cuenta…" : "Crear cuenta"}
+								</Button>
+							)}
+						</form.Subscribe>
 					</form>
-					<p className="text-center text-sm text-muted-foreground">
+					<p className="text-sm text-muted-foreground">
 						¿Ya tienes cuenta?{" "}
 						<Link
 							to="/login"

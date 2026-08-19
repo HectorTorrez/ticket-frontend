@@ -76,7 +76,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 	};
 
 	const sheetLinkClass =
-		"rounded-md px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted";
+		"rounded-md px-3 py-2.5 text-sm font-medium text-foreground outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring";
 
 	function sheetNavLink(
 		to: string,
@@ -117,7 +117,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 						<Link
 							to="/"
 							onClick={homeClick}
-							className="group flex min-w-0 items-center gap-2.5 text-foreground no-underline"
+							className="group flex min-w-0 items-center gap-2.5 text-foreground no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 						>
 							<BrandMark />
 							<span className="display-title truncate text-lg font-semibold tracking-tight">

@@ -1,10 +1,10 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { AuthFormSkeleton, AuthHeading } from "#/components/auth-heading";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { Button } from "#/components/ui/button";
 import { FieldError } from "#/components/ui/field-message";
@@ -82,7 +82,7 @@ function LoginPage() {
 	if (!hydrated) {
 		return (
 			<PublicLayout>
-				<div className="page-wrap py-16">Cargando…</div>
+				<AuthFormSkeleton />
 			</PublicLayout>
 		);
 	}
@@ -93,17 +93,11 @@ function LoginPage() {
 		<PublicLayout>
 			<div className="page-wrap flex justify-center py-16 md:py-20">
 				<div className="w-full max-w-md space-y-8">
-					<div className="rise-in text-center">
-						<div className="mx-auto mb-4 inline-flex rounded-full bg-primary/10 p-3 text-primary">
-							<LogIn className="size-6" />
-						</div>
-						<h1 className="display-title text-3xl font-semibold">
-							Bienvenido de nuevo
-						</h1>
-						<p className="mt-2 text-muted-foreground">
-							Inicia sesión para reservar entradas y ver tus pases.
-						</p>
-					</div>
+					<AuthHeading
+						kicker="Acceso"
+						title="Bienvenido de nuevo"
+						description="Inicia sesión para reservar entradas y ver tus pases."
+					/>
 					<form
 						className="auth-shell rise-in stagger-1 space-y-6 p-8"
 						onSubmit={(e) => {
@@ -179,15 +173,24 @@ function LoginPage() {
 								);
 							}}
 						</form.Field>
-						<Button type="submit" className="w-full" size="lg">
-							Iniciar sesión
-						</Button>
-						<p className="text-center text-sm text-muted-foreground">
+						<form.Subscribe selector={(state) => state.isSubmitting}>
+							{(isSubmitting) => (
+								<Button
+									type="submit"
+									className="w-full"
+									size="lg"
+									disabled={isSubmitting}
+								>
+									{isSubmitting ? "Entrando…" : "Iniciar sesión"}
+								</Button>
+							)}
+						</form.Subscribe>
+						<p className="text-sm text-muted-foreground">
 							¿Olvidaste tu contraseña? Contacta a un administrador para
 							restablecerla.
 						</p>
 					</form>
-					<p className="text-center text-sm text-muted-foreground">
+					<p className="text-sm text-muted-foreground">
 						¿No tienes cuenta?{" "}
 						<Link
 							to="/register"

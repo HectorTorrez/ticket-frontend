@@ -128,7 +128,7 @@ export function EventCard({ event, revealDelayMs = 0 }: EventCardProps) {
 							</Badge>
 						) : null}
 					</Link>
-					<div className="flex min-h-52 flex-col gap-3 p-5">
+					<div className="flex flex-col gap-3 p-5">
 						<div>
 							<h2 className="display-title text-xl font-semibold leading-tight">
 								<Link

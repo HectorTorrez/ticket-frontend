@@ -34,7 +34,7 @@ type DashboardLayoutProps = {
 
 function navClassName(active: boolean) {
 	return cn(
-		"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+		"flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring",
 		active
 			? "bg-sidebar-accent text-sidebar-accent-foreground"
 			: "text-sidebar-foreground/80 hover:bg-sidebar-accent/60",

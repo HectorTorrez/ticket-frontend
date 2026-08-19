@@ -246,41 +246,39 @@ function HomePage() {
 
 			<section className="page-wrap pb-16 md:pb-24">
 				<ScrollReveal>
-					<div className="mb-8 border-t border-border pt-10">
+					<div className="mb-8">
 						<p className="island-kicker">Para ambos lados</p>
 						<h2 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
 							De la cartelera a la puerta
 						</h2>
 					</div>
 				</ScrollReveal>
-				<div className="grid border-y border-border md:grid-cols-3 md:divide-x md:divide-border">
-					{[
-						{
-							title: "Inventario en vivo",
-							body: "Los cupos se actualizan al instante mientras otros compran — sin sorpresas de agotado en el último momento.",
-						},
-						{
-							title: "Pago con tiempo límite",
-							body: "Las reservas apartan tus entradas con una cuenta regresiva. Paga cuando quieras o libera la reserva.",
-						},
-						{
-							title: "QR en la entrada",
-							body: "Los pases viven en tu cuenta. El personal valida los códigos desde el escáner del panel en segundos.",
-						},
-					].map((c, i) => (
-						<ScrollReveal key={c.title} as="div" delayMs={i * 70}>
-							<div className="px-0 py-7 md:px-6">
-								<p className="font-ticket-code text-xs text-primary">
-									0{i + 1}
-								</p>
+				<ScrollReveal>
+					<ol className="process-stub" aria-label="Cómo funciona Tide Tickets">
+						{[
+							{
+								title: "Inventario en vivo",
+								body: "Los cupos se actualizan al instante mientras otros compran — sin sorpresas de agotado en el último momento.",
+							},
+							{
+								title: "Pago con tiempo límite",
+								body: "Las reservas apartan tus entradas con una cuenta regresiva. Paga cuando quieras o libera la reserva.",
+							},
+							{
+								title: "QR en la entrada",
+								body: "Los pases viven en tu cuenta. El personal valida los códigos desde el escáner del panel en segundos.",
+							},
+						].map((c, i) => (
+							<li key={c.title} className="process-stub__step">
+								<p className="process-stub__index">0{i + 1}</p>
 								<h3 className="font-semibold">{c.title}</h3>
 								<p className="mt-2 text-sm leading-relaxed text-muted-foreground">
 									{c.body}
 								</p>
-							</div>
-						</ScrollReveal>
-					))}
-				</div>
+							</li>
+						))}
+					</ol>
+				</ScrollReveal>
 			</section>
 			<JsonLd
 				data={{

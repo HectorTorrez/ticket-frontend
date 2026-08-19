@@ -1,10 +1,10 @@
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { KeyRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { AuthFormSkeleton, AuthHeading } from "#/components/auth-heading";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import { Button } from "#/components/ui/button";
 import { FieldError } from "#/components/ui/field-message";
@@ -73,7 +73,7 @@ function ChangePasswordPage() {
 	if (!hydrated) {
 		return (
 			<PublicLayout>
-				<div className="page-wrap py-16">Cargando…</div>
+				<AuthFormSkeleton />
 			</PublicLayout>
 		);
 	}
@@ -84,17 +84,11 @@ function ChangePasswordPage() {
 		<PublicLayout>
 			<div className="page-wrap flex justify-center py-16 md:py-20">
 				<div className="w-full max-w-md space-y-8">
-					<div className="rise-in text-center">
-						<div className="mx-auto mb-4 inline-flex rounded-full bg-primary/10 p-3 text-primary">
-							<KeyRound className="size-6" />
-						</div>
-						<h1 className="display-title text-3xl font-semibold">
-							Cambiar contraseña
-						</h1>
-						<p className="mt-2 text-muted-foreground">
-							Introduce tu contraseña actual y elige una nueva.
-						</p>
-					</div>
+					<AuthHeading
+						kicker="Cuenta"
+						title="Cambiar contraseña"
+						description="Introduce tu contraseña actual y elige una nueva."
+					/>
 					<form
 						className="auth-shell rise-in stagger-1 space-y-6 p-8"
 						onSubmit={(e) => {
@@ -220,11 +214,20 @@ function ChangePasswordPage() {
 								);
 							}}
 						</form.Field>
-						<Button type="submit" className="w-full" size="lg">
-							Guardar contraseña
-						</Button>
+						<form.Subscribe selector={(state) => state.isSubmitting}>
+							{(isSubmitting) => (
+								<Button
+									type="submit"
+									className="w-full"
+									size="lg"
+									disabled={isSubmitting}
+								>
+									{isSubmitting ? "Guardando…" : "Guardar contraseña"}
+								</Button>
+							)}
+						</form.Subscribe>
 					</form>
-					<p className="text-center text-sm text-muted-foreground">
+					<p className="text-sm text-muted-foreground">
 						<Link
 							to="/"
 							className="font-medium text-primary underline-offset-4 hover:underline"
