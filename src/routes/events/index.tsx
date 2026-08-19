@@ -212,7 +212,8 @@ function EventsListPage() {
 								<EventCard
 									key={ev.id}
 									event={ev}
-									revealDelayMs={Math.min(index * 50, 200)}
+									revealOnMount={index < 6}
+									revealDelayMs={Math.min(index * 50, 250)}
 								/>
 							))}
 						</div>

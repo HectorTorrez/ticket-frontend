@@ -49,9 +49,14 @@ function minPrice(event: EventItem) {
 type EventCardProps = {
 	event: EventItem;
 	revealDelayMs?: number;
+	revealOnMount?: boolean;
 };
 
-export function EventCard({ event, revealDelayMs = 0 }: EventCardProps) {
+export function EventCard({
+	event,
+	revealDelayMs = 0,
+	revealOnMount = false,
+}: EventCardProps) {
 	const navigate = useNavigate();
 	const minRemaining = Math.min(
 		...event.ticketTypes.map((t) => t.quantityRemaining),
@@ -85,7 +90,7 @@ export function EventCard({ event, revealDelayMs = 0 }: EventCardProps) {
 	};
 
 	return (
-		<ScrollReveal delayMs={revealDelayMs}>
+		<ScrollReveal delayMs={revealDelayMs} revealOnMount={revealOnMount}>
 			<article className="poster-frame group grid grid-cols-[4.5rem_1fr] overflow-hidden rounded-lg">
 				<div className="poster-date-rail flex flex-col items-center justify-start gap-1 px-2 py-5 text-center">
 					<span className="text-[0.68rem] font-bold tracking-[0.14em]">
