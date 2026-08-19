@@ -7,6 +7,13 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-exit: 150ms;
+  --duration-enter: 210ms;
+  --duration-move: 380ms;
+  --duration-feedback: 160ms;
+
   /* Coastal Poster — ink, tide, paper and a single live accent */
   --sea-ink: #102a33;
   --sea-ink-soft: #56686b;
@@ -184,10 +191,24 @@
   --color-header-bg: var(--header-bg);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
 html,
 body,
 #app {
   min-height: 100%;
+}
+
+@view-transition {
+  navigation: auto;
 }
 
 body {
@@ -270,9 +291,27 @@ pre code {
 
 button,
 .island-shell,
-a {
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease,
-    transform 180ms ease, box-shadow 180ms ease;
+a:not([data-slot="button"]) {
+  transition:
+    background-color var(--duration-feedback) var(--ease-out-strong),
+    color var(--duration-feedback) var(--ease-out-strong),
+    border-color var(--duration-feedback) var(--ease-out-strong),
+    box-shadow var(--duration-feedback) var(--ease-out-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .poster-frame {
+    transition:
+      transform var(--duration-feedback) var(--ease-out-strong),
+      box-shadow var(--duration-feedback) var(--ease-out-strong),
+      border-color var(--duration-feedback) var(--ease-out-strong);
+  }
+
+  .poster-frame:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 34px color-mix(in oklab, var(--sea-ink) 11%, transparent);
+    border-color: color-mix(in oklab, var(--lagoon) 28%, var(--line));
+  }
 }
 
 .island-kicker {
@@ -563,6 +602,138 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .poster-reveal {
     animation: none;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 0.75rem;
+  z-index: 100;
+  transform: translateY(-140%);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--sea-ink) 12%, transparent);
+  transition: transform var(--duration-feedback) var(--ease-out-strong);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity var(--duration-move) var(--ease-out-strong),
+    transform var(--duration-move) var(--ease-out-strong);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@keyframes vt-fade {
+  from {
+    filter: blur(3px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vt-slide {
+  from {
+    translate: var(--slide-offset, 0);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duration-enter);
+}
+
+html[data-vt-direction="forward"]::view-transition-old(root) {
+  --slide-offset: -48px;
+  animation:
+    var(--duration-exit) ease-in both vt-fade reverse,
+    var(--duration-move) ease-in-out both vt-slide reverse;
+}
+
+html[data-vt-direction="forward"]::view-transition-new(root) {
+  --slide-offset: 48px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both vt-fade,
+    var(--duration-move) ease-in-out both vt-slide;
+}
+
+html[data-vt-direction="back"]::view-transition-old(root) {
+  --slide-offset: 48px;
+  animation:
+    var(--duration-exit) ease-in both vt-fade reverse,
+    var(--duration-move) ease-in-out both vt-slide reverse;
+}
+
+html[data-vt-direction="back"]::view-transition-new(root) {
+  --slide-offset: -48px;
+  animation:
+    var(--duration-enter) ease-out var(--duration-exit) both vt-fade,
+    var(--duration-move) ease-in-out both vt-slide;
+}
+
+::view-transition-group(site-header),
+::view-transition-group(site-footer) {
+  animation: none;
+  z-index: 100;
+}
+
+::view-transition-old(site-header),
+::view-transition-new(site-header),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+  animation: none;
+}
+
+::view-transition-group(event-banner) {
+  animation-duration: var(--duration-move);
+}
+
+::view-transition-image-pair(event-banner) {
+  animation-name: vt-banner-bridge;
+}
+
+@keyframes vt-banner-bridge {
+  30% {
+    filter: blur(2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
   }
 }
 
