@@ -27,23 +27,19 @@ export const Route = createFileRoute("/")({
 	component: HomePage,
 });
 
-const flow = [
-	{
-		step: "01",
-		title: "Elige tu noche",
-		body: "Explora eventos en vivo con disponibilidad en tiempo real: los cupos se actualizan mientras otros compran.",
-	},
-	{
-		step: "02",
-		title: "Reserva tus entradas",
-		body: "Apartamos el inventario con una reserva temporizada. Paga cuando quieras, sin prisas.",
-	},
-	{
-		step: "03",
-		title: "Entra con QR",
-		body: "Tus pases digitales quedan en tu cuenta. Muestra el código en la puerta — sin imprimir, sin complicaciones.",
-	},
-];
+function formatHeroDate(iso: string) {
+	try {
+		return new Intl.DateTimeFormat("es", {
+			weekday: "short",
+			day: "numeric",
+			month: "short",
+			hour: "numeric",
+			minute: "2-digit",
+		}).format(new Date(iso));
+	} catch {
+		return iso;
+	}
+}
 
 function HomePage() {
 	const session = typeof window !== "undefined" ? getSession() : null;
@@ -56,55 +52,133 @@ function HomePage() {
 		queryFn: () => fetchEventsList({ page: 1, limit: 3, publishedOnly: true }),
 	});
 
+	const spotlight = featured.data?.items[0];
+	const carteleraLabel = featured.isPending
+		? "Cartelera"
+		: featured.data && featured.data.total > 0
+			? `${featured.data.total} evento${featured.data.total === 1 ? "" : "s"} publicados`
+			: "Cartelera por abrir";
+
 	return (
 		<PublicLayout>
-			<section className="page-wrap py-14 md:py-20">
-				<div className="hero-poster poster-reveal p-8 md:p-12 lg:p-16">
-					<div className="relative z-10 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-						<div className="space-y-6">
-							<p className="island-kicker">Cartelera abierta</p>
-							<h1 className="display-title max-w-2xl text-4xl font-semibold leading-[1.08] tracking-tight md:text-5xl lg:text-[3.25rem]">
-								La ciudad se vive mejor desde la primera fila.
-							</h1>
-							<p className="max-w-lg text-lg text-muted-foreground md:text-xl">
-								Una cartelera de experiencias en vivo, entradas con cupo real y
-								pases listos para la puerta.
-							</p>
-							<div className="flex flex-wrap gap-3 pt-1">
+			<section className="page-wrap py-10 md:py-16">
+				<div className="hero-masthead poster-reveal">
+					<div className="hero-masthead__rule">
+						<span className="font-ticket-code text-[0.68rem] uppercase tracking-[0.16em] text-muted-foreground">
+							{carteleraLabel}
+						</span>
+						{spotlight ? (
+							<span className="font-ticket-code text-[0.68rem] uppercase tracking-[0.12em] text-primary">
+								Próximo · {formatHeroDate(spotlight.startsAt)}
+							</span>
+						) : null}
+					</div>
+
+					<div className="hero-masthead__grid">
+						<div className="hero-masthead__visual">
+							{featured.isPending ? (
+								<Skeleton className="aspect-[3/4] w-full max-w-md" />
+							) : null}
+
+							{spotlight ? (
+								<>
+									<Link
+										to="/events/$eventSlugOrId"
+										params={{ eventSlugOrId: spotlight.slug }}
+										className="hero-masthead__poster group"
+										aria-label={`Ver ${spotlight.title}`}
+									>
+										<span className="hero-masthead__pin" aria-hidden />
+										{spotlight.bannerUrl ? (
+											<img
+												src={spotlight.bannerUrl}
+												alt=""
+												loading="eager"
+												fetchPriority="high"
+											/>
+										) : (
+											<div className="hero-masthead__poster-fallback">
+												<p className="font-ticket-code text-[0.68rem] uppercase tracking-[0.14em] opacity-80">
+													En cartelera
+												</p>
+												<p className="display-title mt-3 text-3xl font-semibold leading-tight">
+													{spotlight.title}
+												</p>
+											</div>
+										)}
+									</Link>
+									<p className="hero-masthead__caption">
+										<span className="font-semibold text-foreground">
+											{spotlight.title}
+										</span>
+										{" · "}
+										{spotlight.venue ?? "Lugar por confirmar"}
+									</p>
+								</>
+							) : null}
+
+							{!featured.isPending && !spotlight ? (
+								<div
+									className="hero-masthead__poster hero-masthead__poster-fallback"
+									aria-hidden
+								>
+									<span className="hero-masthead__pin" />
+									<p className="font-ticket-code text-[0.68rem] uppercase tracking-[0.14em] opacity-80">
+										Sin fecha fijada
+									</p>
+									<p className="display-title mt-3 text-3xl font-semibold leading-tight">
+										La cartelera abre pronto
+									</p>
+								</div>
+							) : null}
+						</div>
+
+						<div className="hero-masthead__copy">
+							<div className="space-y-4">
+								<h1 className="display-title hero-masthead__headline font-semibold">
+									Entradas reales. Puerta sin fila.
+								</h1>
+								<p className="hero-masthead__lede">
+									Reserva con cupo en vivo, paga a tu ritmo y entra con el QR en
+									tu cuenta — como un pase de mano, pero digital.
+								</p>
+							</div>
+
+							<div className="flex flex-wrap gap-3">
 								<Button size="lg" className="gap-2" asChild>
 									<Link
 										to="/events"
 										search={{ page: 1, limit: 10 }}
 										onClick={eventsClick}
 									>
-										Explorar eventos
+										Ver cartelera
 										<ArrowRight className="size-4" aria-hidden />
 									</Link>
 								</Button>
-								{!session ? (
+								{spotlight ? (
 									<Button size="lg" variant="outline" asChild>
+										<Link
+											to="/events/$eventSlugOrId"
+											params={{ eventSlugOrId: spotlight.slug }}
+										>
+											Próximo evento
+										</Link>
+									</Button>
+								) : null}
+								{!session ? (
+									<Button size="lg" variant="ghost" asChild>
 										<Link to="/register">Crear cuenta</Link>
 									</Button>
 								) : null}
 							</div>
-						</div>
-						<div className="ticket-edge island-shell rounded-lg p-6 md:p-8">
-							<p className="font-ticket-code text-xs uppercase tracking-[0.16em] text-primary">
-								La ruta de tu entrada
-							</p>
-							<ul className="mt-5 space-y-4">
-								{flow.map((f) => (
-									<li key={f.step} className="flex gap-4">
-										<span className="flow-step-num shrink-0">{f.step}</span>
-										<div>
-											<p className="font-semibold">{f.title}</p>
-											<p className="mt-0.5 text-sm text-muted-foreground">
-												{f.body}
-											</p>
-										</div>
-									</li>
-								))}
-							</ul>
+
+							<aside className="hero-admit-stub" aria-label="Cómo funciona tu entrada">
+								<p className="hero-admit-stub__label">Admit one</p>
+								<p className="hero-admit-stub__route">
+									Reserva · Paga · QR en puerta
+								</p>
+								<p className="hero-admit-stub__fine">Sin reimpresión</p>
+							</aside>
 						</div>
 					</div>
 				</div>

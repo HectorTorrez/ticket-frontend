@@ -453,24 +453,180 @@ a:not([data-slot="button"]) {
   border-right: 2px dashed color-mix(in oklab, var(--lagoon) 35%, var(--line));
 }
 
-/* Hero poster block */
-.hero-poster {
+/* Hero masthead — wall poster, not SaaS card */
+.hero-masthead {
   position: relative;
-  border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 6px);
-  background: var(--surface-strong);
-  box-shadow: 0 24px 56px color-mix(in oklab, var(--sea-ink) 12%, transparent);
-  overflow: hidden;
 }
 
-.hero-poster::before {
-  content: '';
+.hero-masthead__rule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.875rem;
+}
+
+.hero-masthead__grid {
+  display: grid;
+  gap: 2rem;
+  padding-top: 1.75rem;
+}
+
+@media (min-width: 1024px) {
+  .hero-masthead__grid {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 2.5rem;
+    align-items: end;
+  }
+}
+
+.hero-masthead__visual {
+  position: relative;
+  max-width: 28rem;
+}
+
+@media (min-width: 1024px) {
+  .hero-masthead__visual {
+    justify-self: start;
+    transform: rotate(-1.1deg);
+    transform-origin: top left;
+  }
+}
+
+.hero-masthead__poster {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--sea-ink) 22%, var(--line));
+  background: var(--muted);
+  box-shadow:
+    0 1px 0 var(--inset-glint) inset,
+    0 18px 36px color-mix(in oklab, var(--sea-ink) 10%, transparent);
+  text-decoration: none;
+  color: inherit;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero-masthead__poster {
+    transition:
+      transform var(--duration-feedback) var(--ease-out-strong),
+      box-shadow var(--duration-feedback) var(--ease-out-strong);
+  }
+
+  .hero-masthead__poster:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      0 1px 0 var(--inset-glint) inset,
+      0 22px 44px color-mix(in oklab, var(--sea-ink) 14%, transparent);
+  }
+}
+
+.hero-masthead__poster img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+.hero-masthead__poster-fallback {
+  display: flex;
+  aspect-ratio: 3 / 4;
+  flex-direction: column;
+  justify-content: flex-end;
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in oklab, var(--sea-ink) 88%, black) 0%,
+      color-mix(in oklab, var(--lagoon) 55%, var(--sea-ink)) 100%
+    );
+  padding: 1.5rem;
+  color: var(--sand);
+}
+
+.hero-masthead__pin {
   position: absolute;
-  inset: 0;
-  width: 0.5rem;
-  right: auto;
-  background: var(--phosphor);
+  top: 0.85rem;
+  left: 50%;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--phosphor) 70%, white);
+  box-shadow:
+    0 1px 0 color-mix(in oklab, black 25%, transparent),
+    0 0 0 3px color-mix(in oklab, var(--phosphor) 18%, transparent);
+  transform: translateX(-50%);
   pointer-events: none;
+}
+
+.hero-masthead__caption {
+  margin-top: 0.75rem;
+  max-width: 28rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+}
+
+.hero-masthead__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.hero-masthead__headline {
+  max-width: 14ch;
+  font-size: clamp(2.35rem, 5vw, 3.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.hero-masthead__lede {
+  max-width: 34ch;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+
+.hero-admit-stub {
+  position: relative;
+  margin-top: 0.5rem;
+  max-width: 16rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--phosphor);
+  background: var(--surface-strong);
+  padding: 0.875rem 1rem;
+  box-shadow: 3px 3px 0 color-mix(in oklab, var(--sea-ink) 8%, transparent);
+}
+
+@media (min-width: 1024px) {
+  .hero-admit-stub {
+    align-self: flex-start;
+    transform: rotate(1.4deg);
+  }
+}
+
+.hero-admit-stub__label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.hero-admit-stub__route {
+  margin-top: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.hero-admit-stub__fine {
+  margin-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
 }
 
 .wave-rule {
@@ -645,6 +801,11 @@ a:not([data-slot="button"]) {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .hero-masthead__visual,
+  .hero-admit-stub {
+    transform: none;
   }
 }
 
