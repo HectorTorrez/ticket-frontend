@@ -64,7 +64,12 @@ export function buildSiteMeta(overrides?: {
 
 	return {
 		meta,
-		links: [{ rel: "canonical", href: url }],
+		links: [
+			{ rel: "canonical", href: url },
+			{ rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+			{ rel: "icon", href: "/favicon.ico", sizes: "32x32" },
+			{ rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+		],
 	};
 }
 

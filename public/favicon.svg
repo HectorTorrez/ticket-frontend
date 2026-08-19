@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Tide Tickets">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#146c6e"/>
+      <stop offset="100%" stop-color="#0d5153"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="url(#bg)"/>
+  <rect x="26" y="26" width="4" height="4" rx="1" fill="#c9563d"/>
+  <g fill="none" stroke="#ffffff" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 11.5h16a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 14v-1A1.5 1.5 0 0 1 8 11.5Z"/>
+    <path d="M8 17.5h16a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 20v-1a1.5 1.5 0 0 1 1.5-1.5Z"/>
+    <path d="M13.5 11.5v9"/>
+    <path d="M18.5 11.5v9"/>
+  </g>
+</svg>
