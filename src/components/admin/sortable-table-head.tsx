@@ -33,19 +33,25 @@ export function SortableTableHead<T extends string>({
 			<button
 				type="button"
 				className={cn(
-					"inline-flex cursor-pointer items-center gap-1 font-medium transition-colors hover:text-foreground",
+					"flex w-full min-w-0 cursor-pointer items-center gap-1 font-medium transition-colors hover:text-foreground",
 					active ? "text-foreground" : "text-muted-foreground",
+					className?.includes("text-right") && "justify-end",
 				)}
 				onClick={() => onSort(column)}
 			>
-				{label}
-				{active && sortDirection === "asc" ? (
-					<ArrowUpIcon className="size-3.5" aria-hidden />
-				) : active && sortDirection === "desc" ? (
-					<ArrowDownIcon className="size-3.5" aria-hidden />
-				) : (
-					<ArrowUpDownIcon className="size-3.5 opacity-50" aria-hidden />
-				)}
+				<span className="truncate">{label}</span>
+				<span
+					className="inline-flex size-3.5 shrink-0 items-center justify-center"
+					aria-hidden
+				>
+					{active && sortDirection === "asc" ? (
+						<ArrowUpIcon className="size-3.5" />
+					) : active && sortDirection === "desc" ? (
+						<ArrowDownIcon className="size-3.5" />
+					) : (
+						<ArrowUpDownIcon className="size-3.5 opacity-50" />
+					)}
+				</span>
 			</button>
 		</TableHead>
 	);

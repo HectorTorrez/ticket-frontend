@@ -211,7 +211,7 @@ function DashboardEventsList() {
 							q.isFetching && "opacity-60",
 						)}
 					>
-						<Table>
+						<Table className="table-fixed">
 							<TableHeader>
 								<TableRow>
 									<SortableTableHead
@@ -220,6 +220,7 @@ function DashboardEventsList() {
 										sortBy={sortBy}
 										sortDirection={sortDirection}
 										onSort={handleSort}
+										className="w-[30%]"
 									/>
 									<SortableTableHead
 										label="Enlace"
@@ -227,6 +228,7 @@ function DashboardEventsList() {
 										sortBy={sortBy}
 										sortDirection={sortDirection}
 										onSort={handleSort}
+										className="w-[22%]"
 									/>
 									<SortableTableHead
 										label="Inicio"
@@ -234,6 +236,7 @@ function DashboardEventsList() {
 										sortBy={sortBy}
 										sortDirection={sortDirection}
 										onSort={handleSort}
+										className="w-[14%]"
 									/>
 									<SortableTableHead
 										label="Visibilidad"
@@ -241,15 +244,18 @@ function DashboardEventsList() {
 										sortBy={sortBy}
 										sortDirection={sortDirection}
 										onSort={handleSort}
+										className="w-[16%]"
 									/>
-									<TableHead className="text-right">Acciones</TableHead>
+									<TableHead className="w-30 text-right">Acciones</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{q.data.items.map((ev) => (
 									<TableRow key={ev.id}>
-										<TableCell className="font-medium">{ev.title}</TableCell>
-										<TableCell className="font-mono text-xs text-muted-foreground">
+										<TableCell className="max-w-0 truncate font-medium">
+											{ev.title}
+										</TableCell>
+										<TableCell className="max-w-0 truncate font-mono text-xs text-muted-foreground">
 											/events/{ev.slug}
 										</TableCell>
 										<TableCell className="text-sm text-muted-foreground">

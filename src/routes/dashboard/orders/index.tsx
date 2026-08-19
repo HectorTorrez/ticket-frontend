@@ -221,7 +221,7 @@ function AdminOrdersPage() {
 							q.isFetching && "opacity-60",
 						)}
 					>
-						<Table>
+						<Table className="table-fixed">
 							<TableHeader>
 								<TableRow>
 									<SortableTableHead
@@ -230,6 +230,7 @@ function AdminOrdersPage() {
 										sortBy={sortBy}
 										sortDirection={sortDirection}
 										onSort={handleSort}
+										className="w-30"
 									/>
 									<SortableTableHead
 										label="Cliente"
@@ -237,6 +238,7 @@ function AdminOrdersPage() {
 										sortBy={sortBy}
 										sortDirection={sortDirection}
 										onSort={handleSort}
+										className="w-[42%]"
 									/>
 									<SortableTableHead
 										label="Estado"
@@ -244,6 +246,7 @@ function AdminOrdersPage() {
 										sortBy={sortBy}
 										sortDirection={sortDirection}
 										onSort={handleSort}
+										className="w-35"
 									/>
 									<SortableTableHead
 										label="Total"
@@ -251,7 +254,7 @@ function AdminOrdersPage() {
 										sortBy={sortBy}
 										sortDirection={sortDirection}
 										onSort={handleSort}
-										className="text-right"
+										className="w-30 text-right"
 									/>
 								</TableRow>
 							</TableHeader>
@@ -261,7 +264,9 @@ function AdminOrdersPage() {
 										<TableCell className="text-sm font-medium">
 											{formatOrderRef(o.id)}
 										</TableCell>
-										<TableCell className="text-sm">{o.user.email}</TableCell>
+										<TableCell className="max-w-0 truncate text-sm">
+											{o.user.email}
+										</TableCell>
 										<TableCell>
 											<StatusBadge
 												label={labelFor(orderStatusLabel, o.status)}
