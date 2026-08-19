@@ -315,16 +315,16 @@ function CheckoutPage() {
 									<span
 										className={cn(
 											"h-px w-6 sm:w-10",
-											complete || current ? "bg-primary/40" : "bg-border",
+											complete || current ? "bg-primary-fill" : "bg-border",
 										)}
 									/>
 								) : null}
 								<span
 									className={cn(
 										"flex items-center gap-1.5 rounded-sm border px-3 py-2 font-medium transition-colors",
-										complete && "border-primary/40 bg-primary/5 text-primary",
+										complete && "border-primary/40 bg-primary-fill/70 text-primary",
 										current &&
-											"border-2 border-primary bg-primary/10 text-primary ring-2 ring-primary/15",
+											"border-2 border-primary bg-primary-fill text-primary ring-2 ring-primary/15",
 										!complete &&
 											!current &&
 											"border-transparent bg-muted text-muted-foreground",

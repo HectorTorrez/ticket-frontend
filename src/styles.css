@@ -18,9 +18,9 @@
   --baby-yellow: #f0ed9c;
   --sea-ink: #2a2822;
   --sea-ink-soft: #6b6659;
-  --lagoon: #c4c15a;
-  --lagoon-deep: #a8a545;
-  --phosphor: #d4d078;
+  --lagoon: #9a8b24;
+  --lagoon-deep: #7a6e14;
+  --phosphor: #7a6e14;
   --phosphor-soft: #f5f3b8;
   --palm: #5a8f5c;
   --sand: #ffffff;
@@ -29,7 +29,7 @@
   --surface-strong: #ffffff;
   --line: rgba(42, 40, 34, 0.12);
   --inset-glint: rgba(255, 255, 255, 0.85);
-  --kicker: #a8a545;
+  --kicker: #7a6e14;
   --bg-base: #ffffff;
   --header-bg: rgba(255, 255, 255, 0.94);
   --chip-bg: #faf9e8;
@@ -45,7 +45,8 @@
   --card-foreground: #2a2822;
   --popover: #ffffff;
   --popover-foreground: #2a2822;
-  --primary: #f0ed9c;
+  --primary: #7a6e14;
+  --primary-fill: #f0ed9c;
   --primary-foreground: #2a2822;
   --secondary: #f0ed9c;
   --secondary-foreground: #2a2822;
@@ -57,11 +58,11 @@
   --destructive-foreground: #ffffff;
   --success: #5a8f5c;
   --success-foreground: #ffffff;
-  --warning: #c4c15a;
+  --warning: #7a6e14;
   --warning-foreground: #2a2822;
   --border: #e8e59a;
   --input: #ded988;
-  --ring: #c4c15a;
+  --ring: #9a8b24;
   --chart-1: oklch(0.88 0.1 105);
   --chart-2: oklch(0.82 0.09 100);
   --chart-3: oklch(0.68 0.16 55);
@@ -75,7 +76,7 @@
   --sidebar-accent: #f0ed9c;
   --sidebar-accent-foreground: #2a2822;
   --sidebar-border: #e8e59a;
-  --sidebar-ring: #c4c15a;
+  --sidebar-ring: #9a8b24;
 }
 
 .dark {
@@ -110,6 +111,7 @@
   --popover: #2a281e;
   --popover-foreground: #fffef5;
   --primary: #f0ed9c;
+  --primary-fill: #f0ed9c;
   --primary-foreground: #2a2822;
   --secondary: #3a3820;
   --secondary-foreground: #fffef5;
@@ -152,6 +154,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-fill: var(--primary-fill);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -694,8 +697,8 @@ a:not([data-slot="button"]) {
   width: 2rem;
   height: 2rem;
   border-radius: 0.25rem;
-  border: 1px solid color-mix(in oklab, var(--lagoon) 72%, var(--sea-ink));
-  background: var(--lagoon);
+  border: 1px solid color-mix(in oklab, var(--lagoon-deep) 72%, var(--sea-ink));
+  background: var(--primary-fill);
   color: var(--primary-foreground);
   box-shadow: 3px 3px 0 var(--phosphor);
   flex-shrink: 0;

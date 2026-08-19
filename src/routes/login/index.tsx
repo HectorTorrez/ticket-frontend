@@ -94,7 +94,7 @@ function LoginPage() {
 			<div className="page-wrap flex justify-center py-16 md:py-20">
 				<div className="w-full max-w-md space-y-8">
 					<div className="rise-in text-center">
-						<div className="mx-auto mb-4 inline-flex rounded-full bg-primary/10 p-3 text-primary">
+						<div className="mx-auto mb-4 inline-flex rounded-full bg-primary-fill p-3 text-primary">
 							<LogIn className="size-6" />
 						</div>
 						<h1 className="display-title text-3xl font-semibold">

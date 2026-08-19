@@ -34,7 +34,7 @@ const toneStyles: Record<
 		icon: XCircle,
 	},
 	info: {
-		className: "border-primary/30 bg-primary/10 text-primary",
+		className: "border-primary/30 bg-primary-fill text-primary",
 		icon: Clock3,
 	},
 	neutral: {

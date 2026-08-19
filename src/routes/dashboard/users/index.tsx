@@ -83,7 +83,7 @@ function AdminUsersPage() {
 				}}
 			>
 				<div className="flex items-center gap-3">
-					<div className="inline-flex rounded-full bg-primary/10 p-2 text-primary">
+					<div className="inline-flex rounded-full bg-primary-fill p-2 text-primary">
 						<KeyRound className="size-5" />
 					</div>
 					<div>
