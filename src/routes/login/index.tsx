@@ -10,6 +10,7 @@ import { Button } from "#/components/ui/button";
 import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
+import { useAuthEntrance } from "#/hooks/use-auth-entrance";
 import { ApiError } from "#/lib/api/errors";
 import { loginRequest } from "#/lib/api/ticket-api";
 import { getSession, setSession } from "#/lib/auth/session";
@@ -50,6 +51,7 @@ export const Route = createFileRoute("/login/")({
 function LoginPage() {
 	const { redirect: redirectTo } = Route.useSearch();
 	const [hydrated, setHydrated] = useState(false);
+	const { headingClass, formClass } = useAuthEntrance();
 
 	useEffect(() => {
 		setHydrated(true);
@@ -94,12 +96,13 @@ function LoginPage() {
 			<div className="page-wrap flex justify-center py-16 md:py-20">
 				<div className="w-full max-w-md space-y-8">
 					<AuthHeading
+						entranceClass={headingClass}
 						kicker="Acceso"
 						title="Bienvenido de nuevo"
 						description="Inicia sesión para reservar entradas y ver tus pases."
 					/>
 					<form
-						className="auth-shell rise-in stagger-1 space-y-6 p-8"
+						className={formClass}
 						onSubmit={(e) => {
 							e.preventDefault();
 							form.handleSubmit();

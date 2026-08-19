@@ -49,11 +49,11 @@ export function AddTicketTypeCollapsible({
 				<CollapsibleTrigger asChild>
 					<button
 						type="button"
-						className="flex w-full cursor-pointer items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-muted/40"
+						className="collapsible-trigger flex w-full cursor-pointer items-center gap-3 px-5 py-4 text-left hover:bg-muted/40"
 					>
 						<ChevronDown
 							className={cn(
-								"size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+								"size-4 shrink-0 text-muted-foreground transition-transform duration-[var(--duration-feedback)] ease-[var(--ease-out-strong)]",
 								open && "rotate-180",
 							)}
 							aria-hidden

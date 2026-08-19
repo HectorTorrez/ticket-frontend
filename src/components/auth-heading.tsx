@@ -1,14 +1,21 @@
 import { Skeleton } from "#/components/ui/skeleton";
+import { cn } from "#/lib/utils";
 
 type AuthHeadingProps = {
 	kicker: string;
 	title: string;
 	description: string;
+	entranceClass?: string;
 };
 
-export function AuthHeading({ kicker, title, description }: AuthHeadingProps) {
+export function AuthHeading({
+	kicker,
+	title,
+	description,
+	entranceClass,
+}: AuthHeadingProps) {
 	return (
-		<div className="rise-in space-y-3">
+		<div className={cn("space-y-3", entranceClass)}>
 			<p className="font-ticket-code text-[0.68rem] uppercase tracking-[0.16em] text-primary">
 				{kicker}
 			</p>

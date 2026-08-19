@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
@@ -22,7 +21,6 @@ import { Switch } from "#/components/ui/switch";
 import { Textarea } from "#/components/ui/textarea";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { adminEventsDefaultSearch } from "#/lib/admin/default-search";
-import { ApiError } from "#/lib/api/errors";
 import type { TicketTier } from "#/lib/api/schemas";
 import {
 	createTicketType,
@@ -36,6 +34,7 @@ import {
 } from "#/lib/api/ticket-api";
 import { toLocalDateTimeInput } from "#/lib/dates";
 import { eventsKeys } from "#/lib/query-keys";
+import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
 
 import { AddTicketTypeCollapsible } from "#/routes/dashboard/events/-components/add-ticket-type-collapsible";
 import { TicketTypeEditor } from "#/routes/dashboard/events/-components/ticket-type-editor";
@@ -89,60 +88,78 @@ function EditEventPage() {
 
 	const save = useMutation({
 		mutationFn: () =>
-			patchEvent(eventId, {
-				title,
-				description: description || undefined,
-				startsAt: new Date(startsAt).toISOString(),
-				endsAt: new Date(endsAt).toISOString(),
-				venue: venue || undefined,
-			}),
-		onSuccess: async () => {
-			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success("Guardado");
-		},
-		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Error al guardar"),
+			toastMutation(
+				patchEvent(eventId, {
+					title,
+					description: description || undefined,
+					startsAt: new Date(startsAt).toISOString(),
+					endsAt: new Date(endsAt).toISOString(),
+					venue: venue || undefined,
+				}).then(async (data) => {
+					await qc.invalidateQueries({ queryKey: eventsKeys.all });
+					return data;
+				}),
+				{
+					loading: "Guardando…",
+					success: "Guardado",
+					error: (e) => apiErrorMessage(e, "Error al guardar"),
+				},
+			),
 	});
 
 	const togglePublished = useMutation({
 		mutationFn: (nextPublished: boolean) =>
-			nextPublished ? publishEvent(eventId) : unpublishEvent(eventId),
-		onSuccess: async (_data, nextPublished) => {
-			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success(
-				nextPublished
-					? "Evento visible en el catálogo"
-					: "Evento oculto del catálogo",
-			);
-			void q.refetch();
-		},
-		onError: (e) =>
-			toast.error(
-				e instanceof ApiError
-					? e.message
-					: "No se pudo actualizar la visibilidad",
+			toastMutation(
+				(nextPublished ? publishEvent(eventId) : unpublishEvent(eventId)).then(
+					async () => {
+						await qc.invalidateQueries({ queryKey: eventsKeys.all });
+						void q.refetch();
+						return nextPublished;
+					},
+				),
+				{
+					loading: "Actualizando visibilidad…",
+					success: (nextPublished) =>
+						nextPublished
+							? "Evento visible en el catálogo"
+							: "Evento oculto del catálogo",
+					error: (e) =>
+						apiErrorMessage(e, "No se pudo actualizar la visibilidad"),
+				},
 			),
 	});
 
 	const remove = useMutation({
-		mutationFn: () => deleteEvent(eventId),
-		onSuccess: async () => {
-			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success("Evento eliminado");
-			window.location.href = "/dashboard/events";
-		},
-		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Error al eliminar"),
+		mutationFn: () =>
+			toastMutation(
+				deleteEvent(eventId).then(async (data) => {
+					await qc.invalidateQueries({ queryKey: eventsKeys.all });
+					return data;
+				}),
+				{
+					loading: "Eliminando evento…",
+					success: () => {
+						window.location.href = "/dashboard/events";
+						return "Evento eliminado";
+					},
+					error: (e) => apiErrorMessage(e, "Error al eliminar"),
+				},
+			),
 	});
 
 	const banner = useMutation({
-		mutationFn: (file: File) => uploadEventBanner(eventId, file),
-		onSuccess: async () => {
-			void q.refetch();
-			toast.success("Banner actualizado");
-		},
-		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Error al subir"),
+		mutationFn: (file: File) =>
+			toastMutation(
+				uploadEventBanner(eventId, file).then((data) => {
+					void q.refetch();
+					return data;
+				}),
+				{
+					loading: "Subiendo banner…",
+					success: "Banner actualizado",
+					error: (e) => apiErrorMessage(e, "Error al subir"),
+				},
+			),
 	});
 
 	const [tier, setTier] = useState<TicketTier>("GENERAL");
@@ -152,34 +169,41 @@ function EditEventPage() {
 
 	const addTier = useMutation({
 		mutationFn: () =>
-			createTicketType(eventId, {
-				tier,
-				name: ttName.trim(),
-				price: Number(ttPrice),
-				quantity: Number(ttQty),
-			}),
-		onSuccess: async () => {
-			void q.refetch();
-			setTtName("");
-			setTier("GENERAL");
-			setTtPrice("0");
-			setTtQty("100");
-			toast.success("Categoría añadida");
-		},
-		onError: (e) =>
-			toast.error(
-				e instanceof ApiError ? e.message : "No se pudo añadir la categoría",
+			toastMutation(
+				createTicketType(eventId, {
+					tier,
+					name: ttName.trim(),
+					price: Number(ttPrice),
+					quantity: Number(ttQty),
+				}).then((data) => {
+					void q.refetch();
+					setTtName("");
+					setTier("GENERAL");
+					setTtPrice("0");
+					setTtQty("100");
+					return data;
+				}),
+				{
+					loading: "Añadiendo categoría…",
+					success: "Categoría añadida",
+					error: (e) => apiErrorMessage(e, "No se pudo añadir la categoría"),
+				},
 			),
 	});
 
 	const delTier = useMutation({
-		mutationFn: (id: string) => deleteTicketType(id),
-		onSuccess: async () => {
-			void q.refetch();
-			toast.success("Categoría eliminada");
-		},
-		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "No se pudo eliminar"),
+		mutationFn: (id: string) =>
+			toastMutation(
+				deleteTicketType(id).then((data) => {
+					void q.refetch();
+					return data;
+				}),
+				{
+					loading: "Eliminando categoría…",
+					success: "Categoría eliminada",
+					error: (e) => apiErrorMessage(e, "No se pudo eliminar"),
+				},
+			),
 	});
 
 	const refetchTicketTypes = () => {

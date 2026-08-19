@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
 
 import { QrCameraScanner } from "#/components/qr-camera-scanner";
 import { qrResultTone, StatusIndicator } from "#/components/status-indicator";
@@ -9,15 +8,21 @@ import { Button } from "#/components/ui/button";
 import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
-import { ApiError } from "#/lib/api/errors";
 import { validateQrCode } from "#/lib/api/ticket-api";
 import { labelFor, qrResultLabel } from "#/lib/labels";
 import { normalizeTicketCode } from "#/lib/ticket-code";
+import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
 import { cn } from "#/lib/utils";
 
 export const Route = createFileRoute("/dashboard/scanner/")({
 	component: ScannerPage,
 });
+
+function qrToastMessage(result: string) {
+	if (result === "VALID") return "Válida — entrada marcada como usada";
+	if (result === "ALREADY_USED") return "Ya usada";
+	throw new Error("Entrada inválida");
+}
 
 function ScannerPage() {
 	const [code, setCode] = useState("");
@@ -25,17 +30,19 @@ function ScannerPage() {
 	const [codeError, setCodeError] = useState<string | undefined>();
 
 	const { mutate, isPending } = useMutation({
-		mutationFn: (raw: string) => validateQrCode(normalizeTicketCode(raw)),
-		onSuccess: (r) => {
-			setLast(r.result);
-			setCodeError(undefined);
-			if (r.result === "VALID")
-				toast.success("Válida — entrada marcada como usada");
-			else if (r.result === "ALREADY_USED") toast.message("Ya usada");
-			else toast.error("Entrada inválida");
-		},
-		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Error al validar"),
+		mutationFn: (raw: string) =>
+			toastMutation(validateQrCode(normalizeTicketCode(raw)), {
+				loading: "Validando…",
+				success: (r) => {
+					setLast(r.result);
+					setCodeError(undefined);
+					return qrToastMessage(r.result);
+				},
+				error: (e) =>
+					e instanceof Error && e.message === "Entrada inválida"
+						? e.message
+						: apiErrorMessage(e, "Error al validar"),
+			}),
 	});
 
 	const runValidate = useCallback(
@@ -101,8 +108,9 @@ function ScannerPage() {
 				</Button>
 				{last ? (
 					<output
+						key={last}
 						className={cn(
-							"block rounded-lg border px-4 py-3 text-center",
+							"state-reveal block rounded-lg border px-4 py-3 text-center",
 							last === "VALID" &&
 								"border-green-600/30 bg-green-50 dark:bg-green-950/30",
 							last === "ALREADY_USED" &&

@@ -5,7 +5,6 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { toast } from "sonner";
 import type { z as zod } from "zod";
 import { z } from "zod";
 
@@ -36,6 +35,7 @@ import {
 } from "#/lib/api/ticket-api";
 import type { ExportColumn } from "#/lib/export/table-export";
 import { eventsKeys } from "#/lib/query-keys";
+import { toastMutation } from "#/lib/toast-mutation";
 import { cn } from "#/lib/utils.ts";
 
 type EventListItem = zod.infer<typeof eventListItemSchema>;
@@ -74,20 +74,25 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 	const qc = useQueryClient();
 	const toggle = useMutation({
 		mutationFn: (nextPublished: boolean) =>
-			nextPublished ? publishEvent(event.id) : unpublishEvent(event.id),
-		onSuccess: async (_data, nextPublished) => {
-			await qc.invalidateQueries({ queryKey: eventsKeys.all });
-			toast.success(
-				nextPublished
-					? "Evento visible en el catálogo"
-					: "Evento oculto del catálogo",
-			);
-		},
-		onError: (e) =>
-			toast.error(
-				e instanceof ApiError
-					? e.message
-					: "No se pudo actualizar la visibilidad",
+			toastMutation(
+				(nextPublished
+					? publishEvent(event.id)
+					: unpublishEvent(event.id)
+				).then(async () => {
+					await qc.invalidateQueries({ queryKey: eventsKeys.all });
+					return nextPublished;
+				}),
+				{
+					loading: "Actualizando visibilidad…",
+					success: (nextPublished) =>
+						nextPublished
+							? "Evento visible en el catálogo"
+							: "Evento oculto del catálogo",
+					error: (e) =>
+						e instanceof ApiError
+							? e.message
+							: "No se pudo actualizar la visibilidad",
+				},
 			),
 	});
 
@@ -207,7 +212,7 @@ function DashboardEventsList() {
 				<>
 					<div
 						className={cn(
-							"overflow-x-auto rounded-xl border transition-opacity",
+							"table-fetching overflow-x-auto rounded-xl border",
 							q.isFetching && "opacity-60",
 						)}
 					>

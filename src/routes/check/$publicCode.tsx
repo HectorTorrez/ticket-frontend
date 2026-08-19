@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Calendar, CheckCircle2, ShieldCheck, Ticket } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { PublicLayout } from "#/components/layouts/public-layout";
 import {
@@ -13,8 +12,8 @@ import {
 import { TicketDateStub } from "#/components/ticket-date-stub";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
+import { usePageEntrance } from "#/hooks/use-auth-entrance";
 import { useErrorToast } from "#/hooks/use-error-toast";
-import { ApiError } from "#/lib/api/errors";
 import { fetchPublicTicket, validateQrCode } from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
 import {
@@ -24,6 +23,8 @@ import {
 	ticketStatusLabel,
 } from "#/lib/labels";
 import { ticketsKeys } from "#/lib/query-keys";
+import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
+import { cn } from "#/lib/utils";
 
 export const Route = createFileRoute("/check/$publicCode")({
 	component: CheckTicketPage,
@@ -35,6 +36,7 @@ function CheckTicketPage() {
 	const session = typeof window !== "undefined" ? getSession() : null;
 	const admin = isAdmin(session);
 	const [lastResult, setLastResult] = useState<string | null>(null);
+	const headingClass = usePageEntrance("ticket-check-entrance-seen");
 
 	const ticketQ = useQuery({
 		queryKey: ticketsKeys.public(publicCode),
@@ -48,22 +50,27 @@ function CheckTicketPage() {
 	);
 
 	const validate = useMutation({
-		mutationFn: () => validateQrCode(publicCode),
-		onSuccess: async (r) => {
-			setLastResult(r.result);
-			if (r.result === "VALID") {
-				toast.success("Entrada validada — acceso concedido");
-				await queryClient.invalidateQueries({
-					queryKey: ticketsKeys.public(publicCode),
-				});
-			} else if (r.result === "ALREADY_USED") {
-				toast.message("Esta entrada ya fue usada");
-			} else {
-				toast.error("Entrada inválida");
-			}
-		},
-		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "Error al validar"),
+		mutationFn: () =>
+			toastMutation(validateQrCode(publicCode), {
+				loading: "Validando entrada…",
+				success: (r) => {
+					setLastResult(r.result);
+					if (r.result === "VALID") {
+						void queryClient.invalidateQueries({
+							queryKey: ticketsKeys.public(publicCode),
+						});
+						return "Entrada validada — acceso concedido";
+					}
+					if (r.result === "ALREADY_USED") {
+						return "Esta entrada ya fue usada";
+					}
+					throw new Error("Entrada inválida");
+				},
+				error: (e) =>
+					e instanceof Error && e.message === "Entrada inválida"
+						? e.message
+						: apiErrorMessage(e, "Error al validar"),
+			}),
 	});
 
 	const ticket = ticketQ.data;
@@ -72,7 +79,7 @@ function CheckTicketPage() {
 	return (
 		<PublicLayout>
 			<div className="page-wrap mx-auto max-w-lg space-y-8 py-12 md:py-16">
-				<div className="rise-in text-center">
+				<div className={cn("text-center", headingClass)}>
 					<p className="island-kicker">Control de acceso</p>
 					<h1 className="display-title mt-2 text-2xl font-semibold md:text-3xl">
 						Verificación de entrada
@@ -172,7 +179,8 @@ function CheckTicketPage() {
 						) : null}
 						{lastResult ? (
 							<output
-								className="block rounded-lg border border-border/60 bg-muted/40 px-4 py-3 text-center"
+								key={lastResult}
+								className="state-reveal block rounded-lg border border-border/60 bg-muted/40 px-4 py-3 text-center"
 								aria-live="polite"
 							>
 								<StatusIndicator

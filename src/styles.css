@@ -9,10 +9,13 @@
 :root {
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --duration-exit: 150ms;
   --duration-enter: 210ms;
   --duration-move: 380ms;
   --duration-feedback: 160ms;
+  --duration-drawer-open: 280ms;
+  --duration-drawer-close: 200ms;
 
   /* Coastal Poster — ink, tide, paper and a single live accent */
   --sea-ink: #102a33;
@@ -335,7 +338,7 @@ a:not([data-slot="button"]) {
     var(--lagoon),
     color-mix(in oklab, var(--phosphor) 60%, var(--lagoon))
   );
-  transition: transform 170ms ease;
+  transition: transform 170ms var(--ease-out-strong);
 }
 
 .nav-link:hover,
@@ -378,6 +381,77 @@ a:not([data-slot="button"]) {
 @media (prefers-reduced-motion: reduce) {
   .rise-in {
     animation: none;
+  }
+}
+
+/* Collapsible panels — grid transition for interruptible expand/collapse */
+[data-slot="collapsible-content"] {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 220ms var(--ease-out-strong),
+    opacity 180ms var(--ease-out-strong);
+}
+
+[data-slot="collapsible-content"][data-state="open"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+[data-slot="collapsible-content-inner"] {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.collapsible-trigger {
+  transition:
+    background-color var(--duration-feedback) var(--ease-out-strong),
+    transform var(--duration-feedback) var(--ease-out-strong);
+}
+
+.collapsible-trigger:active {
+  transform: scale(0.98);
+}
+
+/* Conditional state panels (scan results, etc.) */
+.state-reveal {
+  opacity: 1;
+  transform: scale(1);
+  transition:
+    opacity 180ms var(--ease-out-strong),
+    transform 180ms var(--ease-out-strong);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+/* Refetch dim on data tables — opacity only, fast */
+.table-fetching {
+  transition: opacity var(--duration-exit) var(--ease-out-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="collapsible-content"] {
+    transition: opacity 120ms ease;
+  }
+
+  .collapsible-trigger:active {
+    transform: none;
+  }
+
+  .state-reveal {
+    transition: opacity 120ms ease;
+
+    @starting-style {
+      transform: none;
+    }
+  }
+
+  .table-fetching {
+    transition: none;
   }
 }
 
@@ -878,29 +952,29 @@ a:not([data-slot="button"]) {
 html[data-vt-direction="forward"]::view-transition-old(root) {
   --slide-offset: -48px;
   animation:
-    var(--duration-exit) ease-in both vt-fade reverse,
-    var(--duration-move) ease-in-out both vt-slide reverse;
+    var(--duration-exit) var(--ease-out-strong) both vt-fade reverse,
+    var(--duration-move) var(--ease-in-out-strong) both vt-slide reverse;
 }
 
 html[data-vt-direction="forward"]::view-transition-new(root) {
   --slide-offset: 48px;
   animation:
-    var(--duration-enter) ease-out var(--duration-exit) both vt-fade,
-    var(--duration-move) ease-in-out both vt-slide;
+    var(--duration-enter) var(--ease-out-strong) var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-in-out-strong) both vt-slide;
 }
 
 html[data-vt-direction="back"]::view-transition-old(root) {
   --slide-offset: 48px;
   animation:
-    var(--duration-exit) ease-in both vt-fade reverse,
-    var(--duration-move) ease-in-out both vt-slide reverse;
+    var(--duration-exit) var(--ease-out-strong) both vt-fade reverse,
+    var(--duration-move) var(--ease-in-out-strong) both vt-slide reverse;
 }
 
 html[data-vt-direction="back"]::view-transition-new(root) {
   --slide-offset: -48px;
   animation:
-    var(--duration-enter) ease-out var(--duration-exit) both vt-fade,
-    var(--duration-move) ease-in-out both vt-slide;
+    var(--duration-enter) var(--ease-out-strong) var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-in-out-strong) both vt-slide;
 }
 
 ::view-transition-group(site-header),

@@ -18,6 +18,7 @@ import {
 	exportFilename,
 	exportTable,
 } from "#/lib/export/table-export";
+import { toastMutation } from "#/lib/toast-mutation";
 
 type TableExportMenuProps<T> = {
 	title: string;
@@ -51,26 +52,35 @@ export function TableExportMenu<T>({
 	async function handleExport(format: ExportFormat, scope: "page" | "all") {
 		setLoading(true);
 		try {
-			const rows = scope === "page" ? pageRows : await fetchAllRows();
+			const rowsPromise =
+				scope === "page" ? Promise.resolve(pageRows) : fetchAllRows();
+			const rows = await rowsPromise;
 			if (rows.length === 0) {
 				toast.info("No hay datos para exportar");
 				return;
 			}
-			const suffix = scope === "page" ? "pagina" : "todos";
-			exportTable(
-				format,
-				rows,
-				columns,
-				exportFilename(`${filenameBase}-${suffix}`),
-				title,
+
+			await toastMutation(
+				Promise.resolve().then(() => {
+					const suffix = scope === "page" ? "pagina" : "todos";
+					exportTable(
+						format,
+						rows,
+						columns,
+						exportFilename(`${filenameBase}-${suffix}`),
+						title,
+					);
+					return rows.length;
+				}),
+				{
+					loading: "Exportando…",
+					success: (count) =>
+						scope === "page"
+							? `Exportados ${count} registros de la página`
+							: `Exportados ${count} registros en total`,
+					error: "No se pudo exportar los datos",
+				},
 			);
-			toast.success(
-				scope === "page"
-					? `Exportados ${rows.length} registros de la página`
-					: `Exportados ${rows.length} registros en total`,
-			);
-		} catch {
-			toast.error("No se pudo exportar los datos");
 		} finally {
 			setLoading(false);
 		}

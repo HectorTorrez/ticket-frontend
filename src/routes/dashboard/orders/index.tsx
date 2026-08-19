@@ -217,7 +217,7 @@ function AdminOrdersPage() {
 				<>
 					<div
 						className={cn(
-							"overflow-x-auto rounded-xl border transition-opacity",
+							"table-fetching overflow-x-auto rounded-xl border",
 							q.isFetching && "opacity-60",
 						)}
 					>

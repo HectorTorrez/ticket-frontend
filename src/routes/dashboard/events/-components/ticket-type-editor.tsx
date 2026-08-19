@@ -1,7 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
@@ -10,10 +9,10 @@ import {
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "#/components/ui/collapsible";
-import { ApiError } from "#/lib/api/errors";
 import type { TicketTier } from "#/lib/api/schemas";
 import { patchTicketType } from "#/lib/api/ticket-api";
 import { labelFor, ticketTierLabel } from "#/lib/labels";
+import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
 import { cn } from "#/lib/utils";
 
 import { TicketTypeFields } from "./ticket-type-fields";
@@ -85,19 +84,21 @@ export function TicketTypeEditor({
 
 	const save = useMutation({
 		mutationFn: () =>
-			patchTicketType(ticketType.id, {
-				tier,
-				name: name.trim(),
-				price: Number(price),
-				quantity: Number(quantity),
-			}),
-		onSuccess: () => {
-			onUpdated();
-			toast.success("Categoría actualizada");
-		},
-		onError: (e) =>
-			toast.error(
-				e instanceof ApiError ? e.message : "No se pudo guardar la categoría",
+			toastMutation(
+				patchTicketType(ticketType.id, {
+					tier,
+					name: name.trim(),
+					price: Number(price),
+					quantity: Number(quantity),
+				}).then((data) => {
+					onUpdated();
+					return data;
+				}),
+				{
+					loading: "Guardando…",
+					success: "Categoría actualizada",
+					error: (e) => apiErrorMessage(e, "No se pudo guardar la categoría"),
+				},
 			),
 	});
 
@@ -122,11 +123,11 @@ export function TicketTypeEditor({
 				<CollapsibleTrigger asChild>
 					<button
 						type="button"
-						className="flex w-full cursor-pointer items-start gap-3 px-5 py-4 text-left transition-colors hover:bg-muted/40"
+						className="collapsible-trigger flex w-full cursor-pointer items-start gap-3 px-5 py-4 text-left hover:bg-muted/40"
 					>
 						<ChevronDown
 							className={cn(
-								"mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+								"mt-0.5 size-4 shrink-0 text-muted-foreground transition-transform duration-[var(--duration-feedback)] ease-[var(--ease-out-strong)]",
 								open && "rotate-180",
 							)}
 							aria-hidden
