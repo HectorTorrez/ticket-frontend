@@ -9,6 +9,7 @@ import {
 	UserPlus,
 } from "lucide-react";
 import { ModeToggle } from "#/components/mode-toggle";
+import { SkipLink } from "#/components/skip-link";
 import { Button } from "#/components/ui/button";
 import {
 	DropdownMenu,
@@ -28,6 +29,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "#/components/ui/sheet";
+import { useTransitionClick } from "#/hooks/use-transition-navigate";
 import { logoutRequest } from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
 import { cn } from "#/lib/utils";
@@ -47,12 +49,25 @@ function BrandMark() {
 export function PublicLayout({ children }: PublicLayoutProps) {
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
 	const session = typeof window !== "undefined" ? getSession() : null;
+	const homeClick = useTransitionClick({ to: "/" }, "back");
+	const eventsClick = useTransitionClick(
+		{ to: "/events", search: { page: 1, limit: 10 } },
+		"forward",
+	);
 
-	const navLink = (to: string, label: string) => {
+	const navLink = (
+		to: string,
+		label: string,
+		onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
+	) => {
 		const active = pathname === to || (to !== "/" && pathname.startsWith(to));
+		const search =
+			to === "/events" ? ({ page: 1, limit: 10 } as const) : undefined;
 		return (
 			<Link
 				to={to}
+				search={search}
+				onClick={onClick}
 				className={`nav-link rounded-md px-3 py-2 text-sm font-medium ${active ? "is-active" : ""}`}
 			>
 				{label}
@@ -63,12 +78,20 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 	const sheetLinkClass =
 		"rounded-md px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted";
 
-	function sheetNavLink(to: string, label: string) {
+	function sheetNavLink(
+		to: string,
+		label: string,
+		onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
+	) {
 		const active = pathname === to || (to !== "/" && pathname.startsWith(to));
+		const search =
+			to === "/events" ? ({ page: 1, limit: 10 } as const) : undefined;
 		return (
 			<SheetClose key={to} asChild>
 				<Link
 					to={to}
+					search={search}
+					onClick={onClick}
 					className={cn(sheetLinkClass, active && "bg-muted font-semibold")}
 				>
 					{label}
@@ -84,11 +107,16 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 
 	return (
 		<div className="flex min-h-dvh flex-col">
-			<header className="sticky top-0 z-50 border-b border-border/60 bg-header-bg/90 backdrop-blur-lg">
+			<SkipLink />
+			<header
+				className="sticky top-0 z-50 border-b border-border/60 bg-header-bg/90 backdrop-blur-lg"
+				style={{ viewTransitionName: "site-header" }}
+			>
 				<div className="page-wrap flex h-16 min-w-0 items-center justify-between gap-3">
 					<div className="flex min-w-0 flex-1 items-center gap-4 md:gap-8 md:flex-initial">
 						<Link
 							to="/"
+							onClick={homeClick}
 							className="group flex min-w-0 items-center gap-2.5 text-foreground no-underline"
 						>
 							<BrandMark />
@@ -96,8 +124,11 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 								Tide Tickets
 							</span>
 						</Link>
-						<nav className="hidden items-center gap-1 md:flex">
-							{navLink("/events", "Eventos")}
+						<nav
+							className="hidden items-center gap-1 md:flex"
+							aria-label="Navegación principal"
+						>
+							{navLink("/events", "Eventos", eventsClick)}
 							{session &&
 								session.user.role === "CUSTOMER" &&
 								navLink("/my-tickets", "Mis pases")}
@@ -203,8 +234,11 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 										</SheetDescription>
 									) : null}
 								</SheetHeader>
-								<nav className="flex flex-col px-2 pb-2">
-									{sheetNavLink("/events", "Eventos")}
+								<nav
+									className="flex flex-col px-2 pb-2"
+									aria-label="Navegación móvil"
+								>
+									{sheetNavLink("/events", "Eventos", eventsClick)}
 									{session &&
 										session.user.role === "CUSTOMER" &&
 										sheetNavLink("/my-tickets", "Mis pases")}
@@ -254,8 +288,13 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 					</div>
 				</div>
 			</header>
-			<main className="flex-1">{children}</main>
-			<footer className="site-footer mt-auto py-12">
+			<main id="main-content" className="flex-1" tabIndex={-1}>
+				{children}
+			</main>
+			<footer
+				className="site-footer mt-auto py-12"
+				style={{ viewTransitionName: "site-footer" }}
+			>
 				<div className="page-wrap">
 					<div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
 						<div className="flex items-center gap-2.5">
@@ -270,7 +309,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 							</div>
 						</div>
 						<div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
-							<Link to="/events" className="nav-link hover:text-foreground">
+							<Link
+								to="/events"
+								search={{ page: 1, limit: 10 }}
+								onClick={eventsClick}
+								className="nav-link hover:text-foreground"
+							>
 								Eventos
 							</Link>
 							{!session ? (
