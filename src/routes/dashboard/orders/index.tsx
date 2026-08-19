@@ -2,21 +2,26 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
+import { SortableTableHead } from "#/components/admin/sortable-table-head";
+import { TableExportMenu } from "#/components/admin/table-export-menu";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Skeleton } from "#/components/ui/skeleton";
-import { useErrorToast } from "#/hooks/use-error-toast";
 import {
 	Table,
 	TableBody,
 	TableCell,
-	TableHead,
 	TableHeader,
 	TableRow,
 } from "#/components/ui/table";
+import { useErrorToast } from "#/hooks/use-error-toast";
+import { adminOrdersSortDefaults } from "#/lib/admin/default-search";
+import { fetchAllPages } from "#/lib/admin/fetch-all-pages";
+import { cycleSort, resolveTableSort } from "#/lib/admin/sort";
 import { fetchAdminOrders } from "#/lib/api/ticket-api";
-import { labelFor, formatOrderRef, orderStatusLabel } from "#/lib/labels";
+import type { ExportColumn } from "#/lib/export/table-export";
+import { formatOrderRef, labelFor, orderStatusLabel } from "#/lib/labels";
 import { adminOrdersKeys } from "#/lib/query-keys";
 
 const searchSchema = z.object({
@@ -24,7 +29,42 @@ const searchSchema = z.object({
 	limit: z.coerce.number().catch(20),
 	status: z.string().optional(),
 	userId: z.string().optional(),
+	sortBy: z
+		.enum(["id", "createdAt", "status", "totalAmount", "userEmail"])
+		.catch(adminOrdersSortDefaults.sortBy),
+	sortDirection: z.enum(["asc", "desc", "default"]).catch("default"),
 });
+
+type AdminOrderRow = {
+	id: string;
+	status: keyof typeof orderStatusLabel;
+	currency: string;
+	totalAmount: string;
+	user: { email: string };
+};
+
+const orderExportColumns: ExportColumn<AdminOrderRow>[] = [
+	{
+		header: "Pedido",
+		value: (row) => formatOrderRef(row.id),
+	},
+	{
+		header: "Cliente",
+		value: (row) => row.user.email,
+	},
+	{
+		header: "Estado",
+		value: (row) => labelFor(orderStatusLabel, row.status),
+	},
+	{
+		header: "Total",
+		value: (row) =>
+			new Intl.NumberFormat("es", {
+				style: "currency",
+				currency: row.currency,
+			}).format(Number(row.totalAmount)),
+	},
+];
 
 export const Route = createFileRoute("/dashboard/orders/")({
 	validateSearch: (s) => searchSchema.parse(s),
@@ -33,23 +73,85 @@ export const Route = createFileRoute("/dashboard/orders/")({
 
 function AdminOrdersPage() {
 	const search = Route.useSearch();
-	const { page, limit, status, userId } = search;
+	const { page, limit, status, userId, sortBy, sortDirection } = search;
 	const navigate = Route.useNavigate();
+	const effectiveSort = resolveTableSort(
+		sortBy,
+		sortDirection,
+		adminOrdersSortDefaults,
+	);
 
 	const q = useQuery({
-		queryKey: adminOrdersKeys.list({ page, limit, status, userId }),
-		queryFn: () => fetchAdminOrders({ page, limit, status, userId }),
+		queryKey: adminOrdersKeys.list({
+			page,
+			limit,
+			status,
+			userId,
+			sortBy,
+			sortDirection,
+		}),
+		queryFn: () =>
+			fetchAdminOrders({
+				page,
+				limit,
+				status,
+				userId,
+				sortBy: effectiveSort.sortBy,
+				sortOrder: effectiveSort.sortOrder,
+			}),
 	});
 
 	useErrorToast(q.isError ? q.error : null, "No pudimos cargar los pedidos");
 
+	function handleSort(
+		column: "id" | "createdAt" | "status" | "totalAmount" | "userEmail",
+	) {
+		const next = cycleSort(
+			{ sortBy, sortDirection },
+			column,
+			adminOrdersSortDefaults,
+		);
+		navigate({
+			search: { ...search, ...next, page: 1 },
+		});
+	}
+
+	async function fetchAllOrders(): Promise<AdminOrderRow[]> {
+		return fetchAllPages((p, l) =>
+			fetchAdminOrders({
+				page: p,
+				limit: l,
+				status,
+				userId,
+				sortBy: effectiveSort.sortBy,
+				sortOrder: effectiveSort.sortOrder,
+			}),
+		);
+	}
+
 	return (
 		<div className="space-y-8">
-			<div>
-				<h1 className="display-title text-2xl font-semibold">Todos los pedidos</h1>
-				<p className="text-muted-foreground">
-					Todas las reservas y compras de clientes
-				</p>
+			<div className="flex flex-wrap items-start justify-between gap-4">
+				<div>
+					<h1 className="display-title text-2xl font-semibold">
+						Todos los pedidos
+					</h1>
+					<p className="text-muted-foreground">
+						Todas las reservas y compras de clientes
+					</p>
+				</div>
+				{q.data ? (
+					<TableExportMenu
+						title="Todos los pedidos"
+						filenameBase="pedidos"
+						columns={orderExportColumns}
+						pageRows={q.data.items}
+						pageCount={q.data.items.length}
+						totalCount={q.data.total}
+						fetchAllRows={fetchAllOrders}
+						disabled={q.isFetching}
+					/>
+				) : null}
 			</div>
 
 			<form
@@ -61,6 +163,8 @@ function AdminOrdersPage() {
 						search: {
 							page: 1,
 							limit,
+							sortBy,
+							sortDirection,
 							status: String(fd.get("status") || "") || undefined,
 							userId: String(fd.get("userId") || "") || undefined,
 						},
@@ -104,9 +208,7 @@ function AdminOrdersPage() {
 
 			{q.isPending ? <Skeleton className="h-72 rounded-xl" /> : null}
 			{q.isError ? (
-				<p className="text-muted-foreground">
-					No pudimos cargar los pedidos.
-				</p>
+				<p className="text-muted-foreground">No pudimos cargar los pedidos.</p>
 			) : null}
 
 			{q.data && q.data.items.length > 0 ? (
@@ -115,10 +217,35 @@ function AdminOrdersPage() {
 						<Table>
 							<TableHeader>
 								<TableRow>
-									<TableHead>Pedido</TableHead>
-									<TableHead>Cliente</TableHead>
-									<TableHead>Estado</TableHead>
-									<TableHead className="text-right">Total</TableHead>
+									<SortableTableHead
+										label="Pedido"
+										column="id"
+										sortBy={sortBy}
+										sortDirection={sortDirection}
+										onSort={handleSort}
+									/>
+									<SortableTableHead
+										label="Cliente"
+										column="userEmail"
+										sortBy={sortBy}
+										sortDirection={sortDirection}
+										onSort={handleSort}
+									/>
+									<SortableTableHead
+										label="Estado"
+										column="status"
+										sortBy={sortBy}
+										sortDirection={sortDirection}
+										onSort={handleSort}
+									/>
+									<SortableTableHead
+										label="Total"
+										column="totalAmount"
+										sortBy={sortBy}
+										sortDirection={sortDirection}
+										onSort={handleSort}
+										className="text-right"
+									/>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -144,27 +271,32 @@ function AdminOrdersPage() {
 							</TableBody>
 						</Table>
 					</div>
-					<div className="flex justify-between">
-						<Button
-							type="button"
-							variant="outline"
-							disabled={page <= 1}
-							onClick={() =>
-								navigate({ search: { ...search, page: page - 1 } })
-							}
-						>
-							Anterior
-						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							disabled={page * limit >= q.data.total}
-							onClick={() =>
-								navigate({ search: { ...search, page: page + 1 } })
-							}
-						>
-							Siguiente
-						</Button>
+					<div className="flex items-center justify-between gap-4">
+						<p className="text-sm text-muted-foreground">
+							Página {page} · {q.data.total} pedidos en total
+						</p>
+						<div className="flex gap-2">
+							<Button
+								type="button"
+								variant="outline"
+								disabled={page <= 1}
+								onClick={() =>
+									navigate({ search: { ...search, page: page - 1 } })
+								}
+							>
+								Anterior
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								disabled={page * limit >= q.data.total}
+								onClick={() =>
+									navigate({ search: { ...search, page: page + 1 } })
+								}
+							>
+								Siguiente
+							</Button>
+						</div>
 					</div>
 				</>
 			) : null}
