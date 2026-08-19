@@ -34,6 +34,7 @@ import {
 	uploadEventBanner,
 } from "#/lib/api/ticket-api";
 import { eventsKeys } from "#/lib/query-keys";
+import { adminEventsDefaultSearch } from "#/lib/admin/default-search";
 import { toLocalDateTimeInput } from "#/lib/dates";
 
 import { AddTicketTypeCollapsible } from "#/routes/dashboard/events/-components/add-ticket-type-collapsible";
@@ -238,7 +239,9 @@ function EditEventPage() {
 					</p>
 				</div>
 				<Button variant="ghost" asChild>
-					<Link to="/dashboard/events">← Todos los eventos</Link>
+					<Link to="/dashboard/events" search={adminEventsDefaultSearch}>
+						← Todos los eventos
+					</Link>
 				</Button>
 			</header>
 

@@ -1,12 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import type { z } from "zod";
+import type { z as zod } from "zod";
+import { z } from "zod";
 
+import { SortableTableHead } from "#/components/admin/sortable-table-head";
+import { TableExportMenu } from "#/components/admin/table-export-menu";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
-import { useErrorToast } from "#/hooks/use-error-toast";
 import { Switch } from "#/components/ui/switch";
 import {
 	Table,
@@ -16,22 +18,51 @@ import {
 	TableHeader,
 	TableRow,
 } from "#/components/ui/table";
+import { useErrorToast } from "#/hooks/use-error-toast";
+import { adminEventsSortDefaults } from "#/lib/admin/default-search";
+import { fetchAllPages } from "#/lib/admin/fetch-all-pages";
+import { cycleSort, resolveTableSort } from "#/lib/admin/sort";
 import { ApiError } from "#/lib/api/errors";
-import { eventListItemSchema } from "#/lib/api/schemas";
+import type { eventListItemSchema } from "#/lib/api/schemas";
 import {
 	fetchAdminEventsList,
 	publishEvent,
 	unpublishEvent,
 } from "#/lib/api/ticket-api";
+import type { ExportColumn } from "#/lib/export/table-export";
 import { eventsKeys } from "#/lib/query-keys";
 
-type EventListItem = z.infer<typeof eventListItemSchema>;
+type EventListItem = zod.infer<typeof eventListItemSchema>;
 
-export const Route = createFileRoute("/dashboard/events/")({
-	component: DashboardEventsList,
+const searchSchema = z.object({
+	page: z.coerce.number().catch(1),
+	limit: z.coerce.number().catch(10),
+	sortBy: z
+		.enum(["title", "slug", "startsAt", "published", "createdAt"])
+		.catch(adminEventsSortDefaults.sortBy),
+	sortDirection: z.enum(["asc", "desc", "default"]).catch("default"),
 });
 
-const ADMIN_EVENTS_PAGE_SIZE = 10;
+const eventExportColumns: ExportColumn<EventListItem>[] = [
+	{ header: "Título", value: (row) => row.title },
+	{ header: "Enlace", value: (row) => `/events/${row.slug}` },
+	{
+		header: "Inicio",
+		value: (row) =>
+			new Intl.DateTimeFormat("es", { dateStyle: "short" }).format(
+				new Date(row.startsAt),
+			),
+	},
+	{
+		header: "Visibilidad",
+		value: (row) => (row.published ? "En catálogo" : "Oculto"),
+	},
+];
+
+export const Route = createFileRoute("/dashboard/events/")({
+	validateSearch: (s) => searchSchema.parse(s),
+	component: DashboardEventsList,
+});
 
 function EventVisibilityControl({ event }: { event: EventListItem }) {
 	const qc = useQueryClient();
@@ -48,7 +79,9 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 		},
 		onError: (e) =>
 			toast.error(
-				e instanceof ApiError ? e.message : "No se pudo actualizar la visibilidad",
+				e instanceof ApiError
+					? e.message
+					: "No se pudo actualizar la visibilidad",
 			),
 	});
 
@@ -75,19 +108,56 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 }
 
 function DashboardEventsList() {
+	const search = Route.useSearch();
+	const { page, limit, sortBy, sortDirection } = search;
+	const navigate = Route.useNavigate();
+	const effectiveSort = resolveTableSort(
+		sortBy,
+		sortDirection,
+		adminEventsSortDefaults,
+	);
+
 	const q = useQuery({
 		queryKey: eventsKeys.adminList({
-			page: 1,
-			limit: ADMIN_EVENTS_PAGE_SIZE,
+			page,
+			limit,
+			sortBy,
+			sortDirection,
 		}),
 		queryFn: () =>
 			fetchAdminEventsList({
-				page: 1,
-				limit: ADMIN_EVENTS_PAGE_SIZE,
+				page,
+				limit,
+				sortBy: effectiveSort.sortBy,
+				sortOrder: effectiveSort.sortOrder,
 			}),
 	});
 
 	useErrorToast(q.isError ? q.error : null, "No pudimos cargar los eventos");
+
+	function handleSort(
+		column: "title" | "slug" | "startsAt" | "published" | "createdAt",
+	) {
+		const next = cycleSort(
+			{ sortBy, sortDirection },
+			column,
+			adminEventsSortDefaults,
+		);
+		navigate({
+			search: { ...search, ...next, page: 1 },
+		});
+	}
+
+	async function fetchAllEvents(): Promise<EventListItem[]> {
+		return fetchAllPages((p, l) =>
+			fetchAdminEventsList({
+				page: p,
+				limit: l,
+				sortBy: effectiveSort.sortBy,
+				sortOrder: effectiveSort.sortOrder,
+			}),
+		);
+	}
 
 	return (
 		<div className="space-y-8">
@@ -98,16 +168,28 @@ function DashboardEventsList() {
 						Gestiona la visibilidad de cada evento en el catálogo público.
 					</p>
 				</div>
-				<Button asChild>
-					<Link to="/dashboard/events/create">Crear evento</Link>
-				</Button>
+				<div className="flex flex-wrap items-center gap-2">
+					{q.data ? (
+						<TableExportMenu
+							title="Eventos"
+							filenameBase="eventos"
+							columns={eventExportColumns}
+							pageRows={q.data.items}
+							pageCount={q.data.items.length}
+							totalCount={q.data.total}
+							fetchAllRows={fetchAllEvents}
+							disabled={q.isFetching}
+						/>
+					) : null}
+					<Button asChild>
+						<Link to="/dashboard/events/create">Crear evento</Link>
+					</Button>
+				</div>
 			</div>
 
 			{q.isPending ? <Skeleton className="h-64 w-full rounded-xl" /> : null}
 			{q.isError ? (
-				<p className="text-muted-foreground">
-					No pudimos cargar los eventos.
-				</p>
+				<p className="text-muted-foreground">No pudimos cargar los eventos.</p>
 			) : null}
 
 			{q.data && q.data.items.length === 0 ? (
@@ -115,47 +197,100 @@ function DashboardEventsList() {
 			) : null}
 
 			{q.data && q.data.items.length > 0 ? (
-				<div className="overflow-x-auto rounded-xl border">
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Título</TableHead>
-								<TableHead>Enlace</TableHead>
-								<TableHead>Inicio</TableHead>
-								<TableHead>Visibilidad</TableHead>
-								<TableHead className="text-right">Acciones</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{q.data.items.map((ev) => (
-								<TableRow key={ev.id}>
-									<TableCell className="font-medium">{ev.title}</TableCell>
-									<TableCell className="font-mono text-xs text-muted-foreground">
-										/events/{ev.slug}
-									</TableCell>
-									<TableCell className="text-sm text-muted-foreground">
-										{new Intl.DateTimeFormat("es", {
-											dateStyle: "short",
-										}).format(new Date(ev.startsAt))}
-									</TableCell>
-									<TableCell>
-										<EventVisibilityControl event={ev} />
-									</TableCell>
-									<TableCell className="text-right">
-										<Button variant="outline" size="sm" asChild>
-											<Link
-												to="/dashboard/events/$eventId/edit"
-												params={{ eventId: ev.id }}
-											>
-												Editar
-											</Link>
-										</Button>
-									</TableCell>
+				<>
+					<div className="overflow-x-auto rounded-xl border">
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<SortableTableHead
+										label="Título"
+										column="title"
+										sortBy={sortBy}
+										sortDirection={sortDirection}
+										onSort={handleSort}
+									/>
+									<SortableTableHead
+										label="Enlace"
+										column="slug"
+										sortBy={sortBy}
+										sortDirection={sortDirection}
+										onSort={handleSort}
+									/>
+									<SortableTableHead
+										label="Inicio"
+										column="startsAt"
+										sortBy={sortBy}
+										sortDirection={sortDirection}
+										onSort={handleSort}
+									/>
+									<SortableTableHead
+										label="Visibilidad"
+										column="published"
+										sortBy={sortBy}
+										sortDirection={sortDirection}
+										onSort={handleSort}
+									/>
+									<TableHead className="text-right">Acciones</TableHead>
 								</TableRow>
-							))}
-						</TableBody>
-					</Table>
-				</div>
+							</TableHeader>
+							<TableBody>
+								{q.data.items.map((ev) => (
+									<TableRow key={ev.id}>
+										<TableCell className="font-medium">{ev.title}</TableCell>
+										<TableCell className="font-mono text-xs text-muted-foreground">
+											/events/{ev.slug}
+										</TableCell>
+										<TableCell className="text-sm text-muted-foreground">
+											{new Intl.DateTimeFormat("es", {
+												dateStyle: "short",
+											}).format(new Date(ev.startsAt))}
+										</TableCell>
+										<TableCell>
+											<EventVisibilityControl event={ev} />
+										</TableCell>
+										<TableCell className="text-right">
+											<Button variant="outline" size="sm" asChild>
+												<Link
+													to="/dashboard/events/$eventId/edit"
+													params={{ eventId: ev.id }}
+												>
+													Editar
+												</Link>
+											</Button>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</div>
+					<div className="flex items-center justify-between gap-4">
+						<p className="text-sm text-muted-foreground">
+							Página {page} · {q.data.total} eventos en total
+						</p>
+						<div className="flex gap-2">
+							<Button
+								type="button"
+								variant="outline"
+								disabled={page <= 1}
+								onClick={() =>
+									navigate({ search: { ...search, page: page - 1 } })
+								}
+							>
+								Anterior
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								disabled={page * limit >= q.data.total}
+								onClick={() =>
+									navigate({ search: { ...search, page: page + 1 } })
+								}
+							>
+								Siguiente
+							</Button>
+						</div>
+					</div>
+				</>
 			) : null}
 		</div>
 	);

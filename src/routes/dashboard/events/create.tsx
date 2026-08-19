@@ -12,6 +12,7 @@ import { Label } from "#/components/ui/label";
 import { Textarea } from "#/components/ui/textarea";
 import { ApiError, getUserFacingErrorMessage } from "#/lib/api/errors";
 import { createEvent } from "#/lib/api/ticket-api";
+import { adminEventsDefaultSearch } from "#/lib/admin/default-search";
 import { eventsKeys } from "#/lib/query-keys";
 
 const schema = z.object({
@@ -93,7 +94,9 @@ function CreateEventPage() {
 			<div className="flex items-center justify-between gap-4">
 				<h1 className="display-title text-2xl font-semibold">Crear evento</h1>
 				<Button variant="ghost" asChild>
-					<Link to="/dashboard/events">Cancelar</Link>
+					<Link to="/dashboard/events" search={adminEventsDefaultSearch}>
+						Cancelar
+					</Link>
 				</Button>
 			</div>
 			<form
