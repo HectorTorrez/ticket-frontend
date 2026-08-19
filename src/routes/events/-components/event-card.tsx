@@ -120,7 +120,7 @@ export function EventCard({ event, revealDelayMs = 0 }: EventCardProps) {
 						)}
 						<div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sea-ink/45 via-transparent to-transparent" />
 						{soldOut ? (
-							<Badge variant="live" className="absolute right-3 top-3">
+							<Badge variant="destructive" className="absolute right-3 top-3">
 								Agotado
 							</Badge>
 						) : null}
@@ -132,7 +132,7 @@ export function EventCard({ event, revealDelayMs = 0 }: EventCardProps) {
 									to="/events/$eventSlugOrId"
 									params={{ eventSlugOrId: event.slug }}
 									onClick={openEvent}
-									className="text-foreground no-underline hover:text-primary"
+									className="text-foreground underline-offset-4 hover:text-primary hover:underline"
 								>
 									{event.title}
 								</Link>

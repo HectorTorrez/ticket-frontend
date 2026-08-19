@@ -14,29 +14,29 @@
   --duration-move: 380ms;
   --duration-feedback: 160ms;
 
-  /* Baby Yellow — white canvas, #F0ED9C accents */
+  /* Baby Yellow + Teal + Coral — white canvas */
   --baby-yellow: #f0ed9c;
   --sea-ink: #2a2822;
   --sea-ink-soft: #6b6659;
-  --lagoon: #9a8b24;
-  --lagoon-deep: #7a6e14;
-  --phosphor: #7a6e14;
-  --phosphor-soft: #f5f3b8;
+  --lagoon: #1f5e5b;
+  --lagoon-deep: #174845;
+  --phosphor: #c9563d;
+  --phosphor-soft: #efb19f;
   --palm: #5a8f5c;
   --sand: #ffffff;
   --foam: #f0ed9c;
   --surface: #ffffff;
   --surface-strong: #ffffff;
-  --line: rgba(42, 40, 34, 0.12);
+  --line: rgba(42, 40, 34, 0.16);
   --inset-glint: rgba(255, 255, 255, 0.85);
-  --kicker: #7a6e14;
+  --kicker: #1f5e5b;
   --bg-base: #ffffff;
   --header-bg: rgba(255, 255, 255, 0.94);
   --chip-bg: #faf9e8;
   --chip-line: rgba(42, 40, 34, 0.14);
   --link-bg-hover: #f0ed9c;
   --hero-a: rgba(240, 237, 156, 0.45);
-  --hero-b: rgba(240, 237, 156, 0.65);
+  --hero-b: rgba(31, 94, 91, 0.08);
   --ticket-notch: var(--bg-base);
 
   --background: #ffffff;
@@ -45,10 +45,10 @@
   --card-foreground: #2a2822;
   --popover: #ffffff;
   --popover-foreground: #2a2822;
-  --primary: #7a6e14;
+  --primary: #1f5e5b;
   --primary-fill: #f0ed9c;
   --primary-foreground: #2a2822;
-  --secondary: #f0ed9c;
+  --secondary: #faf9e8;
   --secondary-foreground: #2a2822;
   --muted: #faf9e8;
   --muted-foreground: #6b6659;
@@ -58,11 +58,11 @@
   --destructive-foreground: #ffffff;
   --success: #5a8f5c;
   --success-foreground: #ffffff;
-  --warning: #7a6e14;
+  --warning: #9a6700;
   --warning-foreground: #2a2822;
-  --border: #e8e59a;
-  --input: #ded988;
-  --ring: #9a8b24;
+  --border: #e0dbb8;
+  --input: #d8d2a8;
+  --ring: #1f5e5b;
   --chart-1: oklch(0.88 0.1 105);
   --chart-2: oklch(0.82 0.09 100);
   --chart-3: oklch(0.68 0.16 55);
@@ -75,18 +75,18 @@
   --sidebar-primary-foreground: #2a2822;
   --sidebar-accent: #f0ed9c;
   --sidebar-accent-foreground: #2a2822;
-  --sidebar-border: #e8e59a;
-  --sidebar-ring: #9a8b24;
+  --sidebar-border: #e0dbb8;
+  --sidebar-ring: #1f5e5b;
 }
 
 .dark {
   --baby-yellow: #f0ed9c;
   --sea-ink: #fffef5;
   --sea-ink-soft: #c9c4b8;
-  --lagoon: #f0ed9c;
-  --lagoon-deep: #f5f3b8;
-  --phosphor: #d4d078;
-  --phosphor-soft: #f0ed9c;
+  --lagoon: #73c8c2;
+  --lagoon-deep: #a8ddd8;
+  --phosphor: #ef8b72;
+  --phosphor-soft: #f5b9aa;
   --palm: #8bc48a;
   --sand: #1a1914;
   --foam: #2a2818;
@@ -198,6 +198,7 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light dark;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -229,9 +230,10 @@ body {
 
 a:not([data-slot="button"]):not(.nav-link) {
   color: var(--primary);
+  text-decoration: underline;
   text-decoration-color: color-mix(in oklab, var(--primary) 42%, transparent);
   text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
 }
 
 a:not([data-slot="button"]):not(.nav-link):hover {
@@ -274,12 +276,13 @@ pre code {
 .display-title {
   font-family: var(--font-sans);
   letter-spacing: -0.025em;
+  text-wrap: balance;
 }
 
 .island-shell {
   border: 1px solid var(--line);
   background: var(--surface-strong);
-  box-shadow: 0 12px 30px color-mix(in oklab, var(--sea-ink) 7%, transparent);
+  box-shadow: 0 10px 24px color-mix(in oklab, var(--sea-ink) 6%, transparent);
 }
 
 .feature-card {
@@ -596,10 +599,9 @@ a:not([data-slot="button"]) {
   margin-top: 0.5rem;
   max-width: 16rem;
   border: 1px solid var(--line);
-  border-left: 3px solid var(--phosphor);
-  background: var(--surface-strong);
+  background: var(--chip-bg);
   padding: 0.875rem 1rem;
-  box-shadow: 3px 3px 0 color-mix(in oklab, var(--sea-ink) 8%, transparent);
+  box-shadow: 0 8px 20px color-mix(in oklab, var(--sea-ink) 6%, transparent);
 }
 
 @media (min-width: 1024px) {
@@ -614,7 +616,7 @@ a:not([data-slot="button"]) {
   font-size: 0.6875rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--primary);
+  color: var(--phosphor);
 }
 
 .hero-admit-stub__route {
@@ -700,7 +702,7 @@ a:not([data-slot="button"]) {
   border: 1px solid color-mix(in oklab, var(--lagoon-deep) 72%, var(--sea-ink));
   background: var(--primary-fill);
   color: var(--primary-foreground);
-  box-shadow: 3px 3px 0 var(--phosphor);
+  box-shadow: 0 3px 0 color-mix(in oklab, var(--lagoon-deep) 35%, transparent);
   flex-shrink: 0;
 }
 
