@@ -51,19 +51,26 @@ Matches the current Nitro **`node-server`** preset.
 
 **CORS:** ensure the API `CORS_ORIGINS` includes your frontend URL.
 
-### Option B — Static S3 + CloudFront (future)
+### Option B — Static S3 + CloudFront (production)
 
-Requires a **static** Nitro preset or full prerender of all routes. Not configured in this repo yet.
+GitHub Actions workflow `.github/workflows/deploy.yml` runs on every successful CI on `main`:
 
-When implemented:
+1. `pnpm build` with `VITE_API_BASE_URL=https://api.tidetickets.com`
+2. `scripts/export-spa-shell.sh` — generates `index.html` from the Nitro server build
+3. `aws s3 sync .output/public/` → `tidetickets-frontend-180294216289`
+4. CloudFront invalidation (when `CLOUDFRONT_DISTRIBUTION_ID` variable is set)
+
+Manual deploy:
 
 ```bash
+export VITE_API_BASE_URL=https://api.tidetickets.com
 pnpm build
-aws s3 sync .output/public/ s3://your-frontend-bucket --delete
-aws cloudfront create-invalidation --distribution-id ID --paths "/*"
+bash scripts/export-spa-shell.sh
+aws s3 sync .output/public/ s3://tidetickets-frontend-180294216289 --delete
+aws cloudfront create-invalidation --distribution-id YOUR_ID --paths "/*"
 ```
 
-Configure CloudFront custom errors: **403/404 → `/index.html`** for client-side routing.
+CloudFront must serve **403/404 → `/index.html`** for client-side routing (see `ticket-api/infra/cloudformation/ticket-frontend-cdn.yaml`).
 
 ---
 
@@ -84,9 +91,14 @@ Build the app first, then build the image from the `.output` artifact.
 
 ---
 
-## CI on GitHub
+## CI/CD on GitHub
 
-The workflow `.github/workflows/ci.yml` runs `pnpm build` on every push/PR to `main`. No deploy step yet — see IMPLEMENTATION.md for future AWS automation.
+| Workflow | Purpose |
+|----------|---------|
+| `ci.yml` | Lint, build, tests on every push/PR to `main` |
+| `deploy.yml` | After CI on `main`: build → S3 sync → CloudFront invalidation |
+
+Required secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`. See [ticket-api/IMPLEMENTATION.md §10](https://github.com/HectorTorrez/ticket-api/blob/main/IMPLEMENTATION.md#10-cicd-with-github-actions).
 
 ---
 
