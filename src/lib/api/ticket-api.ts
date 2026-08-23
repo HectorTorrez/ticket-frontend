@@ -425,7 +425,7 @@ export async function fetchMyTickets(
 ) {
 	const when = params.when ?? "upcoming";
 	const page = params.page ?? 1;
-	const limit = params.limit ?? 5;
+	const limit = params.limit ?? 20;
 	const sp = new URLSearchParams();
 	sp.set("when", when);
 	sp.set("page", String(page));
