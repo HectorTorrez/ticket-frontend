@@ -225,14 +225,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-a:not([data-slot="button"]):not(.nav-link) {
+a:not([data-slot="button"]):not([data-variant]):not([data-slot="sheet-close"]):not(.nav-link) {
   color: var(--primary);
   text-decoration-color: color-mix(in oklab, var(--primary) 42%, transparent);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 
-a:not([data-slot="button"]):not(.nav-link):hover {
+a:not([data-slot="button"]):not([data-variant]):not([data-slot="sheet-close"]):not(.nav-link):hover {
   color: color-mix(in oklab, var(--primary) 82%, var(--foreground) 18%);
 }
 
