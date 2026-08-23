@@ -8,6 +8,8 @@ type QrCameraScannerProps = {
 	onScan: (decoded: string) => void;
 	/** Pause new reads without tearing down the camera stream. */
 	busy?: boolean;
+	/** Bump to allow scanning again after a result is dismissed. */
+	scanSession?: number;
 	children?: ReactNode;
 };
 
@@ -84,6 +86,7 @@ function viewfinderBox(viewfinderWidth: number, viewfinderHeight: number) {
 export function QrCameraScanner({
 	onScan,
 	busy = false,
+	scanSession = 0,
 	children,
 }: QrCameraScannerProps) {
 	const regionId = useId().replace(/:/g, "");
@@ -97,9 +100,10 @@ export function QrCameraScanner({
 	busyRef.current = busy;
 	onScanRef.current = onScan;
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: scanSession is the explicit reset trigger
 	useEffect(() => {
-		if (!busy) lastScanRef.current = "";
-	}, [busy]);
+		lastScanRef.current = "";
+	}, [scanSession]);
 
 	useEffect(() => {
 		if (!active) return;
@@ -147,6 +151,16 @@ export function QrCameraScanner({
 				{active ? (
 					<div className="relative">
 						<div id={regionId} className="qr-stage__viewport" />
+						{busy ? (
+							<div
+								className="absolute inset-0 z-10 flex items-center justify-center bg-background/70 backdrop-blur-[2px]"
+								aria-hidden
+							>
+								<p className="rounded-full bg-background/90 px-4 py-2 text-sm font-medium text-muted-foreground shadow-sm">
+									Escaneo en pausa
+								</p>
+							</div>
+						) : null}
 						<div className="qr-viewfinder" aria-hidden>
 							<span className="qr-viewfinder__corner qr-viewfinder__corner--tl" />
 							<span className="qr-viewfinder__corner qr-viewfinder__corner--tr" />

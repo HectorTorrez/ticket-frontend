@@ -6,6 +6,14 @@ import { useCallback, useRef, useState } from "react";
 import { QrCameraScanner } from "#/components/qr-camera-scanner";
 import type { StatusTone } from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "#/components/ui/dialog";
 import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
@@ -21,10 +29,11 @@ export const Route = createFileRoute("/dashboard/scanner/")({
 
 type ScanResult = "VALID" | "ALREADY_USED" | "INVALID";
 
-type ScanFeedback =
-	| { type: "validating" }
-	| { type: "result"; result: ScanResult; id: number }
-	| { type: "error"; message: string };
+type ScanPhase =
+	| { status: "idle" }
+	| { status: "validating"; code: string }
+	| { status: "result"; result: ScanResult; code: string }
+	| { status: "error"; message: string; code?: string };
 
 const resultCopy: Record<
 	ScanResult,
@@ -50,42 +59,52 @@ const resultCopy: Record<
 function ScannerPage() {
 	const [code, setCode] = useState("");
 	const [codeError, setCodeError] = useState<string | undefined>();
-	const [feedback, setFeedback] = useState<ScanFeedback | null>(null);
-	const scanSeqRef = useRef(0);
+	const [phase, setPhase] = useState<ScanPhase>({ status: "idle" });
+	const [scanSession, setScanSession] = useState(0);
+	const pendingCodeRef = useRef<string | null>(null);
+
+	const scanLocked = phase.status !== "idle";
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: (raw: string) => validateQrCode(normalizeTicketCode(raw)),
 		onSuccess: (r) => {
 			setCodeError(undefined);
-			scanSeqRef.current += 1;
-			setFeedback({
-				type: "result",
+			const validatedCode = pendingCodeRef.current ?? code;
+			setPhase({
+				status: "result",
 				result: r.result,
-				id: scanSeqRef.current,
+				code: validatedCode,
 			});
 		},
 		onError: (e) => {
-			setFeedback({
-				type: "error",
+			setPhase({
+				status: "error",
 				message: getUserFacingErrorMessage(e),
+				code: pendingCodeRef.current ?? undefined,
 			});
+		},
+		onSettled: () => {
+			pendingCodeRef.current = null;
 		},
 	});
 
 	const runValidate = useCallback(
 		(raw: string) => {
+			if (scanLocked || isPending) return;
+
 			const normalized = normalizeTicketCode(raw);
 			if (normalized.length < 8) {
 				setCodeError("El código del pase tiene al menos 8 caracteres.");
-				setFeedback(null);
 				return;
 			}
+
 			setCodeError(undefined);
 			setCode(normalized);
-			setFeedback({ type: "validating" });
+			pendingCodeRef.current = normalized;
+			setPhase({ status: "validating", code: normalized });
 			mutate(raw);
 		},
-		[mutate],
+		[isPending, mutate, scanLocked],
 	);
 
 	const handleScan = useCallback(
@@ -94,6 +113,11 @@ function ScannerPage() {
 		},
 		[runValidate],
 	);
+
+	const dismissScanResult = useCallback(() => {
+		setPhase({ status: "idle" });
+		setScanSession((n) => n + 1);
+	}, []);
 
 	return (
 		<div className="mx-auto max-w-md space-y-6">
@@ -106,9 +130,11 @@ function ScannerPage() {
 				</p>
 			</div>
 			<div className="island-shell space-y-5 rounded-xl p-4 sm:p-6">
-				<QrCameraScanner onScan={handleScan} busy={isPending}>
-					<ScanFeedbackPanel feedback={feedback} />
-				</QrCameraScanner>
+				<QrCameraScanner
+					onScan={handleScan}
+					busy={scanLocked}
+					scanSession={scanSession}
+				/>
 				<form
 					className="space-y-3"
 					onSubmit={(e) => {
@@ -132,6 +158,7 @@ function ScannerPage() {
 							autoComplete="off"
 							enterKeyHint="done"
 							spellCheck={false}
+							disabled={scanLocked}
 							aria-invalid={codeError ? true : undefined}
 						/>
 						<FieldError>{codeError}</FieldError>
@@ -139,72 +166,151 @@ function ScannerPage() {
 					<Button
 						type="submit"
 						className="w-full"
-						disabled={code.trim().length < 8 || isPending}
+						disabled={code.trim().length < 8 || scanLocked}
 					>
 						{isPending ? "Validando…" : "Validar"}
 					</Button>
 				</form>
 			</div>
+
+			<ScanResultDialog phase={phase} onDismiss={dismissScanResult} />
 		</div>
 	);
 }
 
-function ScanFeedbackPanel({ feedback }: { feedback: ScanFeedback | null }) {
-	if (!feedback) return null;
+function ScanResultDialog({
+	phase,
+	onDismiss,
+}: {
+	phase: ScanPhase;
+	onDismiss: () => void;
+}) {
+	const open = phase.status !== "idle";
 
-	if (feedback.type === "validating") {
-		return (
-			<output
-				className="state-reveal flex items-center justify-center gap-2 rounded-lg border border-border/60 bg-muted/40 px-4 py-4 text-sm text-muted-foreground"
-				aria-live="polite"
+	return (
+		<Dialog
+			open={open}
+			onOpenChange={(next) => {
+				if (!next && phase.status !== "validating") onDismiss();
+			}}
+		>
+			<DialogContent
+				showCloseButton={phase.status !== "validating"}
+				className={cn(
+					phase.status === "result" &&
+						phase.result === "VALID" &&
+						"border-success/40",
+					phase.status === "result" &&
+						phase.result === "ALREADY_USED" &&
+						"border-warning/40",
+					phase.status === "result" &&
+						phase.result === "INVALID" &&
+						"border-destructive/40",
+				)}
+				onPointerDownOutside={(e) => {
+					if (phase.status === "validating") e.preventDefault();
+				}}
+				onEscapeKeyDown={(e) => {
+					if (phase.status === "validating") e.preventDefault();
+				}}
 			>
-				<Loader2 className="size-4 shrink-0 animate-spin" aria-hidden />
-				Validando pase…
-			</output>
-		);
-	}
+				{phase.status === "validating" ? (
+					<DialogHeader className="items-center text-center">
+						<Loader2
+							className="mx-auto size-10 animate-spin text-muted-foreground"
+							aria-hidden
+						/>
+						<DialogTitle>Validando pase</DialogTitle>
+						<DialogDescription>
+							Consultando el código{" "}
+							<span className="font-mono">{phase.code}</span>…
+						</DialogDescription>
+					</DialogHeader>
+				) : null}
 
-	if (feedback.type === "error") {
-		return (
-			<output
-				className="state-reveal block rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-4 text-center"
-				aria-live="assertive"
-			>
-				<p className="text-base font-semibold text-destructive">
-					No se pudo validar
-				</p>
-				<p className="mt-1 text-sm text-destructive/90">{feedback.message}</p>
-			</output>
-		);
-	}
+				{phase.status === "error" ? (
+					<>
+						<DialogHeader className="items-center text-center">
+							<XCircle
+								className="mx-auto size-12 text-destructive"
+								aria-hidden
+							/>
+							<DialogTitle>No se pudo validar</DialogTitle>
+							<DialogDescription>{phase.message}</DialogDescription>
+						</DialogHeader>
+						<DialogFooter className="sm:justify-center">
+							<Button
+								type="button"
+								className="w-full sm:w-auto"
+								onClick={onDismiss}
+							>
+								Intentar de nuevo
+							</Button>
+						</DialogFooter>
+					</>
+				) : null}
 
-	const copy = resultCopy[feedback.result];
+				{phase.status === "result" ? (
+					<ScanResultBody result={phase.result} onDismiss={onDismiss} />
+				) : null}
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+function ScanResultBody({
+	result,
+	onDismiss,
+}: {
+	result: ScanResult;
+	onDismiss: () => void;
+}) {
+	const copy = resultCopy[result];
 	const Icon =
-		feedback.result === "VALID"
+		result === "VALID"
 			? CheckCircle2
-			: feedback.result === "ALREADY_USED"
+			: result === "ALREADY_USED"
 				? TriangleAlert
 				: XCircle;
 
 	return (
-		<output
-			key={feedback.id}
-			className={cn(
-				"state-reveal block rounded-lg px-4 py-4 text-center",
-				feedback.result === "VALID" && "bg-success text-success-foreground",
-				feedback.result === "ALREADY_USED" &&
-					"bg-warning text-warning-foreground",
-				feedback.result === "INVALID" &&
-					"bg-destructive text-destructive-foreground",
-			)}
-			aria-live="polite"
-			aria-label={`Resultado: ${labelFor(qrResultLabel, feedback.result)}`}
-		>
-			<p className="inline-flex items-center justify-center gap-2 text-lg font-semibold">
-				<Icon className="size-5 shrink-0" aria-hidden />
-				{copy.title}
-			</p>
-			<p className="mt-1 text-sm">{copy.detail}</p>
-		</output>
+		<>
+			<DialogHeader className="items-center text-center">
+				<Icon
+					className={cn(
+						"mx-auto size-14",
+						result === "VALID" && "text-success",
+						result === "ALREADY_USED" && "text-warning",
+						result === "INVALID" && "text-destructive",
+					)}
+					aria-hidden
+				/>
+				<DialogTitle
+					className={cn(
+						"text-xl",
+						result === "VALID" && "text-success",
+						result === "ALREADY_USED" && "text-warning",
+						result === "INVALID" && "text-destructive",
+					)}
+				>
+					{copy.title}
+				</DialogTitle>
+				<DialogDescription className="text-base text-foreground/80">
+					{copy.detail}
+				</DialogDescription>
+			</DialogHeader>
+			<output
+				className="sr-only"
+				aria-live="polite"
+				aria-label={`Resultado: ${labelFor(qrResultLabel, result)}`}
+			>
+				{copy.title}. {copy.detail}
+			</output>
+			<DialogFooter className="sm:justify-center">
+				<Button type="button" className="w-full sm:w-auto" onClick={onDismiss}>
+					Escanear siguiente pase
+				</Button>
+			</DialogFooter>
+		</>
 	);
 }
