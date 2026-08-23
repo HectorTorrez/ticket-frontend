@@ -11,7 +11,7 @@ import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { Textarea } from "#/components/ui/textarea";
 import { adminEventsDefaultSearch } from "#/lib/admin/default-search";
-import { ApiError, getUserFacingErrorMessage } from "#/lib/api/errors";
+import { getUserFacingErrorMessage } from "#/lib/api/errors";
 import { createEvent } from "#/lib/api/ticket-api";
 import { eventsKeys } from "#/lib/query-keys";
 
@@ -52,9 +52,7 @@ function CreateEventPage() {
 			});
 		},
 		onError: (e) =>
-			toast.error(
-				e instanceof ApiError ? e.message : getUserFacingErrorMessage(e),
-			),
+			toast.error(getUserFacingErrorMessage(e, "No se pudo crear el evento")),
 	});
 
 	const form = useForm({

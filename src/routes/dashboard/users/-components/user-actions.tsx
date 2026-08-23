@@ -27,7 +27,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "#/components/ui/dropdown-menu";
-import { ApiError } from "#/lib/api/errors";
 import type {
 	AdminResetPasswordResponse,
 	AdminUser,
@@ -39,7 +38,7 @@ import {
 	adminSetUserStatus,
 } from "#/lib/api/ticket-api";
 import { adminUsersKeys } from "#/lib/query-keys";
-import { toastMutation } from "#/lib/toast-mutation";
+import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
 
 type ConfirmKind = "suspend" | "unsuspend" | "ban" | "unban" | "delete";
 
@@ -102,9 +101,7 @@ export function UserActions({
 				loading: "Generando contraseña temporal…",
 				success: "Contraseña temporal generada",
 				error: (e) =>
-					e instanceof ApiError
-						? e.message
-						: "No se pudo restablecer la contraseña",
+					apiErrorMessage(e, "No se pudo restablecer la contraseña"),
 			});
 			return request;
 		},
@@ -128,10 +125,7 @@ export function UserActions({
 							: row.status === "SUSPENDED"
 								? "Cuenta suspendida"
 								: "Cuenta bloqueada",
-					error: (e) =>
-						e instanceof ApiError
-							? e.message
-							: "No se pudo actualizar la cuenta",
+					error: (e) => apiErrorMessage(e, "No se pudo actualizar la cuenta"),
 				},
 			),
 	});
@@ -146,8 +140,7 @@ export function UserActions({
 				{
 					loading: "Eliminando cuenta…",
 					success: "Cuenta eliminada",
-					error: (e) =>
-						e instanceof ApiError ? e.message : "No se pudo eliminar la cuenta",
+					error: (e) => apiErrorMessage(e, "No se pudo eliminar la cuenta"),
 				},
 			),
 	});

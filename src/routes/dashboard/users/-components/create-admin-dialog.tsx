@@ -13,11 +13,10 @@ import {
 } from "#/components/ui/dialog";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
-import { ApiError } from "#/lib/api/errors";
 import type { AdminResetPasswordResponse } from "#/lib/api/schemas";
 import { adminCreateAdmin } from "#/lib/api/ticket-api";
 import { adminUsersKeys } from "#/lib/query-keys";
-import { toastMutation } from "#/lib/toast-mutation";
+import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
 
 type CreateAdminDialogProps = {
 	open: boolean;
@@ -39,10 +38,7 @@ export function CreateAdminDialog({
 			void toastMutation(request, {
 				loading: "Creando administrador…",
 				success: "Administrador creado",
-				error: (e) =>
-					e instanceof ApiError
-						? e.message
-						: "No se pudo crear el administrador",
+				error: (e) => apiErrorMessage(e, "No se pudo crear el administrador"),
 			});
 			return request;
 		},

@@ -11,7 +11,7 @@ import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { useAuthEntrance } from "#/hooks/use-auth-entrance";
-import { ApiError } from "#/lib/api/errors";
+import { getUserFacingErrorMessage } from "#/lib/api/errors";
 import { registerRequest } from "#/lib/api/ticket-api";
 import { getSession, setSession } from "#/lib/auth/session";
 
@@ -59,8 +59,9 @@ function RegisterPage() {
 				setSession(data);
 				window.location.href = data.user.role === "ADMIN" ? "/dashboard" : "/";
 			} catch (e) {
-				if (e instanceof ApiError) toast.error(e.message);
-				else toast.error("No se pudo registrar la cuenta");
+				toast.error(
+					getUserFacingErrorMessage(e, "No se pudo registrar la cuenta"),
+				);
 			}
 		},
 	});

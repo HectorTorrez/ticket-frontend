@@ -1,9 +1,9 @@
 import { toast } from "sonner";
 
-import { ApiError } from "#/lib/api/errors";
+import { getUserFacingErrorMessage } from "#/lib/api/errors";
 
 export function apiErrorMessage(error: unknown, fallback: string) {
-	return error instanceof ApiError ? error.message : fallback;
+	return getUserFacingErrorMessage(error, fallback);
 }
 
 type ToastMutationMessages<T> = {

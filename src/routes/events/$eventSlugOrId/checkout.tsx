@@ -18,7 +18,7 @@ import { StatusPanel } from "#/components/status-panel";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
-import { ApiError, getUserFacingErrorMessage } from "#/lib/api/errors";
+import { getUserFacingErrorMessage } from "#/lib/api/errors";
 import type { orderDetailSchema } from "#/lib/api/schemas";
 import {
 	cancelOrder,
@@ -164,9 +164,7 @@ function CheckoutPage() {
 			});
 		},
 		onError: (e) =>
-			toast.error(
-				e instanceof ApiError ? e.message : "Error al procesar el pago",
-			),
+			toast.error(getUserFacingErrorMessage(e, "Error al procesar el pago")),
 	});
 
 	const cancelMu = useMutation({
@@ -185,7 +183,7 @@ function CheckoutPage() {
 			});
 		},
 		onError: (e) =>
-			toast.error(e instanceof ApiError ? e.message : "No se pudo cancelar"),
+			toast.error(getUserFacingErrorMessage(e, "No se pudo cancelar")),
 	});
 
 	const expiresAt = order?.expiresAt;

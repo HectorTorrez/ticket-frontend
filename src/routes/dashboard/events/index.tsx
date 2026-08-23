@@ -32,7 +32,6 @@ import { useErrorToast } from "#/hooks/use-error-toast";
 import { adminEventsSortDefaults } from "#/lib/admin/default-search";
 import { fetchAllPages } from "#/lib/admin/fetch-all-pages";
 import { cycleSort, resolveTableSort } from "#/lib/admin/sort";
-import { ApiError } from "#/lib/api/errors";
 import type { eventListItemSchema } from "#/lib/api/schemas";
 import {
 	fetchAdminEventsList,
@@ -41,7 +40,7 @@ import {
 } from "#/lib/api/ticket-api";
 import type { ExportColumn } from "#/lib/export/table-export";
 import { eventsKeys } from "#/lib/query-keys";
-import { toastMutation } from "#/lib/toast-mutation";
+import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
 import { cn } from "#/lib/utils.ts";
 
 type EventListItem = zod.infer<typeof eventListItemSchema>;
@@ -95,9 +94,7 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 							? "Evento visible en el catálogo"
 							: "Evento oculto del catálogo",
 					error: (e) =>
-						e instanceof ApiError
-							? e.message
-							: "No se pudo actualizar la visibilidad",
+						apiErrorMessage(e, "No se pudo actualizar la visibilidad"),
 				},
 			),
 	});

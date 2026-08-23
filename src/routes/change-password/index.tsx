@@ -11,7 +11,7 @@ import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { useAuthEntrance } from "#/hooks/use-auth-entrance";
-import { ApiError } from "#/lib/api/errors";
+import { getUserFacingErrorMessage } from "#/lib/api/errors";
 import { changePasswordRequest } from "#/lib/api/ticket-api";
 import { requireAuthRedirect } from "#/lib/auth/guards";
 import { setSession } from "#/lib/auth/session";
@@ -66,8 +66,9 @@ function ChangePasswordPage() {
 				toast.success("Contraseña actualizada");
 				form.reset();
 			} catch (e) {
-				if (e instanceof ApiError) toast.error(e.message);
-				else toast.error("No se pudo cambiar la contraseña");
+				toast.error(
+					getUserFacingErrorMessage(e, "No se pudo cambiar la contraseña"),
+				);
 			}
 		},
 	});

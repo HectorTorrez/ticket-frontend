@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Button } from "#/components/ui/button";
+import { getUserFacingErrorMessage } from "#/lib/api/errors";
 
 type Props = { children: ReactNode };
 
@@ -9,7 +10,10 @@ export class AppErrorBoundary extends Component<Props, State> {
 	state: State = { hasError: false };
 
 	static getDerivedStateFromError(error: Error): State {
-		return { hasError: true, message: error.message };
+		return {
+			hasError: true,
+			message: getUserFacingErrorMessage(error),
+		};
 	}
 
 	override componentDidCatch(error: Error, info: ErrorInfo) {
