@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
+import { ListPagination } from "#/components/list-pagination";
 import { PageHeader } from "#/components/page-header";
 import { orderStatusTone, StatusBadge } from "#/components/status-indicator";
 import { TicketStub } from "#/components/ticket-stub";
@@ -52,7 +53,7 @@ function MyOrdersPage() {
 					description="Reservas, pagos y recibos de tus entradas."
 					action={
 						<form
-							className="flex flex-wrap items-center gap-2"
+							className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center"
 							onSubmit={(e) => {
 								e.preventDefault();
 								const fd = new FormData(e.currentTarget);
@@ -70,7 +71,7 @@ function MyOrdersPage() {
 								name="status"
 								defaultValue={status ?? ""}
 								aria-label="Filtrar por estado"
-								className="h-12 cursor-pointer rounded-md border border-input bg-background px-3 text-sm"
+								className="h-12 w-full cursor-pointer rounded-md border border-input bg-background px-3 text-sm sm:w-auto"
 							>
 								<option value="">Todos los estados</option>
 								<option value="PENDING">{orderStatusLabel.PENDING}</option>
@@ -79,7 +80,11 @@ function MyOrdersPage() {
 								<option value="EXPIRED">{orderStatusLabel.EXPIRED}</option>
 								<option value="CANCELLED">{orderStatusLabel.CANCELLED}</option>
 							</select>
-							<Button type="submit" variant="outline">
+							<Button
+								type="submit"
+								variant="outline"
+								className="w-full sm:w-auto"
+							>
 								Filtrar
 							</Button>
 						</form>
@@ -120,7 +125,7 @@ function MyOrdersPage() {
 										</div>
 									}
 									aside={
-										<Button variant="outline" asChild>
+										<Button variant="outline" className="w-full" asChild>
 											<Link to="/my-orders/$orderId" params={{ orderId: o.id }}>
 												Ver recibo
 											</Link>
@@ -160,28 +165,14 @@ function MyOrdersPage() {
 				) : null}
 
 				{q.data && q.data.total > limit ? (
-					<div className="flex justify-between gap-4">
-						<Button
-							type="button"
-							variant="outline"
-							disabled={page <= 1}
-							onClick={() =>
-								navigate({ search: { ...search, page: page - 1 } })
-							}
-						>
-							Anterior
-						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							disabled={page * limit >= q.data.total}
-							onClick={() =>
-								navigate({ search: { ...search, page: page + 1 } })
-							}
-						>
-							Siguiente
-						</Button>
-					</div>
+					<ListPagination
+						page={page}
+						total={q.data.total}
+						limit={limit}
+						label={`Página ${page}`}
+						onPrev={() => navigate({ search: { ...search, page: page - 1 } })}
+						onNext={() => navigate({ search: { ...search, page: page + 1 } })}
+					/>
 				) : null}
 			</div>
 		</PublicLayout>

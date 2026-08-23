@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
 	CalendarSearch,
+	KeyRound,
 	LayoutDashboard,
 	LogOut,
 	Menu,
@@ -136,7 +137,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 								</span>
 							</div>
 							<NavMobile />
-							<SheetFooter className="mt-auto border-t p-4">
+							<SheetFooter className="border-t">
+								<SheetClose asChild>
+									<Button variant="outline" className="w-full gap-2" asChild>
+										<Link to="/change-password">
+											<KeyRound className="size-4" />
+											Cambiar contraseña
+										</Link>
+									</Button>
+								</SheetClose>
 								<SheetClose asChild>
 									<Button
 										variant="outline"
@@ -150,27 +159,34 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 							</SheetFooter>
 						</SheetContent>
 					</Sheet>
-					<div className="flex flex-1 items-center justify-between gap-2">
+					<div className="flex min-w-0 flex-1 items-center justify-between gap-2">
 						<Link
 							to="/"
-							className="text-sm text-muted-foreground hover:text-foreground"
+							className="truncate text-sm text-muted-foreground hover:text-foreground"
 						>
-							← Volver al sitio
+							<span className="sm:hidden">← Sitio</span>
+							<span className="hidden sm:inline">← Volver al sitio</span>
 						</Link>
-						<div className="flex items-center gap-1.5">
-							<Button variant="ghost" size="sm" className="gap-1.5" asChild>
+						<div className="flex shrink-0 items-center gap-1.5">
+							<Button
+								variant="ghost"
+								size="sm"
+								className="hidden gap-1.5 sm:inline-flex"
+								asChild
+							>
 								<Link to="/change-password">
-									<span className="hidden sm:inline">Cambiar contraseña</span>
+									<KeyRound className="size-4" />
+									Cambiar contraseña
 								</Link>
 							</Button>
 							<Button
 								variant="ghost"
 								size="sm"
-								className="gap-1.5"
+								className="hidden gap-1.5 sm:inline-flex"
 								onClick={() => void signOut()}
 							>
 								<LogOut className="size-4" />
-								<span className="hidden sm:inline">Cerrar sesión</span>
+								Cerrar sesión
 							</Button>
 							<ModeToggle />
 						</div>

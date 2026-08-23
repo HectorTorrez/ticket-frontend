@@ -92,7 +92,7 @@ export function TableExportMenu<T>({
 				<Button
 					type="button"
 					variant="outline"
-					size="sm"
+					className="w-full sm:w-auto"
 					disabled={disabled || loading || totalCount === 0}
 				>
 					{loading ? (

@@ -54,7 +54,14 @@ function RootLayout() {
 				<AppErrorBoundary>
 					<Outlet />
 				</AppErrorBoundary>
-				<Toaster richColors position="top-center" />
+				<Toaster
+					richColors
+					position="top-center"
+					offset={{ top: 24 }}
+					mobileOffset={{
+						top: "max(4.5rem, calc(env(safe-area-inset-top, 0px) + 3.75rem))",
+					}}
+				/>
 			</ThemeProvider>
 		</QueryClientProvider>
 	);

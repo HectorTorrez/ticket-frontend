@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const userRoleSchema = z.enum(["ADMIN", "CUSTOMER"]);
+export const userStatusSchema = z.enum(["ACTIVE", "SUSPENDED", "BANNED"]);
 export const orderStatusSchema = z.enum([
 	"PENDING",
 	"PAID",
@@ -12,6 +13,7 @@ export const ticketStatusSchema = z.enum(["ACTIVE", "USED", "CANCELLED"]);
 export const ticketTierSchema = z.enum(["GENERAL", "VIP", "EARLY_BIRD"]);
 
 export type UserRole = z.infer<typeof userRoleSchema>;
+export type UserStatus = z.infer<typeof userStatusSchema>;
 export type OrderStatus = z.infer<typeof orderStatusSchema>;
 export type TicketStatus = z.infer<typeof ticketStatusSchema>;
 export type TicketTier = z.infer<typeof ticketTierSchema>;
@@ -23,6 +25,25 @@ export const userSchema = z.object({
 });
 
 export type User = z.infer<typeof userSchema>;
+
+export const adminUserSchema = z.object({
+	id: z.string().uuid(),
+	email: z.string().email(),
+	role: userRoleSchema,
+	status: userStatusSchema,
+	createdAt: z.string(),
+	updatedAt: z.string(),
+	orderCount: z.number(),
+});
+
+export type AdminUser = z.infer<typeof adminUserSchema>;
+
+export const paginatedAdminUsersSchema = z.object({
+	items: z.array(adminUserSchema),
+	total: z.number(),
+	page: z.number(),
+	limit: z.number(),
+});
 
 export const authResponseSchema = z.object({
 	accessToken: z.string(),

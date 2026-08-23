@@ -59,3 +59,16 @@ export const ticketsKeys = {
 export const dashboardKeys = {
 	summary: () => ["dashboard", "summary"] as const,
 };
+
+export const adminUsersKeys = {
+	all: ["admin-users"] as const,
+	list: (params: {
+		page: number;
+		limit: number;
+		q?: string;
+		role?: string;
+		status?: string;
+		sortBy?: string;
+		sortDirection?: "asc" | "desc" | "default";
+	}) => [...adminUsersKeys.all, "list", params] as const,
+};

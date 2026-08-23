@@ -100,7 +100,7 @@ function CreateEventPage() {
 				</Button>
 			</div>
 			<form
-				className="island-shell space-y-5 rounded-xl p-8"
+				className="island-shell space-y-5 rounded-xl p-5 sm:p-8"
 				onSubmit={(e) => {
 					e.preventDefault();
 					form.handleSubmit();
@@ -234,7 +234,11 @@ function CreateEventPage() {
 						</div>
 					)}
 				</form.Field>
-				<Button type="submit" disabled={mu.isPending}>
+				<Button
+					type="submit"
+					className="w-full sm:w-auto"
+					disabled={mu.isPending}
+				>
 					{mu.isPending ? "Guardando…" : "Crear evento"}
 				</Button>
 			</form>

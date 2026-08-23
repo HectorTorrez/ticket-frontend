@@ -229,7 +229,11 @@ function EventDetailPage() {
 																className="size-3 shrink-0"
 																aria-hidden
 															/>
-															Últimas {t.quantityRemaining} entradas
+															Últimas {t.quantityRemaining}
+															<span className="hidden sm:inline">
+																{" "}
+																entradas
+															</span>
 														</>
 													) : (
 														`${t.quantityRemaining} disponibles`

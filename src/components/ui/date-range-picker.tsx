@@ -34,7 +34,16 @@ function DateRangePicker({
 }: DateRangePickerProps) {
 	const [open, setOpen] = useState(false);
 	const [draft, setDraft] = useState<DateRange | undefined>(value);
+	const [monthCount, setMonthCount] = useState(1);
 	const hasSelection = Boolean(value?.from);
+
+	useEffect(() => {
+		const media = window.matchMedia("(min-width: 768px)");
+		const update = () => setMonthCount(media.matches ? 2 : 1);
+		update();
+		media.addEventListener("change", update);
+		return () => media.removeEventListener("change", update);
+	}, []);
 
 	useEffect(() => {
 		if (!open) setDraft(value);
@@ -87,13 +96,16 @@ function DateRangePicker({
 						</span>
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-auto p-0" align="start">
+				<PopoverContent
+					className="w-auto max-w-[calc(100vw-2rem)] p-0"
+					align="start"
+				>
 					<Calendar
 						mode="range"
 						defaultMonth={draft?.from ?? value?.from}
 						selected={draft}
 						onSelect={setDraft}
-						numberOfMonths={2}
+						numberOfMonths={monthCount}
 						locale={es}
 					/>
 					<div className="flex gap-2 border-t p-3">

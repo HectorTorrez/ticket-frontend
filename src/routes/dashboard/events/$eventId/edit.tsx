@@ -272,7 +272,7 @@ function EditEventPage() {
 					Detalles del evento
 				</h2>
 				<form
-					className="island-shell space-y-5 rounded-xl p-8"
+					className="island-shell space-y-5 rounded-xl p-5 sm:p-8"
 					onSubmit={(e) => {
 						e.preventDefault();
 						if (!validateDetails()) return;
@@ -361,7 +361,11 @@ function EditEventPage() {
 							onChange={(e) => setVenue(e.target.value)}
 						/>
 					</div>
-					<Button type="submit" disabled={save.isPending}>
+					<Button
+						type="submit"
+						className="w-full sm:w-auto"
+						disabled={save.isPending}
+					>
 						{save.isPending ? "Guardando…" : "Guardar cambios"}
 					</Button>
 				</form>
@@ -369,7 +373,7 @@ function EditEventPage() {
 
 			<section className="space-y-4">
 				<h2 className="text-sm font-semibold text-foreground">Banner</h2>
-				<div className="island-shell space-y-4 rounded-xl p-8">
+				<div className="island-shell space-y-4 rounded-xl p-5 sm:p-8">
 					{ev.bannerUrl ? (
 						<img
 							src={ev.bannerUrl}
@@ -409,7 +413,7 @@ function EditEventPage() {
 				</div>
 
 				{ev.ticketTypes.length === 0 ? (
-					<div className="island-shell rounded-xl p-8 text-center text-sm text-muted-foreground">
+					<div className="island-shell rounded-xl p-5 text-center text-sm text-muted-foreground sm:p-8">
 						Aún no hay categorías. Añade al menos una para vender entradas.
 					</div>
 				) : (
@@ -448,7 +452,7 @@ function EditEventPage() {
 				<h2 className="text-sm font-semibold text-destructive">
 					Zona peligrosa
 				</h2>
-				<div className="island-shell rounded-xl p-8">
+				<div className="island-shell rounded-xl p-5 sm:p-8">
 					<p className="text-sm text-muted-foreground">
 						Eliminar el evento borra también todas sus categorías de entrada. No
 						se puede deshacer.
@@ -456,7 +460,7 @@ function EditEventPage() {
 					<Button
 						type="button"
 						variant="destructive"
-						className="mt-4"
+						className="mt-4 w-full sm:w-auto"
 						onClick={() => setDeleteOpen(true)}
 					>
 						Eliminar evento

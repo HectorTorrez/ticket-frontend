@@ -8,8 +8,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import type { z as zod } from "zod";
 import { z } from "zod";
 
+import {
+	MobileRecordCard,
+	MobileRecordList,
+} from "#/components/admin/mobile-record-card";
+import { MobileSortSelect } from "#/components/admin/mobile-sort-select";
 import { SortableTableHead } from "#/components/admin/sortable-table-head";
 import { TableExportMenu } from "#/components/admin/table-export-menu";
+import { ListPagination } from "#/components/list-pagination";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
@@ -173,14 +179,14 @@ function DashboardEventsList() {
 
 	return (
 		<div className="space-y-8">
-			<div className="flex flex-wrap items-center justify-between gap-4">
+			<div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
 				<div>
 					<h1 className="display-title text-2xl font-semibold">Eventos</h1>
 					<p className="text-muted-foreground">
 						Gestiona la visibilidad de cada evento en el catálogo público.
 					</p>
 				</div>
-				<div className="flex flex-wrap items-center gap-2">
+				<div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
 					{q.data ? (
 						<TableExportMenu
 							title="Eventos"
@@ -193,7 +199,7 @@ function DashboardEventsList() {
 							disabled={q.isFetching}
 						/>
 					) : null}
-					<Button asChild>
+					<Button className="w-full sm:w-auto" asChild>
 						<Link to="/dashboard/events/create">Crear evento</Link>
 					</Button>
 				</div>
@@ -210,9 +216,81 @@ function DashboardEventsList() {
 
 			{q.data && q.data.items.length > 0 ? (
 				<>
+					<MobileSortSelect
+						id="events-sort"
+						sortBy={sortBy}
+						sortDirection={sortDirection}
+						onChange={(next) =>
+							navigate({ search: { ...search, ...next, page: 1 } })
+						}
+						options={[
+							{
+								sortBy: "startsAt",
+								sortDirection: "default",
+								label: "Predeterminado",
+							},
+							{ sortBy: "title", sortDirection: "asc", label: "Título A–Z" },
+							{ sortBy: "title", sortDirection: "desc", label: "Título Z–A" },
+							{
+								sortBy: "startsAt",
+								sortDirection: "asc",
+								label: "Inicio · más próximos",
+							},
+							{
+								sortBy: "startsAt",
+								sortDirection: "desc",
+								label: "Inicio · más lejanos",
+							},
+							{
+								sortBy: "published",
+								sortDirection: "desc",
+								label: "Visibles primero",
+							},
+							{
+								sortBy: "published",
+								sortDirection: "asc",
+								label: "Ocultos primero",
+							},
+						]}
+					/>
+					<MobileRecordList className={cn(q.isFetching && "opacity-60")}>
+						{q.data.items.map((ev) => (
+							<MobileRecordCard key={ev.id}>
+								<div className="flex items-start justify-between gap-3">
+									<div className="min-w-0">
+										<h2 className="font-medium leading-snug wrap-break-word">
+											{ev.title}
+										</h2>
+										<p className="mt-1 font-mono text-xs break-all text-muted-foreground">
+											/events/{ev.slug}
+										</p>
+									</div>
+									<Button
+										variant="outline"
+										size="sm"
+										className="shrink-0"
+										asChild
+									>
+										<Link
+											to="/dashboard/events/$eventId/edit"
+											params={{ eventId: ev.id }}
+										>
+											Editar
+										</Link>
+									</Button>
+								</div>
+								<p className="text-sm text-muted-foreground">
+									{new Intl.DateTimeFormat("es", {
+										dateStyle: "short",
+									}).format(new Date(ev.startsAt))}
+								</p>
+								<EventVisibilityControl event={ev} />
+							</MobileRecordCard>
+						))}
+					</MobileRecordList>
 					<div
 						className={cn(
-							"table-fetching overflow-x-auto rounded-xl border",
+							"table-fetching hidden overflow-x-auto rounded-xl border md:block",
 							q.isFetching && "opacity-60",
 						)}
 					>
@@ -286,33 +364,14 @@ function DashboardEventsList() {
 							</TableBody>
 						</Table>
 					</div>
-					<div className="flex items-center justify-between gap-4">
-						<p className="text-sm text-muted-foreground">
-							Página {page} · {q.data.total} eventos en total
-						</p>
-						<div className="flex gap-2">
-							<Button
-								type="button"
-								variant="outline"
-								disabled={page <= 1}
-								onClick={() =>
-									navigate({ search: { ...search, page: page - 1 } })
-								}
-							>
-								Anterior
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								disabled={page * limit >= q.data.total}
-								onClick={() =>
-									navigate({ search: { ...search, page: page + 1 } })
-								}
-							>
-								Siguiente
-							</Button>
-						</div>
-					</div>
+					<ListPagination
+						page={page}
+						total={q.data.total}
+						limit={limit}
+						label={`Página ${page} · ${q.data.total} eventos en total`}
+						onPrev={() => navigate({ search: { ...search, page: page - 1 } })}
+						onNext={() => navigate({ search: { ...search, page: page + 1 } })}
+					/>
 				</>
 			) : null}
 		</div>

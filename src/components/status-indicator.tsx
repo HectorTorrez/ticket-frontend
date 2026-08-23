@@ -53,6 +53,19 @@ export function orderStatusTone(status: string): StatusTone {
 	}
 }
 
+export function userStatusTone(status: string): StatusTone {
+	switch (status) {
+		case "ACTIVE":
+			return "success";
+		case "SUSPENDED":
+			return "warning";
+		case "BANNED":
+			return "error";
+		default:
+			return "neutral";
+	}
+}
+
 export function ticketStatusTone(status: string): StatusTone {
 	switch (status) {
 		case "ACTIVE":

@@ -21,3 +21,15 @@ export const adminOrdersSortDefaults = {
 	sortBy: "createdAt" as const,
 	sortOrder: "desc" as const,
 };
+
+export const adminUsersDefaultSearch = {
+	page: 1,
+	limit: 20,
+	sortBy: "createdAt" as const,
+	sortDirection: "default" as const,
+};
+
+export const adminUsersSortDefaults = {
+	sortBy: "createdAt" as const,
+	sortOrder: "desc" as const,
+};

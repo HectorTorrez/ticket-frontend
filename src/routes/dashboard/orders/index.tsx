@@ -2,8 +2,14 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
+import {
+	MobileRecordCard,
+	MobileRecordList,
+} from "#/components/admin/mobile-record-card";
+import { MobileSortSelect } from "#/components/admin/mobile-sort-select";
 import { SortableTableHead } from "#/components/admin/sortable-table-head";
 import { TableExportMenu } from "#/components/admin/table-export-menu";
+import { ListPagination } from "#/components/list-pagination";
 import { orderStatusTone, StatusBadge } from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -157,7 +163,7 @@ function AdminOrdersPage() {
 			</div>
 
 			<form
-				className="flex flex-wrap items-end gap-3"
+				className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end"
 				onSubmit={(e) => {
 					e.preventDefault();
 					const fd = new FormData(e.currentTarget);
@@ -173,7 +179,7 @@ function AdminOrdersPage() {
 					});
 				}}
 			>
-				<div className="space-y-1">
+				<div className="w-full space-y-1 sm:w-auto">
 					<label className="text-xs text-muted-foreground" htmlFor="st">
 						Estado
 					</label>
@@ -181,7 +187,7 @@ function AdminOrdersPage() {
 						id="st"
 						name="status"
 						defaultValue={status ?? ""}
-						className="h-9 cursor-pointer rounded-md border border-input bg-background px-2 text-sm"
+						className="h-12 w-full cursor-pointer rounded-md border border-input bg-background px-3 text-sm sm:h-12 sm:w-auto"
 					>
 						<option value="">Todos</option>
 						<option value="PENDING">{orderStatusLabel.PENDING}</option>
@@ -191,7 +197,7 @@ function AdminOrdersPage() {
 						<option value="CANCELLED">{orderStatusLabel.CANCELLED}</option>
 					</select>
 				</div>
-				<div className="space-y-1">
+				<div className="w-full space-y-1 sm:w-auto">
 					<label className="text-xs text-muted-foreground" htmlFor="uid">
 						Correo o ID de cliente
 					</label>
@@ -200,10 +206,10 @@ function AdminOrdersPage() {
 						name="userId"
 						defaultValue={userId ?? ""}
 						placeholder="cliente@ejemplo.com"
-						className="h-9 w-64 text-sm"
+						className="h-12 w-full text-sm sm:w-64"
 					/>
 				</div>
-				<Button type="submit" size="sm" variant="outline">
+				<Button type="submit" variant="outline" className="w-full sm:w-auto">
 					Aplicar
 				</Button>
 			</form>
@@ -215,9 +221,78 @@ function AdminOrdersPage() {
 
 			{q.data && q.data.items.length > 0 ? (
 				<>
+					<MobileSortSelect
+						id="orders-sort"
+						sortBy={sortBy}
+						sortDirection={sortDirection}
+						onChange={(next) =>
+							navigate({ search: { ...search, ...next, page: 1 } })
+						}
+						options={[
+							{
+								sortBy: "createdAt",
+								sortDirection: "default",
+								label: "Predeterminado",
+							},
+							{
+								sortBy: "createdAt",
+								sortDirection: "desc",
+								label: "Más recientes",
+							},
+							{
+								sortBy: "createdAt",
+								sortDirection: "asc",
+								label: "Más antiguos",
+							},
+							{
+								sortBy: "userEmail",
+								sortDirection: "asc",
+								label: "Cliente A–Z",
+							},
+							{
+								sortBy: "userEmail",
+								sortDirection: "desc",
+								label: "Cliente Z–A",
+							},
+							{
+								sortBy: "totalAmount",
+								sortDirection: "desc",
+								label: "Total · mayor a menor",
+							},
+							{
+								sortBy: "totalAmount",
+								sortDirection: "asc",
+								label: "Total · menor a mayor",
+							},
+						]}
+					/>
+					<MobileRecordList className={cn(q.isFetching && "opacity-60")}>
+						{q.data.items.map((o) => (
+							<MobileRecordCard key={o.id}>
+								<div className="flex items-start justify-between gap-3">
+									<div className="min-w-0">
+										<p className="font-medium">{formatOrderRef(o.id)}</p>
+										<p className="mt-1 break-all text-sm text-muted-foreground">
+											{o.user.email}
+										</p>
+									</div>
+									<p className="display-title shrink-0 text-lg font-semibold tabular-nums">
+										{new Intl.NumberFormat("es", {
+											style: "currency",
+											currency: o.currency,
+										}).format(Number(o.totalAmount))}
+									</p>
+								</div>
+								<StatusBadge
+									label={labelFor(orderStatusLabel, o.status)}
+									tone={orderStatusTone(o.status)}
+								/>
+							</MobileRecordCard>
+						))}
+					</MobileRecordList>
 					<div
 						className={cn(
-							"table-fetching overflow-x-auto rounded-xl border",
+							"table-fetching hidden overflow-x-auto rounded-xl border md:block",
 							q.isFetching && "opacity-60",
 						)}
 					>
@@ -284,33 +359,14 @@ function AdminOrdersPage() {
 							</TableBody>
 						</Table>
 					</div>
-					<div className="flex items-center justify-between gap-4">
-						<p className="text-sm text-muted-foreground">
-							Página {page} · {q.data.total} pedidos en total
-						</p>
-						<div className="flex gap-2">
-							<Button
-								type="button"
-								variant="outline"
-								disabled={page <= 1}
-								onClick={() =>
-									navigate({ search: { ...search, page: page - 1 } })
-								}
-							>
-								Anterior
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								disabled={page * limit >= q.data.total}
-								onClick={() =>
-									navigate({ search: { ...search, page: page + 1 } })
-								}
-							>
-								Siguiente
-							</Button>
-						</div>
-					</div>
+					<ListPagination
+						page={page}
+						total={q.data.total}
+						limit={limit}
+						label={`Página ${page} · ${q.data.total} pedidos en total`}
+						onPrev={() => navigate({ search: { ...search, page: page - 1 } })}
+						onNext={() => navigate({ search: { ...search, page: page + 1 } })}
+					/>
 				</>
 			) : null}
 

@@ -12,7 +12,9 @@
  *
  * **Admin (`ADMIN` + Bearer)** — `GET` `/admin/events` (drafts + published); `POST` `/events`; `PATCH|DELETE` `/events/:id`;
  * `POST` publish/unpublish/banner; `POST` `/events/:eventId/ticket-types`; `PATCH|DELETE` `/ticket-types/:id`;
- * `GET` `/admin/orders`, `/dashboard/summary`; `POST` `/admin/users/reset-password`, `/qr/validate`.
+ * `GET` `/admin/orders`, `/admin/users`, `/dashboard/summary`; `POST` `/admin/users`,
+ * `/admin/users/reset-password`, `/admin/users/:id/reset-password`; `PATCH` `/admin/users/:id/status`;
+ * `DELETE` `/admin/users/:id`; `POST` `/qr/validate`.
  *
  * **Token refresh** is implemented in `client.ts` (`POST /auth/refresh`).
  *
@@ -23,6 +25,7 @@ import { ApiError } from "#/lib/api/errors";
 import { apiRequest } from "#lib/api/client";
 import {
 	adminResetPasswordResponseSchema,
+	adminUserSchema,
 	authResponseSchema,
 	cancelOrderResponseSchema,
 	dashboardSummarySchema,
@@ -35,12 +38,14 @@ import {
 	myTicketsListSchema,
 	orderDetailSchema,
 	paginatedAdminOrdersSchema,
+	paginatedAdminUsersSchema,
 	paginatedCustomerOrdersSchema,
 	paginatedEventsSchema,
 	publicTicketSchema,
 	qrValidateResultSchema,
 	type TicketTier,
 	ticketTypeFullSchema,
+	type UserStatus,
 } from "#lib/api/schemas";
 import { clearSession, getSession } from "#lib/auth/session";
 import { getApiV1Prefix } from "#lib/env";
@@ -85,6 +90,58 @@ export async function adminResetPasswordRequest(body: { email: string }) {
 			body,
 		},
 	);
+}
+
+export async function adminCreateAdmin(body: { email: string }) {
+	return apiRequest("/admin/users", adminResetPasswordResponseSchema, {
+		method: "POST",
+		body,
+	});
+}
+
+export async function fetchAdminUsers(params: {
+	page?: number;
+	limit?: number;
+	q?: string;
+	role?: string;
+	status?: string;
+	sortBy?: string;
+	sortOrder?: "asc" | "desc";
+}) {
+	const sp = new URLSearchParams();
+	if (params.page != null) sp.set("page", String(params.page));
+	if (params.limit != null) sp.set("limit", String(params.limit));
+	if (params.q) sp.set("q", params.q);
+	if (params.role) sp.set("role", params.role);
+	if (params.status) sp.set("status", params.status);
+	if (params.sortBy) sp.set("sortBy", params.sortBy);
+	if (params.sortOrder) sp.set("sortOrder", params.sortOrder);
+	const qs = sp.toString();
+	return apiRequest(
+		`/admin/users${qs ? `?${qs}` : ""}`,
+		paginatedAdminUsersSchema,
+	);
+}
+
+export async function adminResetPasswordById(userId: string) {
+	return apiRequest(
+		`/admin/users/${userId}/reset-password`,
+		adminResetPasswordResponseSchema,
+		{ method: "POST" },
+	);
+}
+
+export async function adminSetUserStatus(userId: string, status: UserStatus) {
+	return apiRequest(`/admin/users/${userId}/status`, adminUserSchema, {
+		method: "PATCH",
+		body: { status },
+	});
+}
+
+export async function adminDeleteUser(userId: string) {
+	return apiRequest(`/admin/users/${userId}`, deleteResponseSchema, {
+		method: "DELETE",
+	});
 }
 
 export async function logoutRequest() {

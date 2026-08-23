@@ -414,6 +414,77 @@ a:not([data-slot="button"]) {
   transform: scale(0.98);
 }
 
+/* QR door scanner — fill the stage, hide library chrome, draw our own frame */
+.qr-stage:has(.qr-stage__viewport) {
+  background: color-mix(in oklab, var(--sea-ink) 88%, black);
+}
+
+.qr-stage__viewport {
+  min-height: min(68vw, 22rem);
+  width: 100%;
+}
+
+.qr-stage__viewport video {
+  display: block;
+  width: 100% !important;
+  height: min(68vw, 22rem) !important;
+  object-fit: cover;
+}
+
+@media (min-width: 640px) {
+  .qr-stage__viewport,
+  .qr-stage__viewport video {
+    min-height: 220px;
+    height: 280px !important;
+  }
+}
+
+.qr-stage #qr-shaded-region {
+  display: none !important;
+}
+
+.qr-viewfinder {
+  pointer-events: none;
+  position: absolute;
+  inset: 18%;
+}
+
+.qr-viewfinder__corner {
+  position: absolute;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-color: #fffdf9;
+  border-style: solid;
+}
+
+.qr-viewfinder__corner--tl {
+  top: 0;
+  left: 0;
+  border-width: 3px 0 0 3px;
+  border-radius: 4px 0 0 0;
+}
+
+.qr-viewfinder__corner--tr {
+  top: 0;
+  right: 0;
+  border-width: 3px 3px 0 0;
+  border-radius: 0 4px 0 0;
+}
+
+.qr-viewfinder__corner--bl {
+  bottom: 0;
+  left: 0;
+  border-width: 0 0 3px 3px;
+  border-radius: 0 0 0 4px;
+}
+
+.qr-viewfinder__corner--br {
+  bottom: 0;
+  right: 0;
+  border-width: 0 3px 3px 0;
+  border-radius: 0 0 4px 0;
+}
+
 /* Conditional state panels (scan results, etc.) */
 .state-reveal {
   opacity: 1;

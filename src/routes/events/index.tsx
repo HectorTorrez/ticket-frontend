@@ -6,6 +6,7 @@ import type { DateRange } from "react-day-picker";
 import { z } from "zod";
 import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
+import { ListPagination } from "#/components/list-pagination";
 import { PageHeader } from "#/components/page-header";
 import { PosterSurface } from "#/components/poster-surface";
 import { Button } from "#/components/ui/button";
@@ -154,7 +155,9 @@ function EventsListPage() {
 								placeholder="Cualquier fecha"
 							/>
 						</div>
-						<Button type="submit">Aplicar filtros</Button>
+						<Button type="submit" className="w-full md:w-auto">
+							Aplicar filtros
+						</Button>
 					</form>
 				</PosterSurface>
 
@@ -217,31 +220,19 @@ function EventsListPage() {
 								/>
 							))}
 						</div>
-						<div className="flex items-center justify-between gap-4 border-t border-border/60 pt-6">
-							<Button
-								type="button"
-								variant="outline"
-								disabled={page <= 1}
-								onClick={() =>
+						<div className="border-t border-border/60 pt-6">
+							<ListPagination
+								page={page}
+								total={query.data.total}
+								limit={limit}
+								label={`Página ${page} de ${Math.max(1, Math.ceil(query.data.total / limit))}`}
+								onPrev={() =>
 									navigate({ search: { ...search, page: page - 1 } })
 								}
-							>
-								Anterior
-							</Button>
-							<span className="text-sm text-muted-foreground">
-								Página {page} de{" "}
-								{Math.max(1, Math.ceil(query.data.total / limit))}
-							</span>
-							<Button
-								type="button"
-								variant="outline"
-								disabled={page * limit >= query.data.total}
-								onClick={() =>
+								onNext={() =>
 									navigate({ search: { ...search, page: page + 1 } })
 								}
-							>
-								Siguiente
-							</Button>
+							/>
 						</div>
 					</>
 				) : null}

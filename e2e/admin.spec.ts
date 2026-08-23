@@ -31,6 +31,51 @@ test.describe("Admin", () => {
 			page.getByRole("heading", { name: /control de acceso/i }),
 		).toBeVisible();
 		await expect(page.getByLabel(/código del pase/i)).toBeVisible();
+
+		await page.goto("/dashboard/users/");
+		await expect(
+			page.getByRole("heading", { name: /usuarios/i }),
+		).toBeVisible();
+		await expect(page.getByText(ADMIN_EMAIL)).toBeVisible();
+	});
+
+	test("lista un cliente y restablece su contraseña", async ({ page }) => {
+		const admin = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
+		const email = `users_${Date.now()}@e2e.local`;
+		await registerCustomer(email);
+		await injectSession(page, admin);
+
+		await page.goto("/dashboard/users/");
+		await page.getByLabel(/^correo$/i).fill(email);
+		await page.getByRole("button", { name: /aplicar/i }).click();
+		await expect(page.getByText(email).first()).toBeVisible();
+
+		await page
+			.getByRole("button", { name: new RegExp(`acciones para ${email}`, "i") })
+			.first()
+			.click();
+		await page.getByRole("menuitem", { name: /restablecer contraseña/i }).click();
+		await expect(
+			page.getByRole("heading", { name: /contraseña temporal/i }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(page.getByText(email)).toBeVisible();
+	});
+
+	test("crea un administrador y muestra la contraseña temporal", async ({
+		page,
+	}) => {
+		const admin = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
+		const email = `admin_${Date.now()}@e2e.local`;
+		await injectSession(page, admin);
+
+		await page.goto("/dashboard/users/");
+		await page.getByRole("button", { name: /nuevo administrador/i }).click();
+		await page.getByLabel(/correo del administrador/i).fill(email);
+		await page.getByRole("button", { name: /^crear administrador$/i }).click();
+		await expect(
+			page.getByRole("heading", { name: /administrador creado/i }),
+		).toBeVisible({ timeout: 15_000 });
+		await expect(page.getByText(email)).toBeVisible();
 	});
 
 	test("edita el evento publicado creado vía API", async ({ page }) => {
@@ -62,12 +107,12 @@ test.describe("Admin", () => {
 		await page.goto("/dashboard/scanner/");
 		await page.getByLabel(/código del pase/i).fill(publicCode);
 		await page.getByRole("button", { name: /^validar$/i }).click();
-		await expect(page.getByText(/resultado:\s*válida/i)).toBeVisible({
+		await expect(page.getByText(/pase válido/i)).toBeVisible({
 			timeout: 15_000,
 		});
 
 		await page.getByRole("button", { name: /^validar$/i }).click();
-		await expect(page.getByText(/resultado:\s*ya usada/i)).toBeVisible({
+		await expect(page.getByText(/ya fue usada/i)).toBeVisible({
 			timeout: 15_000,
 		});
 	});
@@ -87,7 +132,7 @@ test.describe("Admin", () => {
 		await mockQrCameraScan(page, qrPayload);
 		await page.goto("/dashboard/scanner/");
 		await page.getByRole("button", { name: /escanear con cámara/i }).click();
-		await expect(page.getByText(/resultado:\s*válida/i)).toBeVisible({
+		await expect(page.getByText(/pase válido/i)).toBeVisible({
 			timeout: 15_000,
 		});
 		await expect(page.getByLabel(/código del pase/i)).toHaveValue(publicCode);

@@ -62,7 +62,7 @@ export function AddTicketTypeCollapsible({
 							<Plus className="size-4 shrink-0 text-muted-foreground" />
 							<span className="font-medium">Añadir categoría</span>
 						</span>
-						<span className="text-xs text-muted-foreground">
+						<span className="hidden text-xs text-muted-foreground sm:inline">
 							{open ? "Ocultar formulario" : "Expandir formulario"}
 						</span>
 					</button>

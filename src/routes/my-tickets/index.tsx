@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { EmptyState } from "#/components/empty-state";
 import { PublicLayout } from "#/components/layouts/public-layout";
+import { ListPagination } from "#/components/list-pagination";
 import { PageHeader } from "#/components/page-header";
 import {
 	StatusIndicator,
@@ -114,7 +115,10 @@ function MyTicketsPage() {
 							});
 						}}
 					>
-						<TabsList aria-label="Filtrar pases por fecha">
+						<TabsList
+							aria-label="Filtrar pases por fecha"
+							className="h-12 w-full"
+						>
 							<TabsTrigger value="upcoming">Próximos</TabsTrigger>
 							<TabsTrigger value="past">Pasados</TabsTrigger>
 							<TabsTrigger value="all">Todos</TabsTrigger>
@@ -254,31 +258,18 @@ function MyTicketsPage() {
 				) : null}
 
 				{q.isSuccess && filteredTotal > 0 ? (
-					<div className="flex items-center justify-between gap-4">
-						<Button
-							type="button"
-							variant="outline"
-							disabled={page <= 1}
-							onClick={() =>
-								navigate({ search: { ...search, when, page: page - 1 } })
-							}
-						>
-							Anterior
-						</Button>
-						<p className="text-sm text-muted-foreground">
-							Página {page} de {Math.max(1, Math.ceil(filteredTotal / limit))}
-						</p>
-						<Button
-							type="button"
-							variant="outline"
-							disabled={page * limit >= filteredTotal}
-							onClick={() =>
-								navigate({ search: { ...search, when, page: page + 1 } })
-							}
-						>
-							Siguiente
-						</Button>
-					</div>
+					<ListPagination
+						page={page}
+						total={filteredTotal}
+						limit={limit}
+						label={`Página ${page} de ${Math.max(1, Math.ceil(filteredTotal / limit))}`}
+						onPrev={() =>
+							navigate({ search: { ...search, when, page: page - 1 } })
+						}
+						onNext={() =>
+							navigate({ search: { ...search, when, page: page + 1 } })
+						}
+					/>
 				) : null}
 			</div>
 		</PublicLayout>

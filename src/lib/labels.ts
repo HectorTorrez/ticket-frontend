@@ -7,6 +7,17 @@ export const orderStatusLabel: Record<string, string> = {
 	CANCELLED: "Cancelado",
 };
 
+export const userRoleLabel: Record<string, string> = {
+	ADMIN: "Administrador",
+	CUSTOMER: "Cliente",
+};
+
+export const userStatusLabel: Record<string, string> = {
+	ACTIVE: "Activo",
+	SUSPENDED: "Suspendido",
+	BANNED: "Bloqueado",
+};
+
 export const ticketStatusLabel: Record<string, string> = {
 	ACTIVE: "Activo",
 	USED: "Usado",

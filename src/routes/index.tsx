@@ -144,8 +144,8 @@ function HomePage() {
 								</p>
 							</div>
 
-							<div className="flex flex-wrap gap-3">
-								<Button size="lg" className="gap-2" asChild>
+							<div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+								<Button size="lg" className="w-full gap-2 sm:w-auto" asChild>
 									<Link
 										to="/events"
 										search={{ page: 1, limit: 10 }}
@@ -156,7 +156,12 @@ function HomePage() {
 									</Link>
 								</Button>
 								{spotlight ? (
-									<Button size="lg" variant="outline" asChild>
+									<Button
+										size="lg"
+										variant="outline"
+										className="w-full sm:w-auto"
+										asChild
+									>
 										<Link
 											to="/events/$eventSlugOrId"
 											params={{ eventSlugOrId: spotlight.slug }}
@@ -166,7 +171,12 @@ function HomePage() {
 									</Button>
 								) : null}
 								{!session ? (
-									<Button size="lg" variant="ghost" asChild>
+									<Button
+										size="lg"
+										variant="ghost"
+										className="w-full sm:w-auto"
+										asChild
+									>
 										<Link to="/register">Crear cuenta</Link>
 									</Button>
 								) : null}

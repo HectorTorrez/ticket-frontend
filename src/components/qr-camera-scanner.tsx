@@ -1,20 +1,33 @@
 import { Html5Qrcode } from "html5-qrcode";
 import { Camera, CameraOff } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
-import { toast } from "sonner";
+import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 
 import { Button } from "#/components/ui/button";
 
 type QrCameraScannerProps = {
 	onScan: (decoded: string) => void;
-	disabled?: boolean;
+	/** Pause new reads without tearing down the camera stream. */
+	busy?: boolean;
+	children?: ReactNode;
 };
 
 /** Minimal surface used by this component; E2E can replace the ctor on `window`. */
 type ScannerInstance = {
 	start: (
 		cameraIdOrConfig: string | MediaTrackConstraints,
-		configuration: { fps: number; qrbox: { width: number; height: number } },
+		configuration: {
+			fps: number;
+			qrbox:
+				| { width: number; height: number }
+				| ((
+						viewfinderWidth: number,
+						viewfinderHeight: number,
+				  ) => {
+						width: number;
+						height: number;
+				  });
+			aspectRatio?: number;
+		},
 		qrCodeSuccessCallback: (decodedText: string) => void,
 		qrCodeErrorCallback?: (errorMessage: string) => void,
 	) => Promise<null>;
@@ -30,17 +43,60 @@ function resolveScannerCtor(): ScannerCtor {
 	return override ?? (Html5Qrcode as unknown as ScannerCtor);
 }
 
+function cameraErrorMessage(error: unknown): string {
+	const raw = error instanceof Error ? error.message : String(error ?? "");
+	const lower = raw.toLowerCase();
+	if (
+		lower.includes("notallowed") ||
+		lower.includes("permission") ||
+		lower.includes("denied")
+	) {
+		return "El navegador bloqueó la cámara. Concede el permiso y pulsa de nuevo.";
+	}
+	if (
+		lower.includes("notfound") ||
+		lower.includes("requested device not found") ||
+		lower.includes("no camera")
+	) {
+		return "No encontramos una cámara en este dispositivo.";
+	}
+	if (
+		lower.includes("notreadable") ||
+		lower.includes("trackstart") ||
+		lower.includes("in use")
+	) {
+		return "La cámara está ocupada por otra aplicación. Ciérrala y vuelve a intentar.";
+	}
+	if (lower.includes("secure") || lower.includes("https")) {
+		return "La cámara solo funciona en una conexión segura (HTTPS).";
+	}
+	return "No se pudo abrir la cámara. Comprueba el permiso e inténtalo de nuevo.";
+}
+
+function viewfinderBox(viewfinderWidth: number, viewfinderHeight: number) {
+	const edge = Math.min(viewfinderWidth, viewfinderHeight);
+	const size = Math.max(180, Math.floor(edge * 0.72));
+	return { width: size, height: size };
+}
+
 export function QrCameraScanner({
 	onScan,
-	disabled = false,
+	busy = false,
+	children,
 }: QrCameraScannerProps) {
 	const regionId = useId().replace(/:/g, "");
 	const scannerRef = useRef<ScannerInstance | null>(null);
 	const lastScanRef = useRef("");
+	const busyRef = useRef(busy);
+	const onScanRef = useRef(onScan);
 	const [active, setActive] = useState(false);
+	const [cameraError, setCameraError] = useState<string | null>(null);
+
+	busyRef.current = busy;
+	onScanRef.current = onScan;
 
 	useEffect(() => {
-		if (!active || disabled) return;
+		if (!active) return;
 
 		const scanner = new (resolveScannerCtor())(regionId);
 		scannerRef.current = scanner;
@@ -49,11 +105,12 @@ export function QrCameraScanner({
 		void scanner
 			.start(
 				{ facingMode: "environment" },
-				{ fps: 10, qrbox: { width: 220, height: 220 } },
+				{ fps: 10, qrbox: viewfinderBox, aspectRatio: 1.333 },
 				(decoded) => {
-					if (cancelled || decoded === lastScanRef.current) return;
+					if (cancelled || busyRef.current) return;
+					if (decoded === lastScanRef.current) return;
 					lastScanRef.current = decoded;
-					onScan(decoded);
+					onScanRef.current(decoded);
 				},
 				() => {
 					// Ignore per-frame scan misses.
@@ -61,9 +118,7 @@ export function QrCameraScanner({
 			)
 			.catch((e: unknown) => {
 				if (!cancelled) {
-					toast.error(
-						e instanceof Error ? e.message : "No se pudo acceder a la cámara",
-					);
+					setCameraError(cameraErrorMessage(e));
 					setActive(false);
 				}
 			});
@@ -78,31 +133,44 @@ export function QrCameraScanner({
 				.then(() => instance.clear())
 				.catch(() => {});
 		};
-	}, [active, disabled, onScan, regionId]);
-
-	useEffect(() => {
-		if (disabled && active) setActive(false);
-	}, [disabled, active]);
+	}, [active, regionId]);
 
 	return (
 		<div className="space-y-3">
-			<div className="overflow-hidden rounded-lg border bg-muted/30">
+			<div className="qr-stage overflow-hidden rounded-lg border bg-muted/30">
 				{active ? (
-					<div id={regionId} className="min-h-[220px] w-full" />
+					<div className="relative">
+						<div id={regionId} className="qr-stage__viewport" />
+						<div className="qr-viewfinder" aria-hidden>
+							<span className="qr-viewfinder__corner qr-viewfinder__corner--tl" />
+							<span className="qr-viewfinder__corner qr-viewfinder__corner--tr" />
+							<span className="qr-viewfinder__corner qr-viewfinder__corner--bl" />
+							<span className="qr-viewfinder__corner qr-viewfinder__corner--br" />
+						</div>
+					</div>
 				) : (
-					<div className="flex min-h-[220px] flex-col items-center justify-center gap-2 p-6 text-center text-sm text-muted-foreground">
-						<CameraOff className="size-8 opacity-40" />
-						<p>Activa la cámara para escanear el QR de la entrada.</p>
+					<div className="flex min-h-[min(68vw,22rem)] flex-col items-center justify-center gap-2 px-5 py-8 text-center sm:min-h-[220px]">
+						<CameraOff className="size-8 opacity-40" aria-hidden />
+						{cameraError ? (
+							<p className="max-w-xs text-sm text-destructive" role="alert">
+								{cameraError}
+							</p>
+						) : (
+							<p className="max-w-xs text-sm text-muted-foreground">
+								Apunta la cámara al código QR del pase.
+							</p>
+						)}
 					</div>
 				)}
 			</div>
+			{children}
 			<Button
 				type="button"
 				variant={active ? "outline" : "default"}
 				className="w-full"
-				disabled={disabled}
 				onClick={() => {
 					lastScanRef.current = "";
+					setCameraError(null);
 					setActive((prev) => !prev);
 				}}
 			>

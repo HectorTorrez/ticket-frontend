@@ -295,30 +295,22 @@ function CheckoutPage() {
 
 				{/* Steps */}
 				<ol
-					className="flex items-center gap-2 text-sm"
+					className="grid grid-cols-3 gap-2 text-sm"
 					aria-label="Progreso del pago"
 				>
 					{[
 						{ n: 1, label: "Selección", icon: Ticket },
 						{ n: 2, label: "Pago", icon: CreditCard },
 						{ n: 3, label: "Confirmación", icon: Check },
-					].map((s, i) => {
+					].map((s) => {
 						const complete = isStepComplete(s.n);
 						const current = isStepCurrent(s.n);
 
 						return (
-							<li key={s.n} className="flex items-center gap-2">
-								{i > 0 ? (
-									<span
-										className={cn(
-											"h-px w-6 sm:w-10",
-											complete || current ? "bg-primary/40" : "bg-border",
-										)}
-									/>
-								) : null}
+							<li key={s.n} className="min-w-0">
 								<span
 									className={cn(
-										"flex items-center gap-1.5 rounded-sm border px-3 py-2 font-medium transition-colors",
+										"flex h-12 w-full items-center justify-center gap-1.5 rounded-sm border px-1.5 font-medium transition-colors sm:px-3",
 										complete && "border-primary/40 bg-primary/5 text-primary",
 										current &&
 											"border-2 border-primary bg-primary/10 text-primary ring-2 ring-primary/15",
@@ -332,7 +324,7 @@ function CheckoutPage() {
 									) : (
 										<s.icon className="size-3.5 shrink-0" aria-hidden />
 									)}
-									{s.label}
+									<span className="truncate text-xs sm:text-sm">{s.label}</span>
 								</span>
 							</li>
 						);
@@ -440,10 +432,10 @@ function CheckoutPage() {
 						</p>
 
 						{order.status === "PENDING" ? (
-							<div className="mt-6 flex flex-wrap gap-4">
+							<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
 								<Button
 									size="lg"
-									className="gap-2"
+									className="w-full gap-2 sm:w-auto"
 									onClick={() => pay.mutate()}
 									disabled={pay.isPending}
 								>
@@ -452,6 +444,7 @@ function CheckoutPage() {
 								</Button>
 								<Button
 									variant="outline"
+									className="w-full sm:w-auto"
 									onClick={() => cancelMu.mutate()}
 									disabled={cancelMu.isPending}
 								>
