@@ -28,6 +28,53 @@ export type ApiErrorBody = {
 	timestamp?: string;
 };
 
+const GENERIC_SERVER =
+	"Algo salió mal en el servidor. Inténtalo de nuevo más tarde.";
+const GENERIC_UNKNOWN = "Algo salió mal. Por favor, inténtalo de nuevo.";
+const GENERIC_NETWORK =
+	"No pudimos conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo en unos instantes.";
+
+function isNetworkErrorMessage(message: string): boolean {
+	const lower = message.toLowerCase();
+	return (
+		message === "Failed to fetch" ||
+		lower.includes("failed to fetch") ||
+		lower.includes("networkerror") ||
+		lower.includes("load failed") ||
+		message === "NetworkError when attempting to fetch resource."
+	);
+}
+
+/** Detects messages that should never appear in UI toasts. */
+export function looksTechnicalMessage(message: string): boolean {
+	const trimmed = message.trim();
+	if (!trimmed) return true;
+	return (
+		/https?:\/\//i.test(trimmed) ||
+		/vite_[a-z0-9_]+/i.test(trimmed) ||
+		/\.env\b/i.test(trimmed) ||
+		/localhost:\d+/i.test(trimmed) ||
+		/invalid api response/i.test(trimmed) ||
+		/^http \d{3}$/i.test(trimmed) ||
+		/\/api\/v\d+/i.test(trimmed) ||
+		/\b(prisma|postgres|sql|stack trace|exception|econnrefused|enotfound|eai_again)\b/i.test(
+			trimmed,
+		) ||
+		/\bat\s+\S+\.(tsx?|jsx?|mjs|cjs):\d+:\d+\b/.test(trimmed)
+	);
+}
+
+function sanitizeApiErrorMessage(error: ApiError, fallback: string): string {
+	if (error.statusCode >= 500) {
+		return GENERIC_SERVER;
+	}
+	const msg = error.message.trim();
+	if (looksTechnicalMessage(msg)) {
+		return fallback;
+	}
+	return msg || fallback;
+}
+
 export function parseApiErrorBody(body: unknown): ApiErrorBody | null {
 	if (!body || typeof body !== "object") return null;
 	const b = body as Record<string, unknown>;
@@ -66,30 +113,32 @@ export function toApiError(status: number, body: unknown): ApiError {
 	});
 }
 
-/** Mensajes visibles para el usuario en fallos de TanStack Query / fetch. */
-export function getUserFacingErrorMessage(error: unknown): string {
+/** Safe messages for toasts and inline UI — never exposes URLs, env vars, or server internals. */
+export function getUserFacingErrorMessage(
+	error: unknown,
+	fallback: string = GENERIC_UNKNOWN,
+): string {
 	if (error instanceof ApiError) {
-		return error.message;
+		return sanitizeApiErrorMessage(error, fallback);
 	}
 	if (error instanceof Error) {
 		const msg = error.message;
-		const lower = msg.toLowerCase();
-		if (
-			msg === "Failed to fetch" ||
-			lower.includes("failed to fetch") ||
-			lower.includes("networkerror") ||
-			lower.includes("load failed") ||
-			msg === "NetworkError when attempting to fetch resource."
-		) {
+		if (isNetworkErrorMessage(msg)) {
 			if (import.meta.env.DEV) {
-				return "No pudimos conectar con el servidor. Comprueba que el backend esté en ejecución y que VITE_API_BASE_URL en .env apunte a la URL correcta.";
+				console.error("[api] Network error:", error);
 			}
-			return "No pudimos conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo en unos instantes.";
+			return GENERIC_NETWORK;
 		}
 		if (error.name === "AbortError") {
 			return "La solicitud fue cancelada.";
 		}
-		return msg;
+		if (looksTechnicalMessage(msg)) {
+			if (import.meta.env.DEV) {
+				console.error("[api] Technical error hidden from UI:", error);
+			}
+			return fallback;
+		}
+		return msg || fallback;
 	}
-	return "Algo salió mal. Por favor, inténtalo de nuevo.";
+	return fallback;
 }
