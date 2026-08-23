@@ -224,7 +224,10 @@ export const myTicketEventSchema = z.object({
 	title: z.string(),
 	slug: z.string(),
 	startsAt: z.string(),
+	endsAt: z.string(),
 	venue: z.string().nullable().optional(),
+	published: z.boolean(),
+	deletedAt: z.string().nullable().optional(),
 });
 
 export const myTicketTypeSchema = z.object({
@@ -265,6 +268,8 @@ export const publicTicketSchema = z.object({
 		title: z.string(),
 		startsAt: z.string(),
 		slug: z.string(),
+		bannerUrl: z.string().nullable().optional(),
+		venue: z.string().nullable().optional(),
 	}),
 	ticketType: myTicketTypeSchema,
 });
