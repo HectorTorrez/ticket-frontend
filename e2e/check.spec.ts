@@ -23,6 +23,8 @@ test.describe("Página /check — acceso de organizador", () => {
 		await expect(
 			page.getByRole("heading", { name: /verificación de entrada/i }),
 		).toBeVisible({ timeout: 15_000 });
+		await expect(page.getByText(/escanea en la entrada/i)).toBeVisible();
+		await expect(page.getByRole("img", { name: /código qr/i })).toBeVisible();
 
 		await page
 			.getByRole("link", { name: /inicia sesión como organizador/i })
@@ -51,9 +53,8 @@ test.describe("Página /check — acceso de organizador", () => {
 		await expect(
 			page.getByRole("heading", { name: /verificación de entrada/i }),
 		).toBeVisible({ timeout: 15_000 });
-		await expect(
-			page.getByText(/presenta este pase en la entrada/i),
-		).toBeVisible();
+		await expect(page.getByText(/escanea en la entrada/i)).toBeVisible();
+		await expect(page.getByRole("img", { name: /código qr/i })).toBeVisible();
 		await expect(
 			page.getByRole("link", { name: /inicia sesión como organizador/i }),
 		).toHaveCount(0);

@@ -111,6 +111,9 @@ test.describe("Admin", () => {
 			timeout: 15_000,
 		});
 
+		await page
+			.getByRole("button", { name: /escanear siguiente pase/i })
+			.click();
 		await page.getByRole("button", { name: /^validar$/i }).click();
 		await expect(page.getByText(/ya fue usada/i)).toBeVisible({
 			timeout: 15_000,
