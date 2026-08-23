@@ -75,7 +75,9 @@ function cameraErrorMessage(error: unknown): string {
 
 function viewfinderBox(viewfinderWidth: number, viewfinderHeight: number) {
 	const edge = Math.min(viewfinderWidth, viewfinderHeight);
-	const size = Math.max(180, Math.floor(edge * 0.72));
+	if (edge <= 0) return { width: 220, height: 220 };
+	// Cap to the viewfinder — iOS stops scanning when qrbox exceeds the element.
+	const size = Math.min(220, Math.floor(edge * 0.85));
 	return { width: size, height: size };
 }
 
@@ -96,6 +98,10 @@ export function QrCameraScanner({
 	onScanRef.current = onScan;
 
 	useEffect(() => {
+		if (!busy) lastScanRef.current = "";
+	}, [busy]);
+
+	useEffect(() => {
 		if (!active) return;
 
 		const scanner = new (resolveScannerCtor())(regionId);
@@ -105,7 +111,7 @@ export function QrCameraScanner({
 		void scanner
 			.start(
 				{ facingMode: "environment" },
-				{ fps: 10, qrbox: viewfinderBox, aspectRatio: 1.333 },
+				{ fps: 10, qrbox: viewfinderBox },
 				(decoded) => {
 					if (cancelled || busyRef.current) return;
 					if (decoded === lastScanRef.current) return;

@@ -424,18 +424,9 @@ a:not([data-slot="button"]) {
   width: 100%;
 }
 
-.qr-stage__viewport video {
-  display: block;
-  width: 100% !important;
-  height: min(68vw, 22rem) !important;
-  object-fit: cover;
-}
-
 @media (min-width: 640px) {
-  .qr-stage__viewport,
-  .qr-stage__viewport video {
+  .qr-stage__viewport {
     min-height: 220px;
-    height: 280px !important;
   }
 }
 
