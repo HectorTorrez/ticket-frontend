@@ -232,8 +232,8 @@ function CheckTicketPage() {
 				{ticket && !admin ? (
 					<div className="island-shell space-y-4 rounded-xl p-6 text-center">
 						<p className="text-sm text-muted-foreground">
-							Presenta el código QR de arriba en la entrada. El personal también
-							puede abrir este enlace para validar tu acceso.
+							Presenta el código QR de arriba en la entrada. El personal lo
+							escaneará para validar tu acceso.
 						</p>
 						{ticket.status === "USED" ? (
 							<p className="text-sm font-medium text-muted-foreground">
