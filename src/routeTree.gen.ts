@@ -11,13 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResetPasswordIndexRouteImport } from './routes/reset-password/index'
 import { Route as RegisterIndexRouteImport } from './routes/register/index'
 import { Route as MyTicketsIndexRouteImport } from './routes/my-tickets/index'
 import { Route as MyOrdersIndexRouteImport } from './routes/my-orders/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
+import { Route as ForgotPasswordIndexRouteImport } from './routes/forgot-password/index'
 import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as ChangePasswordIndexRouteImport } from './routes/change-password/index'
+import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as MyOrdersOrderIdRouteImport } from './routes/my-orders/$orderId'
 import { Route as CheckPublicCodeRouteImport } from './routes/check/$publicCode'
 import { Route as EventsEventSlugOrIdIndexRouteImport } from './routes/events/$eventSlugOrId/index'
@@ -40,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordIndexRoute = ResetPasswordIndexRouteImport.update({
+  id: '/reset-password/',
+  path: '/reset-password/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterIndexRoute = RegisterIndexRouteImport.update({
   id: '/register/',
   path: '/register/',
@@ -60,6 +68,11 @@ const LoginIndexRoute = LoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForgotPasswordIndexRoute = ForgotPasswordIndexRouteImport.update({
+  id: '/forgot-password/',
+  path: '/forgot-password/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsIndexRoute = EventsIndexRouteImport.update({
   id: '/events/',
   path: '/events/',
@@ -73,6 +86,11 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
 const ChangePasswordIndexRoute = ChangePasswordIndexRouteImport.update({
   id: '/change-password/',
   path: '/change-password/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountIndexRoute = AccountIndexRouteImport.update({
+  id: '/account/',
+  path: '/account/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyOrdersOrderIdRoute = MyOrdersOrderIdRouteImport.update({
@@ -139,13 +157,16 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
+  '/account/': typeof AccountIndexRoute
   '/change-password/': typeof ChangePasswordIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/events/': typeof EventsIndexRoute
+  '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/my-orders/': typeof MyOrdersIndexRoute
   '/my-tickets/': typeof MyTicketsIndexRoute
   '/register/': typeof RegisterIndexRoute
+  '/reset-password/': typeof ResetPasswordIndexRoute
   '/dashboard/events/create': typeof DashboardEventsCreateRoute
   '/dashboard/orders/$orderId': typeof DashboardOrdersOrderIdRoute
   '/events/$eventSlugOrId/checkout': typeof EventsEventSlugOrIdCheckoutRoute
@@ -160,13 +181,16 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
+  '/account': typeof AccountIndexRoute
   '/change-password': typeof ChangePasswordIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/events': typeof EventsIndexRoute
+  '/forgot-password': typeof ForgotPasswordIndexRoute
   '/login': typeof LoginIndexRoute
   '/my-orders': typeof MyOrdersIndexRoute
   '/my-tickets': typeof MyTicketsIndexRoute
   '/register': typeof RegisterIndexRoute
+  '/reset-password': typeof ResetPasswordIndexRoute
   '/dashboard/events/create': typeof DashboardEventsCreateRoute
   '/dashboard/orders/$orderId': typeof DashboardOrdersOrderIdRoute
   '/events/$eventSlugOrId/checkout': typeof EventsEventSlugOrIdCheckoutRoute
@@ -183,13 +207,16 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRouteRouteWithChildren
   '/check/$publicCode': typeof CheckPublicCodeRoute
   '/my-orders/$orderId': typeof MyOrdersOrderIdRoute
+  '/account/': typeof AccountIndexRoute
   '/change-password/': typeof ChangePasswordIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/events/': typeof EventsIndexRoute
+  '/forgot-password/': typeof ForgotPasswordIndexRoute
   '/login/': typeof LoginIndexRoute
   '/my-orders/': typeof MyOrdersIndexRoute
   '/my-tickets/': typeof MyTicketsIndexRoute
   '/register/': typeof RegisterIndexRoute
+  '/reset-password/': typeof ResetPasswordIndexRoute
   '/dashboard/events/create': typeof DashboardEventsCreateRoute
   '/dashboard/orders/$orderId': typeof DashboardOrdersOrderIdRoute
   '/events/$eventSlugOrId/checkout': typeof EventsEventSlugOrIdCheckoutRoute
@@ -207,13 +234,16 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/check/$publicCode'
     | '/my-orders/$orderId'
+    | '/account/'
     | '/change-password/'
     | '/dashboard/'
     | '/events/'
+    | '/forgot-password/'
     | '/login/'
     | '/my-orders/'
     | '/my-tickets/'
     | '/register/'
+    | '/reset-password/'
     | '/dashboard/events/create'
     | '/dashboard/orders/$orderId'
     | '/events/$eventSlugOrId/checkout'
@@ -228,13 +258,16 @@ export interface FileRouteTypes {
     | '/'
     | '/check/$publicCode'
     | '/my-orders/$orderId'
+    | '/account'
     | '/change-password'
     | '/dashboard'
     | '/events'
+    | '/forgot-password'
     | '/login'
     | '/my-orders'
     | '/my-tickets'
     | '/register'
+    | '/reset-password'
     | '/dashboard/events/create'
     | '/dashboard/orders/$orderId'
     | '/events/$eventSlugOrId/checkout'
@@ -250,13 +283,16 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/check/$publicCode'
     | '/my-orders/$orderId'
+    | '/account/'
     | '/change-password/'
     | '/dashboard/'
     | '/events/'
+    | '/forgot-password/'
     | '/login/'
     | '/my-orders/'
     | '/my-tickets/'
     | '/register/'
+    | '/reset-password/'
     | '/dashboard/events/create'
     | '/dashboard/orders/$orderId'
     | '/events/$eventSlugOrId/checkout'
@@ -273,12 +309,15 @@ export interface RootRouteChildren {
   DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   CheckPublicCodeRoute: typeof CheckPublicCodeRoute
   MyOrdersOrderIdRoute: typeof MyOrdersOrderIdRoute
+  AccountIndexRoute: typeof AccountIndexRoute
   ChangePasswordIndexRoute: typeof ChangePasswordIndexRoute
   EventsIndexRoute: typeof EventsIndexRoute
+  ForgotPasswordIndexRoute: typeof ForgotPasswordIndexRoute
   LoginIndexRoute: typeof LoginIndexRoute
   MyOrdersIndexRoute: typeof MyOrdersIndexRoute
   MyTicketsIndexRoute: typeof MyTicketsIndexRoute
   RegisterIndexRoute: typeof RegisterIndexRoute
+  ResetPasswordIndexRoute: typeof ResetPasswordIndexRoute
   EventsEventSlugOrIdCheckoutRoute: typeof EventsEventSlugOrIdCheckoutRoute
   EventsEventSlugOrIdIndexRoute: typeof EventsEventSlugOrIdIndexRoute
 }
@@ -297,6 +336,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password/': {
+      id: '/reset-password/'
+      path: '/reset-password'
+      fullPath: '/reset-password/'
+      preLoaderRoute: typeof ResetPasswordIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register/': {
@@ -327,6 +373,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password/': {
+      id: '/forgot-password/'
+      path: '/forgot-password'
+      fullPath: '/forgot-password/'
+      preLoaderRoute: typeof ForgotPasswordIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/': {
       id: '/events/'
       path: '/events'
@@ -346,6 +399,13 @@ declare module '@tanstack/react-router' {
       path: '/change-password'
       fullPath: '/change-password/'
       preLoaderRoute: typeof ChangePasswordIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/': {
+      id: '/account/'
+      path: '/account'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-orders/$orderId': {
@@ -459,12 +519,15 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRouteRoute: DashboardRouteRouteWithChildren,
   CheckPublicCodeRoute: CheckPublicCodeRoute,
   MyOrdersOrderIdRoute: MyOrdersOrderIdRoute,
+  AccountIndexRoute: AccountIndexRoute,
   ChangePasswordIndexRoute: ChangePasswordIndexRoute,
   EventsIndexRoute: EventsIndexRoute,
+  ForgotPasswordIndexRoute: ForgotPasswordIndexRoute,
   LoginIndexRoute: LoginIndexRoute,
   MyOrdersIndexRoute: MyOrdersIndexRoute,
   MyTicketsIndexRoute: MyTicketsIndexRoute,
   RegisterIndexRoute: RegisterIndexRoute,
+  ResetPasswordIndexRoute: ResetPasswordIndexRoute,
   EventsEventSlugOrIdCheckoutRoute: EventsEventSlugOrIdCheckoutRoute,
   EventsEventSlugOrIdIndexRoute: EventsEventSlugOrIdIndexRoute,
 }
