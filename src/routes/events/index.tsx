@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -19,6 +19,7 @@ import { fetchEventsList } from "#/lib/api/ticket-api";
 import { parseSearchDate, toFilterFromDate, toFilterToDate } from "#/lib/dates";
 import { eventsKeys } from "#/lib/query-keys";
 import { buildSiteMeta } from "#/lib/seo";
+import { cn } from "#/lib/utils.ts";
 import { EventCard } from "#/routes/events/-components/event-card";
 
 const searchSchema = z.object({
@@ -81,12 +82,17 @@ function EventsListPage() {
 				from,
 				to,
 			}),
+		placeholderData: keepPreviousData,
 	});
 
 	useErrorToast(
 		query.isError ? query.error : null,
 		"No pudimos cargar los eventos",
 	);
+
+	const isListLoading =
+		query.isLoading || (query.isFetching && query.isPlaceholderData);
+	const hasFreshData = !query.isPlaceholderData || !query.isFetching;
 
 	return (
 		<PublicLayout>
@@ -161,8 +167,12 @@ function EventsListPage() {
 					</form>
 				</PosterSurface>
 
-				{query.isPending ? (
-					<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				{isListLoading ? (
+					<div
+						className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+						aria-busy="true"
+						aria-live="polite"
+					>
 						{[
 							"ev-sk-1",
 							"ev-sk-2",
@@ -184,7 +194,7 @@ function EventsListPage() {
 					/>
 				) : null}
 
-				{query.data && query.data.items.length === 0 ? (
+				{query.data && query.data.items.length === 0 && hasFreshData ? (
 					<EmptyState
 						icon={Search}
 						title="No encontramos esa fecha"
@@ -204,13 +214,19 @@ function EventsListPage() {
 					/>
 				) : null}
 
-				{query.data && query.data.items.length > 0 ? (
+				{!isListLoading && query.data && query.data.items.length > 0 ? (
 					<>
 						<p className="text-sm text-muted-foreground">
 							{query.data.total} evento{query.data.total === 1 ? "" : "s"}{" "}
 							encontrado{query.data.total === 1 ? "" : "s"}
 						</p>
-						<div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+						<div
+							className={cn(
+								"grid gap-6 sm:grid-cols-2 lg:grid-cols-3",
+								query.isFetching && "opacity-60",
+							)}
+							aria-busy={query.isFetching}
+						>
 							{query.data.items.map((ev, index) => (
 								<EventCard
 									key={ev.id}
