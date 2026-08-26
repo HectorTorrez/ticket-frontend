@@ -11,6 +11,10 @@ import {
 } from "#/components/ui/collapsible";
 import type { TicketTier } from "#/lib/api/schemas";
 import { patchTicketType } from "#/lib/api/ticket-api";
+import {
+	optionalLocalDateTimeToIso,
+	toLocalDateTimeInputOrEmpty,
+} from "#/lib/dates";
 import { labelFor, ticketTierLabel } from "#/lib/labels";
 import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
 import { cn } from "#/lib/utils";
@@ -24,6 +28,8 @@ export type EditableTicketType = {
 	price: string;
 	quantityRemaining: number;
 	quantityTotal?: number;
+	saleStartsAt?: string | null;
+	saleEndsAt?: string | null;
 };
 
 type TicketTypeEditorProps = {
@@ -58,6 +64,8 @@ export function TicketTypeEditor({
 	const [name, setName] = useState(ticketType.name);
 	const [price, setPrice] = useState(ticketType.price);
 	const [quantity, setQuantity] = useState(String(total));
+	const [saleStartsAt, setSaleStartsAt] = useState("");
+	const [saleEndsAt, setSaleEndsAt] = useState("");
 
 	useEffect(() => {
 		setTier(ticketType.tier);
@@ -66,6 +74,8 @@ export function TicketTypeEditor({
 		setQuantity(
 			String(ticketType.quantityTotal ?? ticketType.quantityRemaining),
 		);
+		setSaleStartsAt(toLocalDateTimeInputOrEmpty(ticketType.saleStartsAt));
+		setSaleEndsAt(toLocalDateTimeInputOrEmpty(ticketType.saleEndsAt));
 	}, [ticketType]);
 
 	const isDirty = useMemo(
@@ -74,8 +84,10 @@ export function TicketTypeEditor({
 			name !== ticketType.name ||
 			price !== ticketType.price ||
 			quantity !==
-				String(ticketType.quantityTotal ?? ticketType.quantityRemaining),
-		[tier, name, price, quantity, ticketType],
+				String(ticketType.quantityTotal ?? ticketType.quantityRemaining) ||
+			saleStartsAt !== toLocalDateTimeInputOrEmpty(ticketType.saleStartsAt) ||
+			saleEndsAt !== toLocalDateTimeInputOrEmpty(ticketType.saleEndsAt),
+		[tier, name, price, quantity, saleStartsAt, saleEndsAt, ticketType],
 	);
 
 	useEffect(() => {
@@ -90,6 +102,8 @@ export function TicketTypeEditor({
 					name: name.trim(),
 					price: Number(price),
 					quantity: Number(quantity),
+					saleStartsAt: optionalLocalDateTimeToIso(saleStartsAt),
+					saleEndsAt: optionalLocalDateTimeToIso(saleEndsAt),
 				}).then((data) => {
 					onUpdated();
 					return data;
@@ -163,6 +177,10 @@ export function TicketTypeEditor({
 							onNameChange={setName}
 							onPriceChange={setPrice}
 							onQuantityChange={setQuantity}
+							saleStartsAt={saleStartsAt}
+							saleEndsAt={saleEndsAt}
+							onSaleStartsAtChange={setSaleStartsAt}
+							onSaleEndsAtChange={setSaleEndsAt}
 						/>
 						<div className="flex flex-wrap items-center justify-end gap-2 border-t pt-4">
 							<Button

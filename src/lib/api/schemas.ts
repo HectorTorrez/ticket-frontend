@@ -290,6 +290,15 @@ export const ticketsUpdatePayloadSchema = z.object({
 
 export const qrValidateResultSchema = z.object({
 	result: z.enum(["VALID", "ALREADY_USED", "INVALID"]),
+	ticket: z
+		.object({
+			publicCode: z.string(),
+			eventTitle: z.string(),
+			ticketTypeName: z.string(),
+			tier: ticketTierSchema,
+			holderEmail: z.string(),
+		})
+		.optional(),
 });
 
 export const logoutResponseSchema = z.object({

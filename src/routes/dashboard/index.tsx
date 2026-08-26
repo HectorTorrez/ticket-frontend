@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { Badge } from "#/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card";
@@ -7,6 +7,7 @@ import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchDashboardSummary } from "#/lib/api/ticket-api";
 import { dashboardKeys } from "#/lib/query-keys";
+import { cn } from "#/lib/utils";
 
 export const Route = createFileRoute("/dashboard/")({
 	component: DashboardHome,
@@ -18,6 +19,48 @@ function formatMoney(amount: string, currency = "USD") {
 		style: "currency",
 		currency,
 	}).format(Number.isFinite(n) ? n : 0);
+}
+
+function StatCard({
+	label,
+	value,
+	hint,
+	to,
+	search,
+}: {
+	label: string;
+	value: string;
+	hint?: string;
+	to: string;
+	search?: Record<string, string | undefined>;
+}) {
+	const body = (
+		<Card className="feature-card h-full border-border/80 transition-colors hover:border-primary/40 hover:bg-muted/20">
+			<CardHeader className="pb-2">
+				<CardTitle className="text-sm font-medium text-muted-foreground">
+					{label}
+				</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<p className="text-2xl font-semibold tracking-tight">{value}</p>
+				{hint ? (
+					<p className="mt-1 text-xs text-muted-foreground">{hint}</p>
+				) : null}
+			</CardContent>
+		</Card>
+	);
+
+	return (
+		<Link
+			to={to}
+			search={search}
+			className={cn(
+				"block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+			)}
+		>
+			{body}
+		</Link>
+	);
 }
 
 function DashboardHome() {
@@ -48,22 +91,6 @@ function DashboardHome() {
 
 	const d = q.data;
 
-	const stat = (label: string, value: string, hint?: string) => (
-		<Card className="feature-card border-border/80">
-			<CardHeader className="pb-2">
-				<CardTitle className="text-sm font-medium text-muted-foreground">
-					{label}
-				</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<p className="text-2xl font-semibold tracking-tight">{value}</p>
-				{hint ? (
-					<p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-				) : null}
-			</CardContent>
-		</Card>
-	);
-
 	return (
 		<div className="space-y-8">
 			<div>
@@ -76,18 +103,33 @@ function DashboardHome() {
 				</Badge>
 			</div>
 			<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-				{stat("Entradas vendidas", String(d.ticketsSold), "Histórico")}
-				{stat("Ingresos", formatMoney(d.totalRevenue), "Pedidos pagados")}
-				{stat(
-					"Eventos activos",
-					String(d.activeEvents),
-					"Publicados y no finalizados",
-				)}
-				{stat(
-					"Inventario restante",
-					String(d.remainingInventory),
-					"Entradas por vender",
-				)}
+				<StatCard
+					label="Entradas vendidas"
+					value={String(d.ticketsSold)}
+					hint="Ver pedidos pagados"
+					to="/dashboard/orders"
+					search={{ status: "PAID" }}
+				/>
+				<StatCard
+					label="Ingresos"
+					value={formatMoney(d.totalRevenue)}
+					hint="Ver pedidos pagados"
+					to="/dashboard/orders"
+					search={{ status: "PAID" }}
+				/>
+				<StatCard
+					label="Eventos activos"
+					value={String(d.activeEvents)}
+					hint="Publicados y no finalizados"
+					to="/dashboard/events"
+					search={{ published: "true" }}
+				/>
+				<StatCard
+					label="Inventario restante"
+					value={String(d.remainingInventory)}
+					hint="Gestionar eventos"
+					to="/dashboard/events"
+				/>
 			</div>
 		</div>
 	);

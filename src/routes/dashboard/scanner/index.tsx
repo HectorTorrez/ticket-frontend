@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircle2, Loader2, TriangleAlert, XCircle } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-
+import type { z } from "zod";
 import { QrCameraScanner } from "#/components/qr-camera-scanner";
 import type { StatusTone } from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
@@ -18,8 +18,9 @@ import { FieldError } from "#/components/ui/field-message";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import { getUserFacingErrorMessage } from "#/lib/api/errors";
+import type { qrValidateResultSchema } from "#/lib/api/schemas";
 import { validateQrCode } from "#/lib/api/ticket-api";
-import { labelFor, qrResultLabel } from "#/lib/labels";
+import { labelFor, qrResultLabel, ticketTierLabel } from "#/lib/labels";
 import { normalizeTicketCode } from "#/lib/ticket-code";
 import { cn } from "#/lib/utils";
 
@@ -29,10 +30,19 @@ export const Route = createFileRoute("/dashboard/scanner/")({
 
 type ScanResult = "VALID" | "ALREADY_USED" | "INVALID";
 
+type QrTicketContext = NonNullable<
+	z.infer<typeof qrValidateResultSchema>["ticket"]
+>;
+
 type ScanPhase =
 	| { status: "idle" }
 	| { status: "validating"; code: string }
-	| { status: "result"; result: ScanResult; code: string }
+	| {
+			status: "result";
+			result: ScanResult;
+			code: string;
+			ticket?: QrTicketContext;
+	  }
 	| { status: "error"; message: string; code?: string };
 
 const resultCopy: Record<
@@ -74,6 +84,7 @@ function ScannerPage() {
 				status: "result",
 				result: r.result,
 				code: validatedCode,
+				ticket: r.ticket,
 			});
 		},
 		onError: (e) => {
@@ -251,7 +262,11 @@ function ScanResultDialog({
 				) : null}
 
 				{phase.status === "result" ? (
-					<ScanResultBody result={phase.result} onDismiss={onDismiss} />
+					<ScanResultBody
+						result={phase.result}
+						ticket={phase.ticket}
+						onDismiss={onDismiss}
+					/>
 				) : null}
 			</DialogContent>
 		</Dialog>
@@ -260,9 +275,11 @@ function ScanResultDialog({
 
 function ScanResultBody({
 	result,
+	ticket,
 	onDismiss,
 }: {
 	result: ScanResult;
+	ticket?: QrTicketContext;
 	onDismiss: () => void;
 }) {
 	const copy = resultCopy[result];
@@ -299,6 +316,24 @@ function ScanResultBody({
 					{copy.detail}
 				</DialogDescription>
 			</DialogHeader>
+			{ticket ? (
+				<dl className="space-y-2 rounded-lg border border-border/80 bg-muted/30 px-4 py-3 text-sm">
+					<div className="flex justify-between gap-3">
+						<dt className="text-muted-foreground">Evento</dt>
+						<dd className="text-right font-medium">{ticket.eventTitle}</dd>
+					</div>
+					<div className="flex justify-between gap-3">
+						<dt className="text-muted-foreground">Entrada</dt>
+						<dd className="text-right">
+							{ticket.ticketTypeName} ({labelFor(ticketTierLabel, ticket.tier)})
+						</dd>
+					</div>
+					<div className="flex justify-between gap-3">
+						<dt className="text-muted-foreground">Titular</dt>
+						<dd className="text-right break-all">{ticket.holderEmail}</dd>
+					</div>
+				</dl>
+			) : null}
 			<output
 				className="sr-only"
 				aria-live="polite"

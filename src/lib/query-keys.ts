@@ -39,10 +39,11 @@ export const adminOrdersKeys = {
 		page: number;
 		limit: number;
 		status?: string;
-		userId?: string;
+		q?: string;
 		sortBy?: string;
 		sortDirection?: "asc" | "desc" | "default";
 	}) => [...adminOrdersKeys.all, "list", params] as const,
+	detail: (id: string) => [...adminOrdersKeys.all, "detail", id] as const,
 };
 
 export const ticketsKeys = {

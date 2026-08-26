@@ -12,7 +12,7 @@
  *
  * **Admin (`ADMIN` + Bearer)** — `GET` `/admin/events` (drafts + published); `POST` `/events`; `PATCH|DELETE` `/events/:id`;
  * `POST` publish/unpublish/banner; `POST` `/events/:eventId/ticket-types`; `PATCH|DELETE` `/ticket-types/:id`;
- * `GET` `/admin/orders`, `/admin/users`, `/dashboard/summary`; `POST` `/admin/users`,
+ * `GET` `/admin/orders`, `/admin/orders/:id`, `/admin/users`, `/dashboard/summary`; `POST` `/admin/users`,
  * `/admin/users/reset-password`, `/admin/users/:id/reset-password`; `PATCH` `/admin/users/:id/status`;
  * `DELETE` `/admin/users/:id`; `POST` `/qr/validate`.
  *
@@ -446,11 +446,17 @@ export function ticketQrImageUrl(publicCode: string, origin?: string): string {
 	return `${getApiV1Prefix()}/tickets/${enc}/qr${qs ? `?${qs}` : ""}`;
 }
 
+export function ticketPdfUrl(publicCode: string): string {
+	const enc = encodeURIComponent(publicCode);
+	return `${getApiV1Prefix()}/tickets/${enc}/pdf`;
+}
+
 export async function fetchAdminOrders(params: {
 	page?: number;
 	limit?: number;
 	status?: string;
 	userId?: string;
+	q?: string;
 	sortBy?: string;
 	sortOrder?: "asc" | "desc";
 }) {
@@ -459,6 +465,7 @@ export async function fetchAdminOrders(params: {
 	if (params.limit != null) sp.set("limit", String(params.limit));
 	if (params.status) sp.set("status", params.status);
 	if (params.userId) sp.set("userId", params.userId);
+	if (params.q) sp.set("q", params.q);
 	if (params.sortBy) sp.set("sortBy", params.sortBy);
 	if (params.sortOrder) sp.set("sortOrder", params.sortOrder);
 	const qs = sp.toString();
@@ -466,6 +473,10 @@ export async function fetchAdminOrders(params: {
 		`/admin/orders${qs ? `?${qs}` : ""}`,
 		paginatedAdminOrdersSchema,
 	);
+}
+
+export async function fetchAdminOrder(orderId: string) {
+	return apiRequest(`/admin/orders/${orderId}`, adminOrderItemSchema);
 }
 
 export async function fetchDashboardSummary() {

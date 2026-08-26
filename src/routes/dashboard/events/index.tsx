@@ -5,6 +5,7 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { CalendarDays, Plus } from "lucide-react";
 import type { z as zod } from "zod";
 import { z } from "zod";
 
@@ -15,9 +16,11 @@ import {
 import { MobileSortSelect } from "#/components/admin/mobile-sort-select";
 import { SortableTableHead } from "#/components/admin/sortable-table-head";
 import { TableExportMenu } from "#/components/admin/table-export-menu";
+import { EmptyState } from "#/components/empty-state";
 import { ListPagination } from "#/components/list-pagination";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
+import { Input } from "#/components/ui/input";
 import { Skeleton } from "#/components/ui/skeleton";
 import { Switch } from "#/components/ui/switch";
 import {
@@ -38,6 +41,7 @@ import {
 	publishEvent,
 	unpublishEvent,
 } from "#/lib/api/ticket-api";
+import { toFilterFromDate, toFilterToDate } from "#/lib/dates";
 import type { ExportColumn } from "#/lib/export/table-export";
 import { eventsKeys } from "#/lib/query-keys";
 import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
@@ -48,6 +52,10 @@ type EventListItem = zod.infer<typeof eventListItemSchema>;
 const searchSchema = z.object({
 	page: z.coerce.number().catch(1),
 	limit: z.coerce.number().catch(10),
+	q: z.string().optional(),
+	published: z.enum(["", "true", "false"]).optional(),
+	from: z.string().optional(),
+	to: z.string().optional(),
 	sortBy: z
 		.enum(["title", "slug", "startsAt", "published", "createdAt"])
 		.catch(adminEventsSortDefaults.sortBy),
@@ -121,10 +129,26 @@ function EventVisibilityControl({ event }: { event: EventListItem }) {
 	);
 }
 
+function parsePublishedFilter(value?: string) {
+	if (value === "true") return true;
+	if (value === "false") return false;
+	return undefined;
+}
+
 function DashboardEventsList() {
 	const search = Route.useSearch();
-	const { page, limit, sortBy, sortDirection } = search;
+	const {
+		page,
+		limit,
+		q: searchQ,
+		published,
+		from,
+		to,
+		sortBy,
+		sortDirection,
+	} = search;
 	const navigate = Route.useNavigate();
+	const publishedFilter = parsePublishedFilter(published);
 	const effectiveSort = resolveTableSort(
 		sortBy,
 		sortDirection,
@@ -135,6 +159,10 @@ function DashboardEventsList() {
 		queryKey: eventsKeys.adminList({
 			page,
 			limit,
+			q: searchQ,
+			published: publishedFilter,
+			from,
+			to,
 			sortBy,
 			sortDirection,
 		}),
@@ -142,6 +170,10 @@ function DashboardEventsList() {
 			fetchAdminEventsList({
 				page,
 				limit,
+				q: searchQ,
+				published: publishedFilter,
+				from,
+				to,
 				sortBy: effectiveSort.sortBy,
 				sortOrder: effectiveSort.sortOrder,
 			}),
@@ -168,6 +200,10 @@ function DashboardEventsList() {
 			fetchAdminEventsList({
 				page: p,
 				limit: l,
+				q: searchQ,
+				published: publishedFilter,
+				from,
+				to,
 				sortBy: effectiveSort.sortBy,
 				sortOrder: effectiveSort.sortOrder,
 			}),
@@ -202,13 +238,112 @@ function DashboardEventsList() {
 				</div>
 			</div>
 
+			<form
+				className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end"
+				onSubmit={(e) => {
+					e.preventDefault();
+					const fd = new FormData(e.currentTarget);
+					const nextQ = String(fd.get("q") || "").trim();
+					const nextPublished = String(fd.get("published") || "");
+					const nextFrom = String(fd.get("from") || "");
+					const nextTo = String(fd.get("to") || "");
+					navigate({
+						search: {
+							page: 1,
+							limit,
+							sortBy,
+							sortDirection,
+							q: nextQ || undefined,
+							published:
+								nextPublished === "true" || nextPublished === "false"
+									? nextPublished
+									: undefined,
+							from: nextFrom
+								? toFilterFromDate(new Date(`${nextFrom}T00:00:00`))
+								: undefined,
+							to: nextTo
+								? toFilterToDate(new Date(`${nextTo}T00:00:00`))
+								: undefined,
+						},
+					});
+				}}
+			>
+				<div className="w-full space-y-1 sm:w-auto">
+					<label className="text-xs text-muted-foreground" htmlFor="ev-q">
+						Buscar
+					</label>
+					<Input
+						id="ev-q"
+						name="q"
+						type="search"
+						defaultValue={searchQ ?? ""}
+						placeholder="Título o enlace"
+						className="h-12 w-full text-sm sm:w-64"
+					/>
+				</div>
+				<div className="w-full space-y-1 sm:w-auto">
+					<label className="text-xs text-muted-foreground" htmlFor="ev-pub">
+						Visibilidad
+					</label>
+					<select
+						id="ev-pub"
+						name="published"
+						defaultValue={published ?? ""}
+						className="h-12 w-full cursor-pointer rounded-md border border-input bg-background px-3 text-sm sm:w-auto"
+					>
+						<option value="">Todos</option>
+						<option value="true">En catálogo</option>
+						<option value="false">Ocultos</option>
+					</select>
+				</div>
+				<div className="w-full space-y-1 sm:w-auto">
+					<label className="text-xs text-muted-foreground" htmlFor="ev-from">
+						Desde
+					</label>
+					<Input
+						id="ev-from"
+						name="from"
+						type="date"
+						defaultValue={from ? from.slice(0, 10) : ""}
+						className="h-12 w-full text-sm sm:w-auto"
+					/>
+				</div>
+				<div className="w-full space-y-1 sm:w-auto">
+					<label className="text-xs text-muted-foreground" htmlFor="ev-to">
+						Hasta
+					</label>
+					<Input
+						id="ev-to"
+						name="to"
+						type="date"
+						defaultValue={to ? to.slice(0, 10) : ""}
+						className="h-12 w-full text-sm sm:w-auto"
+					/>
+				</div>
+				<Button type="submit" variant="outline" className="w-full sm:w-auto">
+					Aplicar
+				</Button>
+			</form>
+
 			{q.isLoading ? <Skeleton className="h-64 w-full rounded-xl" /> : null}
 			{q.isError ? (
 				<p className="text-muted-foreground">No pudimos cargar los eventos.</p>
 			) : null}
 
 			{q.data && q.data.items.length === 0 ? (
-				<p className="text-muted-foreground">Aún no hay eventos.</p>
+				<EmptyState
+					icon={CalendarDays}
+					title="Aún no hay eventos"
+					description="Crea tu primer evento para publicar entradas y empezar a vender."
+					action={
+						<Button asChild>
+							<Link to="/dashboard/events/create">
+								<Plus className="mr-2 size-4" aria-hidden />
+								Crear evento
+							</Link>
+						</Button>
+					}
+				/>
 			) : null}
 
 			{q.data && q.data.items.length > 0 ? (

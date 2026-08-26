@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 
 import {
@@ -35,7 +35,7 @@ const searchSchema = z.object({
 	page: z.coerce.number().catch(1),
 	limit: z.coerce.number().catch(20),
 	status: z.string().optional(),
-	userId: z.string().optional(),
+	q: z.string().optional(),
 	sortBy: z
 		.enum(["id", "createdAt", "status", "totalAmount", "userEmail"])
 		.catch(adminOrdersSortDefaults.sortBy),
@@ -80,7 +80,7 @@ export const Route = createFileRoute("/dashboard/orders/")({
 
 function AdminOrdersPage() {
 	const search = Route.useSearch();
-	const { page, limit, status, userId, sortBy, sortDirection } = search;
+	const { page, limit, status, q: customerQ, sortBy, sortDirection } = search;
 	const navigate = Route.useNavigate();
 	const effectiveSort = resolveTableSort(
 		sortBy,
@@ -93,7 +93,7 @@ function AdminOrdersPage() {
 			page,
 			limit,
 			status,
-			userId,
+			customerQ,
 			sortBy,
 			sortDirection,
 		}),
@@ -102,7 +102,7 @@ function AdminOrdersPage() {
 				page,
 				limit,
 				status,
-				userId,
+				q: customerQ,
 				sortBy: effectiveSort.sortBy,
 				sortOrder: effectiveSort.sortOrder,
 			}),
@@ -130,7 +130,7 @@ function AdminOrdersPage() {
 				page: p,
 				limit: l,
 				status,
-				userId,
+				q: customerQ,
 				sortBy: effectiveSort.sortBy,
 				sortOrder: effectiveSort.sortOrder,
 			}),
@@ -174,7 +174,7 @@ function AdminOrdersPage() {
 							sortBy,
 							sortDirection,
 							status: String(fd.get("status") || "") || undefined,
-							userId: String(fd.get("userId") || "") || undefined,
+							q: String(fd.get("q") || "") || undefined,
 						},
 					});
 				}}
@@ -198,13 +198,13 @@ function AdminOrdersPage() {
 					</select>
 				</div>
 				<div className="w-full space-y-1 sm:w-auto">
-					<label className="text-xs text-muted-foreground" htmlFor="uid">
-						Correo o ID de cliente
+					<label className="text-xs text-muted-foreground" htmlFor="cust-q">
+						Correo del cliente
 					</label>
 					<Input
-						id="uid"
-						name="userId"
-						defaultValue={userId ?? ""}
+						id="cust-q"
+						name="q"
+						defaultValue={customerQ ?? ""}
 						placeholder="cliente@ejemplo.com"
 						className="h-12 w-full text-sm sm:w-64"
 					/>
@@ -271,7 +271,13 @@ function AdminOrdersPage() {
 							<MobileRecordCard key={o.id}>
 								<div className="flex items-start justify-between gap-3">
 									<div className="min-w-0">
-										<p className="font-medium">{formatOrderRef(o.id)}</p>
+										<Link
+											to="/dashboard/orders/$orderId"
+											params={{ orderId: o.id }}
+											className="font-medium text-primary hover:underline"
+										>
+											{formatOrderRef(o.id)}
+										</Link>
 										<p className="mt-1 break-all text-sm text-muted-foreground">
 											{o.user.email}
 										</p>
@@ -337,7 +343,13 @@ function AdminOrdersPage() {
 								{q.data.items.map((o) => (
 									<TableRow key={o.id}>
 										<TableCell className="text-sm font-medium">
-											{formatOrderRef(o.id)}
+											<Link
+												to="/dashboard/orders/$orderId"
+												params={{ orderId: o.id }}
+												className="text-primary hover:underline"
+											>
+												{formatOrderRef(o.id)}
+											</Link>
 										</TableCell>
 										<TableCell className="max-w-0 truncate text-sm">
 											{o.user.email}

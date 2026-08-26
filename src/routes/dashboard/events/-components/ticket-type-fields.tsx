@@ -1,3 +1,4 @@
+import { DateTimePicker } from "#/components/ui/datetime-picker";
 import { Input } from "#/components/ui/input";
 import { Label } from "#/components/ui/label";
 import {
@@ -28,6 +29,10 @@ type TicketTypeFieldsProps = {
 	minQuantity?: number;
 	soldHint?: string;
 	idPrefix?: string;
+	saleStartsAt?: string;
+	saleEndsAt?: string;
+	onSaleStartsAtChange?: (value: string) => void;
+	onSaleEndsAtChange?: (value: string) => void;
 };
 
 export function TicketTypeFields({
@@ -42,6 +47,10 @@ export function TicketTypeFields({
 	minQuantity = 1,
 	soldHint,
 	idPrefix = "tt",
+	saleStartsAt = "",
+	saleEndsAt = "",
+	onSaleStartsAtChange,
+	onSaleEndsAtChange,
 }: TicketTypeFieldsProps) {
 	return (
 		<div className="grid gap-3 sm:grid-cols-2">
@@ -104,6 +113,30 @@ export function TicketTypeFields({
 					<p className="text-xs text-muted-foreground">{soldHint}</p>
 				) : null}
 			</div>
+			{onSaleStartsAtChange && onSaleEndsAtChange ? (
+				<>
+					<div className="space-y-2">
+						<Label htmlFor={`${idPrefix}-sale-start`}>
+							Inicio de venta (opcional)
+						</Label>
+						<DateTimePicker
+							id={`${idPrefix}-sale-start`}
+							value={saleStartsAt}
+							onChange={onSaleStartsAtChange}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor={`${idPrefix}-sale-end`}>
+							Fin de venta (opcional)
+						</Label>
+						<DateTimePicker
+							id={`${idPrefix}-sale-end`}
+							value={saleEndsAt}
+							onChange={onSaleEndsAtChange}
+						/>
+					</div>
+				</>
+			) : null}
 		</div>
 	);
 }

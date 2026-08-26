@@ -26,3 +26,14 @@ export function toFilterToDate(date: Date): string {
 	copy.setHours(23, 59, 59, 999);
 	return copy.toISOString();
 }
+
+export function optionalLocalDateTimeToIso(value: string): string | undefined {
+	if (!value.trim()) return undefined;
+	const date = parseLocalDateTime(value);
+	return date?.toISOString();
+}
+
+export function toLocalDateTimeInputOrEmpty(iso?: string | null) {
+	if (!iso) return "";
+	return toLocalDateTimeInput(new Date(iso));
+}

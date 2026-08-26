@@ -25,6 +25,10 @@ type AddTicketTypeCollapsibleProps = {
 	canSubmit: boolean;
 	isPending: boolean;
 	defaultOpen?: boolean;
+	saleStartsAt?: string;
+	saleEndsAt?: string;
+	onSaleStartsAtChange?: (value: string) => void;
+	onSaleEndsAtChange?: (value: string) => void;
 };
 
 export function AddTicketTypeCollapsible({
@@ -40,6 +44,10 @@ export function AddTicketTypeCollapsible({
 	canSubmit,
 	isPending,
 	defaultOpen = false,
+	saleStartsAt = "",
+	saleEndsAt = "",
+	onSaleStartsAtChange,
+	onSaleEndsAtChange,
 }: AddTicketTypeCollapsibleProps) {
 	const [open, setOpen] = useState(defaultOpen);
 
@@ -79,6 +87,10 @@ export function AddTicketTypeCollapsible({
 							onNameChange={onNameChange}
 							onPriceChange={onPriceChange}
 							onQuantityChange={onQuantityChange}
+							saleStartsAt={saleStartsAt}
+							saleEndsAt={saleEndsAt}
+							onSaleStartsAtChange={onSaleStartsAtChange}
+							onSaleEndsAtChange={onSaleEndsAtChange}
 						/>
 						<Button
 							type="button"

@@ -32,7 +32,7 @@ import {
 	unpublishEvent,
 	uploadEventBanner,
 } from "#/lib/api/ticket-api";
-import { toLocalDateTimeInput } from "#/lib/dates";
+import { optionalLocalDateTimeToIso, toLocalDateTimeInput } from "#/lib/dates";
 import { eventsKeys } from "#/lib/query-keys";
 import { apiErrorMessage, toastMutation } from "#/lib/toast-mutation";
 
@@ -166,6 +166,8 @@ function EditEventPage() {
 	const [ttName, setTtName] = useState("");
 	const [ttPrice, setTtPrice] = useState("0");
 	const [ttQty, setTtQty] = useState("100");
+	const [ttSaleStart, setTtSaleStart] = useState("");
+	const [ttSaleEnd, setTtSaleEnd] = useState("");
 
 	const addTier = useMutation({
 		mutationFn: () =>
@@ -175,12 +177,16 @@ function EditEventPage() {
 					name: ttName.trim(),
 					price: Number(ttPrice),
 					quantity: Number(ttQty),
+					saleStartsAt: optionalLocalDateTimeToIso(ttSaleStart),
+					saleEndsAt: optionalLocalDateTimeToIso(ttSaleEnd),
 				}).then((data) => {
 					void q.refetch();
 					setTtName("");
 					setTier("GENERAL");
 					setTtPrice("0");
 					setTtQty("100");
+					setTtSaleStart("");
+					setTtSaleEnd("");
 					return data;
 				}),
 				{
@@ -442,6 +448,10 @@ function EditEventPage() {
 					onNameChange={setTtName}
 					onPriceChange={setTtPrice}
 					onQuantityChange={setTtQty}
+					saleStartsAt={ttSaleStart}
+					saleEndsAt={ttSaleEnd}
+					onSaleStartsAtChange={setTtSaleStart}
+					onSaleEndsAtChange={setTtSaleEnd}
 					canSubmit={canAddTier}
 					isPending={addTier.isPending}
 					onSubmit={() => addTier.mutate()}

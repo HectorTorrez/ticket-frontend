@@ -26,6 +26,7 @@ import { Route as DashboardScannerIndexRouteImport } from './routes/dashboard/sc
 import { Route as DashboardOrdersIndexRouteImport } from './routes/dashboard/orders/index'
 import { Route as DashboardEventsIndexRouteImport } from './routes/dashboard/events/index'
 import { Route as EventsEventSlugOrIdCheckoutRouteImport } from './routes/events/$eventSlugOrId/checkout'
+import { Route as DashboardOrdersOrderIdRouteImport } from './routes/dashboard/orders/$orderId'
 import { Route as DashboardEventsCreateRouteImport } from './routes/dashboard/events/create'
 import { Route as DashboardEventsEventIdEditRouteImport } from './routes/dashboard/events/$eventId/edit'
 
@@ -116,6 +117,11 @@ const EventsEventSlugOrIdCheckoutRoute =
     path: '/events/$eventSlugOrId/checkout',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DashboardOrdersOrderIdRoute = DashboardOrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardEventsCreateRoute = DashboardEventsCreateRouteImport.update({
   id: '/events/create',
   path: '/events/create',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/my-tickets/': typeof MyTicketsIndexRoute
   '/register/': typeof RegisterIndexRoute
   '/dashboard/events/create': typeof DashboardEventsCreateRoute
+  '/dashboard/orders/$orderId': typeof DashboardOrdersOrderIdRoute
   '/events/$eventSlugOrId/checkout': typeof EventsEventSlugOrIdCheckoutRoute
   '/dashboard/events/': typeof DashboardEventsIndexRoute
   '/dashboard/orders/': typeof DashboardOrdersIndexRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/my-tickets': typeof MyTicketsIndexRoute
   '/register': typeof RegisterIndexRoute
   '/dashboard/events/create': typeof DashboardEventsCreateRoute
+  '/dashboard/orders/$orderId': typeof DashboardOrdersOrderIdRoute
   '/events/$eventSlugOrId/checkout': typeof EventsEventSlugOrIdCheckoutRoute
   '/dashboard/events': typeof DashboardEventsIndexRoute
   '/dashboard/orders': typeof DashboardOrdersIndexRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/my-tickets/': typeof MyTicketsIndexRoute
   '/register/': typeof RegisterIndexRoute
   '/dashboard/events/create': typeof DashboardEventsCreateRoute
+  '/dashboard/orders/$orderId': typeof DashboardOrdersOrderIdRoute
   '/events/$eventSlugOrId/checkout': typeof EventsEventSlugOrIdCheckoutRoute
   '/dashboard/events/': typeof DashboardEventsIndexRoute
   '/dashboard/orders/': typeof DashboardOrdersIndexRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/my-tickets/'
     | '/register/'
     | '/dashboard/events/create'
+    | '/dashboard/orders/$orderId'
     | '/events/$eventSlugOrId/checkout'
     | '/dashboard/events/'
     | '/dashboard/orders/'
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/my-tickets'
     | '/register'
     | '/dashboard/events/create'
+    | '/dashboard/orders/$orderId'
     | '/events/$eventSlugOrId/checkout'
     | '/dashboard/events'
     | '/dashboard/orders'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/my-tickets/'
     | '/register/'
     | '/dashboard/events/create'
+    | '/dashboard/orders/$orderId'
     | '/events/$eventSlugOrId/checkout'
     | '/dashboard/events/'
     | '/dashboard/orders/'
@@ -392,6 +404,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsEventSlugOrIdCheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/orders/$orderId': {
+      id: '/dashboard/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/dashboard/orders/$orderId'
+      preLoaderRoute: typeof DashboardOrdersOrderIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/events/create': {
       id: '/dashboard/events/create'
       path: '/events/create'
@@ -412,6 +431,7 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardEventsCreateRoute: typeof DashboardEventsCreateRoute
+  DashboardOrdersOrderIdRoute: typeof DashboardOrdersOrderIdRoute
   DashboardEventsIndexRoute: typeof DashboardEventsIndexRoute
   DashboardOrdersIndexRoute: typeof DashboardOrdersIndexRoute
   DashboardScannerIndexRoute: typeof DashboardScannerIndexRoute
@@ -422,6 +442,7 @@ interface DashboardRouteRouteChildren {
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardEventsCreateRoute: DashboardEventsCreateRoute,
+  DashboardOrdersOrderIdRoute: DashboardOrdersOrderIdRoute,
   DashboardEventsIndexRoute: DashboardEventsIndexRoute,
   DashboardOrdersIndexRoute: DashboardOrdersIndexRoute,
   DashboardScannerIndexRoute: DashboardScannerIndexRoute,
