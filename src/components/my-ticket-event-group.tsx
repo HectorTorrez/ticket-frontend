@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, Download, MapPin } from "lucide-react";
 
 import {
 	StatusBadge,
@@ -9,6 +9,7 @@ import {
 import { TicketDateStub } from "#/components/ticket-date-stub";
 import { TicketQrCode } from "#/components/ticket-qr-code";
 import { Button } from "#/components/ui/button";
+import { ticketPdfUrl } from "#/lib/api/ticket-api";
 import { formatTicketCode, labelFor, ticketStatusLabel } from "#/lib/labels";
 import {
 	getEventWalletNotice,
@@ -128,6 +129,16 @@ export function MyTicketEventGroup({
 										>
 											Ver pase completo
 										</Link>
+									</Button>
+									<Button variant="link" size="sm" className="text-xs" asChild>
+										<a
+											href={ticketPdfUrl(ticket.publicCode)}
+											target="_blank"
+											rel="noopener noreferrer"
+										>
+											<Download className="mr-1 inline size-3" aria-hidden />
+											Descargar PDF
+										</a>
 									</Button>
 								</div>
 							</li>

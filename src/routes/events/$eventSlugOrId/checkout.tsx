@@ -215,6 +215,8 @@ function CheckoutPage() {
 	}, [eventQ.data, lines]);
 
 	const currentStep = order?.status === "PAID" ? 3 : order ? 2 : 1;
+	const reservationExpired =
+		order?.status === "PENDING" && secondsLeft !== null && secondsLeft <= 0;
 
 	const isStepComplete = (step: number) => {
 		if (step === 1) return currentStep > 1;
@@ -429,7 +431,26 @@ function CheckoutPage() {
 							}).format(Number(order.totalAmount))}
 						</p>
 
-						{order.status === "PENDING" ? (
+						{order.status === "PENDING" && reservationExpired ? (
+							<StatusPanel
+								tone="warning"
+								title="Tu reserva expiró"
+								description="El tiempo para completar el pago terminó. Vuelve al evento para reservar de nuevo."
+								className="mt-6"
+								action={
+									<Button variant="outline" size="sm" asChild>
+										<Link
+											to="/events/$eventSlugOrId"
+											params={{ eventSlugOrId }}
+										>
+											Volver al evento
+										</Link>
+									</Button>
+								}
+							/>
+						) : null}
+
+						{order.status === "PENDING" && !reservationExpired ? (
 							<div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
 								<Button
 									size="lg"

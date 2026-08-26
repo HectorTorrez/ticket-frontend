@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	Calendar,
 	CheckCircle2,
+	Download,
 	MapPin,
 	ShieldCheck,
 	Ticket,
@@ -21,7 +22,11 @@ import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { usePageEntrance } from "#/hooks/use-auth-entrance";
 import { useErrorToast } from "#/hooks/use-error-toast";
-import { fetchPublicTicket, validateQrCode } from "#/lib/api/ticket-api";
+import {
+	fetchPublicTicket,
+	ticketPdfUrl,
+	validateQrCode,
+} from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
 import {
 	formatTicketCode,
@@ -175,6 +180,16 @@ function CheckTicketPage() {
 							<span className="font-ticket-code text-xs uppercase tracking-wider text-muted-foreground">
 								{formatTicketCode(ticket.publicCode)}
 							</span>
+							<Button variant="outline" size="sm" className="mt-2" asChild>
+								<a
+									href={ticketPdfUrl(ticket.publicCode)}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<Download className="mr-2 size-4" aria-hidden />
+									Descargar PDF
+								</a>
+							</Button>
 						</div>
 					</article>
 				) : null}

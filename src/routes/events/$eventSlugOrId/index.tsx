@@ -25,6 +25,11 @@ import { getSession, isCustomer } from "#/lib/auth/session";
 import { labelFor, ticketTierLabel } from "#/lib/labels";
 import { eventsKeys } from "#/lib/query-keys";
 import { buildEventMeta, buildSiteMeta, eventJsonLd } from "#/lib/seo";
+import {
+	formatSaleWindowLabel,
+	getTicketSalePhase,
+	isTicketSaleOpen,
+} from "#/lib/ticket-sale-window";
 import { cn } from "#/lib/utils";
 import { eventBannerTransitionName } from "#/lib/view-transition";
 import { useInventorySocket } from "#/routes/events/$eventSlugOrId/-hooks/use-inventory-socket";
@@ -202,6 +207,9 @@ function EventDetailPage() {
 							<ul className="mt-5 space-y-3">
 								{ev.ticketTypes.map((t) => {
 									const selected = (qty[t.id] ?? 0) > 0;
+									const salePhase = getTicketSalePhase(t);
+									const saleOpen = isTicketSaleOpen(t);
+									const saleLabel = formatSaleWindowLabel(t, salePhase);
 									return (
 										<li
 											key={t.id}
@@ -246,12 +254,17 @@ function EventDetailPage() {
 													currency: "USD",
 												}).format(Number(t.price))}
 											</p>
+											{saleLabel ? (
+												<p className="mt-2 text-xs text-muted-foreground">
+													{saleLabel}
+												</p>
+											) : null}
 											<div className="mt-3 flex items-center gap-2">
 												<Button
 													type="button"
 													variant="outline"
 													size="icon-sm"
-													disabled={(qty[t.id] ?? 0) <= 0}
+													disabled={(qty[t.id] ?? 0) <= 0 || !saleOpen}
 													onClick={() =>
 														setQuantity(t.id, (qty[t.id] ?? 0) - 1)
 													}
@@ -266,7 +279,9 @@ function EventDetailPage() {
 													type="button"
 													variant="outline"
 													size="icon-sm"
-													disabled={(qty[t.id] ?? 0) >= t.quantityRemaining}
+													disabled={
+														!saleOpen || (qty[t.id] ?? 0) >= t.quantityRemaining
+													}
 													onClick={() =>
 														setQuantity(t.id, (qty[t.id] ?? 0) + 1)
 													}
