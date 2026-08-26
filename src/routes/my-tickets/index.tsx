@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Ticket } from "lucide-react";
 import { useMemo } from "react";
@@ -18,6 +18,7 @@ import { fetchMyTickets } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
 import { groupTicketsByEvent } from "#/lib/my-ticket-event-state";
 import { ticketsKeys } from "#/lib/query-keys";
+import { cn } from "#/lib/utils.ts";
 
 const searchSchema = z.object({
 	when: z.enum(["upcoming", "past", "all"]).optional(),
@@ -60,6 +61,7 @@ function MyTicketsPage() {
 	const q = useQuery({
 		queryKey: ticketsKeys.mine({ when, page, limit }),
 		queryFn: () => fetchMyTickets({ when, page, limit }),
+		placeholderData: keepPreviousData,
 	});
 
 	useErrorToast(q.isError ? q.error : null, "No pudimos cargar tus entradas");
@@ -81,6 +83,9 @@ function MyTicketsPage() {
 		hasAnyTickets &&
 		filteredCountForWhen === 0 &&
 		when !== "all";
+	const showFilters = hasAnyTickets;
+	const isListLoading = q.isLoading || (q.isFetching && q.isPlaceholderData);
+	const hasFreshData = !q.isPlaceholderData || !q.isFetching;
 
 	return (
 		<PublicLayout>
@@ -96,7 +101,7 @@ function MyTicketsPage() {
 					}
 				/>
 
-				{hasAnyTickets ? (
+				{showFilters ? (
 					<Tabs
 						value={when}
 						onValueChange={(value) => {
@@ -120,8 +125,8 @@ function MyTicketsPage() {
 					</Tabs>
 				) : null}
 
-				{q.isPending ? (
-					<div className="grid gap-6">
+				{isListLoading ? (
+					<div className="grid gap-6" aria-busy="true" aria-live="polite">
 						<Skeleton className="h-72 rounded-xl" />
 						<Skeleton className="h-72 rounded-xl" />
 					</div>
@@ -135,7 +140,7 @@ function MyTicketsPage() {
 					/>
 				) : null}
 
-				{showGlobalEmpty ? (
+				{showGlobalEmpty && hasFreshData ? (
 					<EmptyState
 						icon={Ticket}
 						title="Aún no tienes pases"
@@ -148,7 +153,7 @@ function MyTicketsPage() {
 					/>
 				) : null}
 
-				{showFilteredEmpty ? (
+				{showFilteredEmpty && hasFreshData ? (
 					<EmptyState
 						icon={Ticket}
 						title={emptyFilterCopy[when].title}
@@ -173,8 +178,11 @@ function MyTicketsPage() {
 					/>
 				) : null}
 
-				{eventGroups.length > 0 ? (
-					<ul className="grid gap-6">
+				{!isListLoading && eventGroups.length > 0 ? (
+					<ul
+						className={cn("grid gap-6", q.isFetching && "opacity-60")}
+						aria-busy={q.isFetching}
+					>
 						{eventGroups.map((group) => (
 							<li key={group.event.id}>
 								<MyTicketEventGroup
@@ -186,7 +194,7 @@ function MyTicketsPage() {
 					</ul>
 				) : null}
 
-				{q.isSuccess && filteredTotal > 0 ? (
+				{q.isSuccess && hasFreshData && filteredTotal > 0 ? (
 					<ListPagination
 						page={page}
 						total={filteredTotal}
