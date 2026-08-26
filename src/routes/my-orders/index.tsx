@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ReceiptText } from "lucide-react";
+import { Clock, ReceiptText } from "lucide-react";
 import { z } from "zod";
 
 import { EmptyState } from "#/components/empty-state";
@@ -31,6 +31,13 @@ export const Route = createFileRoute("/my-orders/")({
 	},
 	component: MyOrdersPage,
 });
+
+function formatWhen(iso: string) {
+	return new Intl.DateTimeFormat("es", {
+		dateStyle: "medium",
+		timeStyle: "short",
+	}).format(new Date(iso));
+}
 
 function MyOrdersPage() {
 	const { page, limit, status } = Route.useSearch();
@@ -125,9 +132,15 @@ function MyOrdersPage() {
 										</div>
 									}
 									aside={
-										<Button variant="outline" className="w-full" asChild>
+										<Button
+											variant={o.status === "PENDING" ? "default" : "outline"}
+											className="w-full"
+											asChild
+										>
 											<Link to="/my-orders/$orderId" params={{ orderId: o.id }}>
-												Ver recibo
+												{o.status === "PENDING"
+													? "Completar pago"
+													: "Ver recibo"}
 											</Link>
 										</Button>
 									}
@@ -157,6 +170,12 @@ function MyOrdersPage() {
 												</li>
 											))}
 										</ul>
+										{o.status === "PENDING" && o.expiresAt ? (
+											<p className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-400">
+												<Clock className="size-4 shrink-0" aria-hidden />
+												Reserva activa hasta {formatWhen(o.expiresAt)}
+											</p>
+										) : null}
 									</div>
 								</TicketStub>
 							</li>
