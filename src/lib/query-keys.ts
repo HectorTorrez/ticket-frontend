@@ -73,3 +73,7 @@ export const adminUsersKeys = {
 		sortDirection?: "asc" | "desc" | "default";
 	}) => [...adminUsersKeys.all, "list", params] as const,
 };
+
+export const accountKeys = {
+	profile: () => ["account", "profile"] as const,
+};

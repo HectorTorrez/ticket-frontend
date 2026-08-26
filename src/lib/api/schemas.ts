@@ -26,6 +26,26 @@ export const userSchema = z.object({
 
 export type User = z.infer<typeof userSchema>;
 
+export const meProfileSchema = z.object({
+	id: z.string().uuid(),
+	email: z.string().email(),
+	role: userRoleSchema,
+	status: userStatusSchema,
+	createdAt: z.string(),
+	updatedAt: z.string(),
+});
+
+export type MeProfile = z.infer<typeof meProfileSchema>;
+
+export const forgotPasswordResponseSchema = z.object({
+	message: z.string(),
+	resetUrl: z.string().url().optional(),
+});
+
+export type ForgotPasswordResponse = z.infer<
+	typeof forgotPasswordResponseSchema
+>;
+
 export const adminUserSchema = z.object({
 	id: z.string().uuid(),
 	email: z.string().email(),

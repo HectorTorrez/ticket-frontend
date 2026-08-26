@@ -1,11 +1,11 @@
 /**
  * HTTP paths are relative to `/api/v1` (`getApiV1Prefix()`). OpenAPI UI: `GET /docs` on the API host (no `/api/v1`).
  *
- * **Public (no JWT)** — `POST` `/auth/register|login|refresh|logout`, `GET` `/health`, `/health/ready`,
+ * **Public (no JWT)** — `POST` `/auth/register|login|refresh|logout|forgot-password|reset-password`, `GET` `/health`, `/health/ready`,
  * `/events`, `/events/:slugOrId`, `/tickets/:publicCode`, `/tickets/:publicCode/qr`. Catalog `GET /events*`
  * ignores `Authorization` (still published-only on `:slugOrId`).
  *
- * **Authenticated (any role + Bearer)** — `POST` `/auth/change-password`.
+ * **Authenticated (any role + Bearer)** — `POST` `/auth/change-password`; `GET` `/me`.
  *
  * **Customer (`CUSTOMER` + Bearer)** — `GET` `/me/orders`, `/me/orders/:id`, `/me/tickets`; `POST` `/orders`,
  * `/orders/:id/mock-pay`, `/orders/:id/cancel`. No `/me/events`; use public `/events` routes to browse.
@@ -32,9 +32,11 @@ import {
 	deleteResponseSchema,
 	eventDetailSchema,
 	type eventListItemSchema,
+	forgotPasswordResponseSchema,
 	healthOkSchema,
 	healthReadySchema,
 	logoutResponseSchema,
+	meProfileSchema,
 	myTicketsListSchema,
 	orderDetailSchema,
 	paginatedAdminOrdersSchema,
@@ -79,6 +81,29 @@ export async function changePasswordRequest(body: {
 		method: "POST",
 		body,
 	});
+}
+
+export async function forgotPasswordRequest(body: { email: string }) {
+	return apiRequest("/auth/forgot-password", forgotPasswordResponseSchema, {
+		method: "POST",
+		body,
+		skipAuth: true,
+	});
+}
+
+export async function resetPasswordRequest(body: {
+	token: string;
+	newPassword: string;
+}) {
+	return apiRequest("/auth/reset-password", authResponseSchema, {
+		method: "POST",
+		body,
+		skipAuth: true,
+	});
+}
+
+export async function fetchMe() {
+	return apiRequest("/me", meProfileSchema);
 }
 
 export async function adminResetPasswordRequest(body: { email: string }) {
