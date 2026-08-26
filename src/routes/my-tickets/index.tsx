@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from "#/components/ui/tabs";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMyTickets } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
+import { eventsListDefaultSearch } from "#/lib/default-search";
 import { groupTicketsByEvent } from "#/lib/my-ticket-event-state";
 import { ticketsKeys } from "#/lib/query-keys";
 
@@ -142,7 +143,9 @@ function MyTicketsPage() {
 						description="Cuando compres entradas, aparecerán aquí listas para escanear."
 						action={
 							<Button asChild>
-								<Link to="/events">Explorar eventos</Link>
+								<Link to="/events" search={eventsListDefaultSearch}>
+									Explorar eventos
+								</Link>
 							</Button>
 						}
 					/>

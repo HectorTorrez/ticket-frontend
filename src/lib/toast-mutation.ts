@@ -16,10 +16,11 @@ type ToastMutationMessages<T> = {
 export function toastMutation<T>(
 	promise: Promise<T>,
 	messages: ToastMutationMessages<T>,
-) {
-	return toast.promise(promise, {
+): Promise<T> {
+	toast.promise(promise, {
 		loading: messages.loading,
 		success: messages.success,
 		error: messages.error ?? ((error) => apiErrorMessage(error, "Error")),
 	});
+	return promise;
 }

@@ -22,6 +22,7 @@ import { useErrorToast } from "#/hooks/use-error-toast";
 import { useTransitionClick } from "#/hooks/use-transition-navigate";
 import { fetchEventDetail } from "#/lib/api/ticket-api";
 import { getSession, isCustomer } from "#/lib/auth/session";
+import { eventsListDefaultSearch } from "#/lib/default-search";
 import { isEventEnded } from "#/lib/event-sale-state";
 import { labelFor, ticketTierLabel } from "#/lib/labels";
 import { eventsKeys } from "#/lib/query-keys";
@@ -54,7 +55,10 @@ export const Route = createFileRoute("/events/$eventSlugOrId/")({
 function EventDetailPage() {
 	const { eventSlugOrId } = Route.useParams();
 	const navigate = useNavigate();
-	const backToEvents = useTransitionClick({ to: "/events" }, "back");
+	const backToEvents = useTransitionClick(
+		{ to: "/events", search: eventsListDefaultSearch },
+		"back",
+	);
 
 	const q = useQuery({
 		queryKey: eventsKeys.detail(eventSlugOrId),
@@ -109,7 +113,11 @@ function EventDetailPage() {
 						No pudimos cargar este evento.
 					</p>
 					<Button className="mt-6" variant="outline" asChild>
-						<Link to="/events" onClick={backToEvents}>
+						<Link
+							to="/events"
+							search={eventsListDefaultSearch}
+							onClick={backToEvents}
+						>
 							Volver a eventos
 						</Link>
 					</Button>
@@ -326,17 +334,28 @@ function EventDetailPage() {
 											});
 											return;
 										}
+										try {
+											sessionStorage.setItem(
+												`checkout-lines:${eventSlugOrId}`,
+												JSON.stringify(lines),
+											);
+										} catch {
+											/* quota / private mode */
+										}
 										void navigate({
 											to: "/events/$eventSlugOrId/checkout",
 											params: { eventSlugOrId },
-											state: { lines } as { lines: typeof lines },
 										});
 									}}
 								>
 									Continuar al pago
 								</Button>
 								<Button variant="ghost" className="mt-2 w-full" asChild>
-									<Link to="/events" onClick={backToEvents}>
+									<Link
+										to="/events"
+										search={eventsListDefaultSearch}
+										onClick={backToEvents}
+									>
 										Volver a eventos
 									</Link>
 								</Button>

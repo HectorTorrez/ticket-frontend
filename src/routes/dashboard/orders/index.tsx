@@ -93,7 +93,7 @@ function AdminOrdersPage() {
 			page,
 			limit,
 			status,
-			customerQ,
+			q: customerQ,
 			sortBy,
 			sortDirection,
 		}),

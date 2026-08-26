@@ -33,6 +33,11 @@ import {
 import { useTransitionClick } from "#/hooks/use-transition-navigate";
 import { logoutRequest } from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
+import {
+	eventsListDefaultSearch,
+	myOrdersDefaultSearch,
+	myTicketsDefaultSearch,
+} from "#/lib/default-search";
 import { cn } from "#/lib/utils";
 
 type PublicLayoutProps = {
@@ -52,7 +57,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 	const session = typeof window !== "undefined" ? getSession() : null;
 	const homeClick = useTransitionClick({ to: "/" }, "back");
 	const eventsClick = useTransitionClick(
-		{ to: "/events", search: { page: 1, limit: 10 } },
+		{ to: "/events", search: eventsListDefaultSearch },
 		"forward",
 	);
 
@@ -153,13 +158,16 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 										{session.user.role === "CUSTOMER" && (
 											<>
 												<DropdownMenuItem asChild>
-													<Link to="/my-tickets">
+													<Link
+														to="/my-tickets"
+														search={myTicketsDefaultSearch}
+													>
 														<Ticket className="mr-2 size-4" />
 														Mis pases
 													</Link>
 												</DropdownMenuItem>
 												<DropdownMenuItem asChild>
-													<Link to="/my-orders">
+													<Link to="/my-orders" search={myOrdersDefaultSearch}>
 														<CalendarDays className="mr-2 size-4" />
 														Historial de pedidos
 													</Link>
@@ -313,6 +321,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 						<div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
 							<Link
 								to="/events"
+								search={eventsListDefaultSearch}
 								onClick={eventsClick}
 								className="nav-link hover:text-foreground"
 							>

@@ -30,13 +30,20 @@ type MetaTag =
 	| { property: string; content: string }
 	| { rel: string; href: string };
 
+type LinkTag = {
+	rel: string;
+	href: string;
+	type?: string;
+	sizes?: string;
+};
+
 export function buildSiteMeta(overrides?: {
 	title?: string;
 	description?: string;
 	path?: string;
 	image?: string;
 	noIndex?: boolean;
-}): { meta: MetaTag[]; links: { rel: string; href: string }[] } {
+}): { meta: MetaTag[]; links: LinkTag[] } {
 	const title = overrides?.title ?? `${site.name} — ${site.tagline}`;
 	const description = overrides?.description ?? site.description;
 	const url = absoluteUrl(overrides?.path ?? "/");

@@ -14,9 +14,17 @@ import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { getUserFacingErrorMessage } from "#/lib/api/errors";
-import type { orderDetailSchema } from "#/lib/api/schemas";
+import type {
+	orderDetailSchema,
+	orderEventSummarySchema,
+} from "#/lib/api/schemas";
 import { cancelOrder, fetchMyOrder, mockPayOrder } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
+import {
+	eventsListDefaultSearch,
+	myOrdersDefaultSearch,
+	myTicketsDefaultSearch,
+} from "#/lib/default-search";
 import { formatOrderRef, labelFor, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys, ticketsKeys } from "#/lib/query-keys";
 
@@ -29,6 +37,7 @@ export const Route = createFileRoute("/my-orders/$orderId")({
 });
 
 type OrderDetail = z.infer<typeof orderDetailSchema>;
+type OrderEventSummary = z.infer<typeof orderEventSummarySchema>;
 
 function formatWhen(iso: string) {
 	return new Intl.DateTimeFormat("es", {
@@ -37,10 +46,21 @@ function formatWhen(iso: string) {
 	}).format(new Date(iso));
 }
 
-function getOrderEvent(order: OrderDetail) {
+function isOrderEventSummary(value: unknown): value is OrderEventSummary {
+	return (
+		typeof value === "object" &&
+		value !== null &&
+		"slug" in value &&
+		"title" in value &&
+		typeof value.slug === "string" &&
+		typeof value.title === "string"
+	);
+}
+
+function getOrderEvent(order: OrderDetail): OrderEventSummary | null {
 	for (const line of order.lines) {
 		const tt = line.ticketType;
-		if ("event" in tt && tt.event) return tt.event;
+		if ("event" in tt && isOrderEventSummary(tt.event)) return tt.event;
 	}
 	return null;
 }
@@ -115,7 +135,7 @@ function OrderDetailPage() {
 				});
 				return;
 			}
-			void navigate({ to: "/my-orders" });
+			void navigate({ to: "/my-orders", search: myOrdersDefaultSearch });
 		},
 		onError: (e) =>
 			toast.error(getUserFacingErrorMessage(e, "No se pudo cancelar")),
@@ -125,7 +145,9 @@ function OrderDetailPage() {
 		<PublicLayout>
 			<div className="page-wrap max-w-2xl space-y-8 py-12">
 				<Button variant="ghost" asChild>
-					<Link to="/my-orders">← Pedidos</Link>
+					<Link to="/my-orders" search={myOrdersDefaultSearch}>
+						← Pedidos
+					</Link>
 				</Button>
 
 				{q.isPending ? <Skeleton className="h-56 rounded-xl" /> : null}
@@ -240,7 +262,9 @@ function OrderDetailPage() {
 											</Button>
 										) : (
 											<Button variant="outline" size="sm" asChild>
-												<Link to="/events">Ver eventos</Link>
+												<Link to="/events" search={eventsListDefaultSearch}>
+													Ver eventos
+												</Link>
 											</Button>
 										)
 									}
@@ -270,7 +294,9 @@ function OrderDetailPage() {
 							{order.status === "PAID" ? (
 								<div className="mt-6">
 									<Button asChild>
-										<Link to="/my-tickets">Ver mis pases</Link>
+										<Link to="/my-tickets" search={myTicketsDefaultSearch}>
+											Ver mis pases
+										</Link>
 									</Button>
 								</div>
 							) : null}

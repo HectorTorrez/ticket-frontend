@@ -22,13 +22,18 @@ import {
 import { logoutRequest } from "#/lib/api/ticket-api";
 import { cn } from "#/lib/utils";
 
-const links = [
+const links: {
+	to: string;
+	label: string;
+	icon: typeof LayoutDashboard;
+	end?: true;
+}[] = [
 	{ to: "/dashboard", label: "Resumen", icon: LayoutDashboard, end: true },
 	{ to: "/dashboard/events", label: "Eventos", icon: CalendarSearch },
 	{ to: "/dashboard/orders", label: "Pedidos", icon: ShoppingBag },
 	{ to: "/dashboard/users", label: "Usuarios", icon: Users },
 	{ to: "/dashboard/scanner", label: "Escáner", icon: QrCode },
-] as const;
+];
 
 type DashboardLayoutProps = {
 	children: React.ReactNode;

@@ -7,6 +7,7 @@ import { orderStatusTone, StatusBadge } from "#/components/status-indicator";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
+import { adminOrdersDefaultSearch } from "#/lib/admin/default-search";
 import { fetchAdminOrder } from "#/lib/api/ticket-api";
 import { formatOrderRef, labelFor, orderStatusLabel } from "#/lib/labels";
 import { adminOrdersKeys } from "#/lib/query-keys";
@@ -35,7 +36,9 @@ function AdminOrderDetailPage() {
 	return (
 		<div className="mx-auto max-w-2xl space-y-8">
 			<Button variant="ghost" asChild>
-				<Link to="/dashboard/orders">← Pedidos</Link>
+				<Link to="/dashboard/orders" search={adminOrdersDefaultSearch}>
+					← Pedidos
+				</Link>
 			</Button>
 
 			{q.isPending ? <Skeleton className="h-56 rounded-xl" /> : null}

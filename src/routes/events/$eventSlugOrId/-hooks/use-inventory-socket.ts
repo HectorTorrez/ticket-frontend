@@ -1,12 +1,17 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
+import type { z } from "zod";
+
+import type { eventDetailSchema } from "#/lib/api/schemas";
 import { getSession } from "#/lib/auth/session";
 import { eventsKeys } from "#/lib/query-keys";
 import {
 	createInventorySocket,
 	joinEventRoom,
 } from "#/lib/websocket/inventory-socket";
+
+type EventDetail = z.infer<typeof eventDetailSchema>;
 
 export function useInventorySocket(
 	slugOrId: string,
@@ -20,17 +25,20 @@ export function useInventorySocket(
 		const session = getSession();
 		const socket = createInventorySocket(session?.accessToken);
 		const detach = joinEventRoom(socket, eventId, (p) => {
-			qc.setQueryData(eventsKeys.detail(slugOrId), (prev) => {
-				if (!prev || prev.id !== p.eventId) return prev;
-				return {
-					...prev,
-					ticketTypes: prev.ticketTypes.map((t) =>
-						t.id === p.ticketTypeId
-							? { ...t, quantityRemaining: p.remaining }
-							: t,
-					),
-				};
-			});
+			qc.setQueryData(
+				eventsKeys.detail(slugOrId),
+				(prev: EventDetail | undefined) => {
+					if (!prev || prev.id !== p.eventId) return prev;
+					return {
+						...prev,
+						ticketTypes: prev.ticketTypes.map((t) =>
+							t.id === p.ticketTypeId
+								? { ...t, quantityRemaining: p.remaining }
+								: t,
+						),
+					};
+				},
+			);
 		});
 
 		return () => {

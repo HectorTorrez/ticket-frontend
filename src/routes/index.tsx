@@ -12,6 +12,7 @@ import { Skeleton } from "#/components/ui/skeleton";
 import { useTransitionClick } from "#/hooks/use-transition-navigate";
 import { fetchEventsList } from "#/lib/api/ticket-api";
 import { getSession } from "#/lib/auth/session";
+import { eventsListDefaultSearch } from "#/lib/default-search";
 import { eventsKeys } from "#/lib/query-keys";
 import { buildSiteMeta } from "#/lib/seo";
 import { EventCard } from "#/routes/events/-components/event-card";
@@ -44,7 +45,7 @@ function formatHeroDate(iso: string) {
 function HomePage() {
 	const session = typeof window !== "undefined" ? getSession() : null;
 	const eventsClick = useTransitionClick(
-		{ to: "/events", search: { page: 1, limit: 10 } },
+		{ to: "/events", search: eventsListDefaultSearch },
 		"forward",
 	);
 	const featured = useQuery({
@@ -148,7 +149,7 @@ function HomePage() {
 								<Button size="lg" className="w-full gap-2 sm:w-auto" asChild>
 									<Link
 										to="/events"
-										search={{ page: 1, limit: 10 }}
+										search={eventsListDefaultSearch}
 										onClick={eventsClick}
 									>
 										Ver cartelera
@@ -207,7 +208,7 @@ function HomePage() {
 							<Button variant="outline" className="gap-2" asChild>
 								<Link
 									to="/events"
-									search={{ page: 1, limit: 10 }}
+									search={eventsListDefaultSearch}
 									onClick={eventsClick}
 								>
 									Ver todos
@@ -243,7 +244,7 @@ function HomePage() {
 							<Button variant="outline" asChild>
 								<Link
 									to="/events"
-									search={{ page: 1, limit: 10 }}
+									search={eventsListDefaultSearch}
 									onClick={eventsClick}
 								>
 									Explorar eventos

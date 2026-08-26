@@ -28,6 +28,7 @@ import {
 	validateQrCode,
 } from "#/lib/api/ticket-api";
 import { getSession, isAdmin } from "#/lib/auth/session";
+import { eventsListDefaultSearch } from "#/lib/default-search";
 import {
 	formatTicketCode,
 	labelFor,
@@ -109,7 +110,9 @@ function CheckTicketPage() {
 							sistema.
 						</p>
 						<Button className="mt-6" variant="outline" asChild>
-							<Link to="/events">Ver eventos</Link>
+							<Link to="/events" search={eventsListDefaultSearch}>
+								Ver eventos
+							</Link>
 						</Button>
 					</div>
 				) : null}

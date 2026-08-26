@@ -27,6 +27,7 @@ import {
 	mockPayOrder,
 } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
+import { eventsListDefaultSearch } from "#/lib/default-search";
 import { isEventEnded } from "#/lib/event-sale-state";
 import { labelFor, orderStatusLabel } from "#/lib/labels";
 import { eventsKeys, ordersKeys, ticketsKeys } from "#/lib/query-keys";
@@ -259,7 +260,9 @@ function CheckoutPage() {
 						description="Las entradas de este evento ya no están a la venta."
 						action={
 							<Button asChild>
-								<Link to="/events">Ver eventos disponibles</Link>
+								<Link to="/events" search={eventsListDefaultSearch}>
+									Ver eventos disponibles
+								</Link>
 							</Button>
 						}
 					/>

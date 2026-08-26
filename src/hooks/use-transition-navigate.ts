@@ -5,21 +5,28 @@ import {
 	type ViewTransitionDirection,
 } from "#/lib/view-transition";
 
-type NavigateOptions = Parameters<ReturnType<typeof useNavigate>>[0];
+export type TransitionNavigateOptions = {
+	to: string;
+	params?: Record<string, string>;
+	search?: Record<string, unknown>;
+	hash?: string;
+	replace?: boolean;
+	state?: unknown;
+};
 
 export function useTransitionNavigate() {
 	const navigate = useNavigate();
 
 	return (
-		options: NavigateOptions,
+		options: TransitionNavigateOptions,
 		direction: ViewTransitionDirection = "forward",
 	) => {
-		runViewTransition(() => navigate(options), direction);
+		runViewTransition(() => navigate(options as never), direction);
 	};
 }
 
 export function useTransitionClick(
-	options: NavigateOptions,
+	options: TransitionNavigateOptions,
 	direction: ViewTransitionDirection = "forward",
 ) {
 	const transitionNavigate = useTransitionNavigate();

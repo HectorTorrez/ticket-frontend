@@ -14,6 +14,7 @@ import { Skeleton } from "#/components/ui/skeleton";
 import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMyOrders } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
+import { eventsListDefaultSearch } from "#/lib/default-search";
 import { formatOrderRef, labelFor, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
 
@@ -112,7 +113,9 @@ function MyOrdersPage() {
 						description="Tus reservas y pagos aparecerán aquí después de elegir un evento."
 						action={
 							<Button asChild>
-								<Link to="/events">Explorar eventos</Link>
+								<Link to="/events" search={eventsListDefaultSearch}>
+									Explorar eventos
+								</Link>
 							</Button>
 						}
 					/>

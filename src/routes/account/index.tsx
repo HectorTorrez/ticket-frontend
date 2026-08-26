@@ -17,6 +17,10 @@ import { useErrorToast } from "#/hooks/use-error-toast";
 import { fetchMe } from "#/lib/api/ticket-api";
 import { requireAuthRedirect } from "#/lib/auth/guards";
 import { getSession, isAdmin } from "#/lib/auth/session";
+import {
+	myOrdersDefaultSearch,
+	myTicketsDefaultSearch,
+} from "#/lib/default-search";
 import { labelFor, userStatusLabel } from "#/lib/labels";
 import { accountKeys } from "#/lib/query-keys";
 
@@ -55,7 +59,7 @@ function AccountPage() {
 		<PublicLayout>
 			<div className="page-wrap space-y-8 py-10 md:py-14">
 				<PageHeader
-					kicker="Cuenta"
+					eyebrow="Cuenta"
 					title="Tu perfil"
 					description="Datos de acceso y enlaces rápidos a pedidos, pases y seguridad."
 				/>
@@ -92,13 +96,13 @@ function AccountPage() {
 							{session && session.user.role === "CUSTOMER" ? (
 								<>
 									<Button variant="outline" className="gap-2" asChild>
-										<Link to="/my-tickets">
+										<Link to="/my-tickets" search={myTicketsDefaultSearch}>
 											<Ticket className="size-4" />
 											Mis pases
 										</Link>
 									</Button>
 									<Button variant="outline" className="gap-2" asChild>
-										<Link to="/my-orders">
+										<Link to="/my-orders" search={myOrdersDefaultSearch}>
 											<CalendarDays className="size-4" />
 											Mis pedidos
 										</Link>
