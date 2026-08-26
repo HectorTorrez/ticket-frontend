@@ -22,6 +22,7 @@ import { useErrorToast } from "#/hooks/use-error-toast";
 import { useTransitionClick } from "#/hooks/use-transition-navigate";
 import { fetchEventDetail } from "#/lib/api/ticket-api";
 import { getSession, isCustomer } from "#/lib/auth/session";
+import { isEventEnded } from "#/lib/event-sale-state";
 import { labelFor, ticketTierLabel } from "#/lib/labels";
 import { eventsKeys } from "#/lib/query-keys";
 import { buildEventMeta, buildSiteMeta, eventJsonLd } from "#/lib/seo";
@@ -128,6 +129,7 @@ function EventDetailPage() {
 	}
 
 	const ev = q.data;
+	const eventEnded = isEventEnded(ev);
 
 	return (
 		<PublicLayout>
@@ -157,7 +159,11 @@ function EventDetailPage() {
 					<div className="space-y-8">
 						<div className="space-y-4">
 							<div className="flex flex-wrap items-center gap-2">
-								{ev.published ? (
+								{eventEnded ? (
+									<Badge variant="outline" className="gap-1">
+										Finalizado
+									</Badge>
+								) : ev.published ? (
 									<Badge variant="success" className="gap-1">
 										<Eye className="size-3 shrink-0" aria-hidden />
 										En venta
@@ -201,14 +207,16 @@ function EventDetailPage() {
 								Seleccionar entradas
 							</h2>
 							<p className="mt-1 text-sm text-muted-foreground">
-								Los cupos se actualizan en vivo mientras otros compran.
+								{eventEnded
+									? "Este evento ya finalizó. Las entradas ya no están a la venta."
+									: "Los cupos se actualizan en vivo mientras otros compran."}
 							</p>
 
 							<ul className="mt-5 space-y-3">
 								{ev.ticketTypes.map((t) => {
 									const selected = (qty[t.id] ?? 0) > 0;
 									const salePhase = getTicketSalePhase(t);
-									const saleOpen = isTicketSaleOpen(t);
+									const saleOpen = !eventEnded && isTicketSaleOpen(t);
 									const saleLabel = formatSaleWindowLabel(t, salePhase);
 									return (
 										<li
@@ -308,7 +316,7 @@ function EventDetailPage() {
 								<Button
 									className="mt-4 w-full"
 									size="lg"
-									disabled={lines.length === 0}
+									disabled={eventEnded || lines.length === 0}
 									onClick={() => {
 										const s = getSession();
 										if (!s || !isCustomer(s)) {

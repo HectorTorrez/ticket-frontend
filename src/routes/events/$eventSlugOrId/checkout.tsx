@@ -27,6 +27,7 @@ import {
 	mockPayOrder,
 } from "#/lib/api/ticket-api";
 import { requireCustomer } from "#/lib/auth/guards";
+import { isEventEnded } from "#/lib/event-sale-state";
 import { labelFor, orderStatusLabel } from "#/lib/labels";
 import { eventsKeys, ordersKeys, ticketsKeys } from "#/lib/query-keys";
 import { cn } from "#/lib/utils";
@@ -128,9 +129,10 @@ function CheckoutPage() {
 	useEffect(() => {
 		if (!lines || lines.length === 0 || order || autoReserveAttempted.current)
 			return;
+		if (eventQ.data && isEventEnded(eventQ.data)) return;
 		autoReserveAttempted.current = true;
 		reserve.mutate();
-	}, [lines, order, reserve]);
+	}, [lines, order, reserve, eventQ.data]);
 
 	const pay = useMutation({
 		mutationFn: () => {
@@ -239,6 +241,25 @@ function CheckoutPage() {
 								<Link to="/events/$eventSlugOrId" params={{ eventSlugOrId }}>
 									Volver al evento
 								</Link>
+							</Button>
+						}
+					/>
+				</div>
+			</PublicLayout>
+		);
+	}
+
+	if (eventQ.data && isEventEnded(eventQ.data)) {
+		return (
+			<PublicLayout>
+				<div className="page-wrap space-y-6 py-16">
+					<EmptyState
+						icon={Clock}
+						title="El evento ya finalizó"
+						description="Las entradas de este evento ya no están a la venta."
+						action={
+							<Button asChild>
+								<Link to="/events">Ver eventos disponibles</Link>
 							</Button>
 						}
 					/>
