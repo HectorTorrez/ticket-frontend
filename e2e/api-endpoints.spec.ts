@@ -11,10 +11,10 @@ import {
 const API_BASE = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:3001";
 const API_V1 = `${API_BASE}/api/v1`;
 
-async function api(
+async function api<T = unknown>(
 	path: string,
 	init: RequestInit = {},
-): Promise<{ status: number; body: unknown }> {
+): Promise<{ status: number; body: T }> {
 	const res = await fetch(`${API_V1}${path}`, {
 		...init,
 		headers: {
@@ -23,7 +23,10 @@ async function api(
 		},
 	});
 	const text = await res.text();
-	return { status: res.status, body: text ? JSON.parse(text) : null };
+	return {
+		status: res.status,
+		body: (text ? JSON.parse(text) : null) as T,
+	};
 }
 
 test.describe("API endpoints", () => {
