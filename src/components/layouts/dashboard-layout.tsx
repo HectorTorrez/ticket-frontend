@@ -7,6 +7,7 @@ import {
 	Menu,
 	QrCode,
 	ShoppingBag,
+	User,
 	Users,
 } from "lucide-react";
 import { ModeToggle } from "#/components/mode-toggle";
@@ -140,6 +141,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 							<SheetFooter className="border-t">
 								<SheetClose asChild>
 									<Button variant="outline" className="w-full gap-2" asChild>
+										<Link to="/account">
+											<User className="size-4" />
+											Mi cuenta
+										</Link>
+									</Button>
+								</SheetClose>
+								<SheetClose asChild>
+									<Button variant="outline" className="w-full gap-2" asChild>
 										<Link to="/change-password">
 											<KeyRound className="size-4" />
 											Cambiar contraseña
@@ -168,6 +177,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 							<span className="hidden sm:inline">← Volver al sitio</span>
 						</Link>
 						<div className="flex shrink-0 items-center gap-1.5">
+							<Button
+								variant="ghost"
+								size="sm"
+								className="hidden gap-1.5 sm:inline-flex"
+								asChild
+							>
+								<Link to="/account">
+									<User className="size-4" />
+									Mi cuenta
+								</Link>
+							</Button>
 							<Button
 								variant="ghost"
 								size="sm"

@@ -6,6 +6,7 @@ import {
 	LogIn,
 	Menu,
 	Ticket,
+	User,
 	UserPlus,
 } from "lucide-react";
 import { ModeToggle } from "#/components/mode-toggle";
@@ -174,6 +175,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 											</DropdownMenuItem>
 										)}
 										<DropdownMenuItem asChild>
+											<Link to="/account">
+												<User className="mr-2 size-4" />
+												Mi cuenta
+											</Link>
+										</DropdownMenuItem>
+										<DropdownMenuItem asChild>
 											<Link to="/change-password">
 												<KeyRound className="mr-2 size-4" />
 												Cambiar contraseña
@@ -242,6 +249,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
 									{session &&
 										isAdmin(session) &&
 										sheetNavLink("/dashboard", "Organizador")}
+									{session && sheetNavLink("/account", "Mi cuenta")}
 									{session &&
 										sheetNavLink("/change-password", "Cambiar contraseña")}
 								</nav>

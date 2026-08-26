@@ -188,8 +188,12 @@ function LoginPage() {
 							)}
 						</form.Subscribe>
 						<p className="text-sm text-muted-foreground">
-							¿Olvidaste tu contraseña? Contacta a un administrador para
-							restablecerla.
+							<Link
+								to="/forgot-password"
+								className="font-medium text-primary underline-offset-4 hover:underline"
+							>
+								¿Olvidaste tu contraseña?
+							</Link>
 						</p>
 					</form>
 					<p className="text-sm text-muted-foreground">
