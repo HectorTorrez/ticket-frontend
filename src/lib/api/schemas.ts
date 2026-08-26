@@ -130,6 +130,16 @@ export const ticketTypeSummaryNestedSchema = z.object({
 	price: z.coerce.string(),
 });
 
+export const orderEventSummarySchema = z.object({
+	id: z.string().uuid(),
+	title: z.string(),
+	slug: z.string(),
+});
+
+export const ticketTypeWithEventSchema = ticketTypeFullSchema.extend({
+	event: orderEventSummarySchema.optional(),
+});
+
 export const orderLineCustomerListSchema = z.object({
 	id: z.string().uuid(),
 	orderId: z.string().uuid(),
@@ -164,6 +174,7 @@ export const paginatedCustomerOrdersSchema = z.object({
 export const ticketTypeOnOrderLineSchema = z.union([
 	ticketTypeSummaryNestedSchema,
 	ticketTypeFullSchema,
+	ticketTypeWithEventSchema,
 ]);
 
 export const orderLineDetailSchema = z.object({

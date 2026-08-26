@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Calendar, Download, MapPin } from "lucide-react";
 
+import { GateQrPanel } from "#/components/gate-qr-panel";
 import {
 	StatusBadge,
 	StatusIndicator,
 	ticketStatusTone,
 } from "#/components/status-indicator";
 import { TicketDateStub } from "#/components/ticket-date-stub";
-import { TicketQrCode } from "#/components/ticket-qr-code";
 import { Button } from "#/components/ui/button";
 import { ticketPdfUrl } from "#/lib/api/ticket-api";
 import { formatTicketCode, labelFor, ticketStatusLabel } from "#/lib/labels";
@@ -112,13 +112,12 @@ export function MyTicketEventGroup({
 								</div>
 
 								<div className="flex shrink-0 flex-col items-center gap-2 sm:items-end">
-									<div className="rounded-md border border-border bg-white p-2">
-										<TicketQrCode
-											publicCode={ticket.publicCode}
-											alt={`Código QR para ${event.title}`}
-											className="rounded"
-										/>
-									</div>
+									<GateQrPanel
+										publicCode={ticket.publicCode}
+										eventTitle={event.title}
+										alt={`Código QR para ${event.title}`}
+										size={140}
+									/>
 									<span className="font-ticket-code text-[0.65rem] uppercase tracking-wider text-muted-foreground">
 										{formatTicketCode(ticket.publicCode)}
 									</span>

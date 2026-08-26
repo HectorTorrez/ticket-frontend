@@ -16,10 +16,9 @@ export function useInventorySocket(
 
 	useEffect(() => {
 		if (!eventId) return;
-		const session = getSession();
-		if (!session?.accessToken) return;
 
-		const socket = createInventorySocket(session.accessToken);
+		const session = getSession();
+		const socket = createInventorySocket(session?.accessToken);
 		const detach = joinEventRoom(socket, eventId, (p) => {
 			qc.setQueryData(eventsKeys.detail(slugOrId), (prev) => {
 				if (!prev || prev.id !== p.eventId) return prev;

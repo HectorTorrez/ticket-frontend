@@ -6,10 +6,10 @@ export type TicketsUpdatePayload = import("zod").infer<
 	typeof ticketsUpdatePayloadSchema
 >;
 
-export function createInventorySocket(accessToken: string): Socket {
+export function createInventorySocket(accessToken?: string): Socket {
 	return io(`${getApiBaseUrl()}/inventory`, {
 		path: getSocketPath(),
-		auth: { token: accessToken },
+		auth: accessToken ? { token: accessToken } : {},
 		autoConnect: true,
 		transports: ["websocket", "polling"],
 	});

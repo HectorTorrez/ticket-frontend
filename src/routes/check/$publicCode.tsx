@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
+import { GateQrPanel } from "#/components/gate-qr-panel";
 import { PublicLayout } from "#/components/layouts/public-layout";
 import {
 	qrResultTone,
@@ -17,7 +18,6 @@ import {
 	ticketStatusTone,
 } from "#/components/status-indicator";
 import { TicketDateStub } from "#/components/ticket-date-stub";
-import { TicketQrCode } from "#/components/ticket-qr-code";
 import { Button } from "#/components/ui/button";
 import { Skeleton } from "#/components/ui/skeleton";
 import { usePageEntrance } from "#/hooks/use-auth-entrance";
@@ -169,14 +169,12 @@ function CheckTicketPage() {
 							<p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
 								Escanea en la entrada
 							</p>
-							<div className="rounded-lg border border-border bg-white p-3 shadow-sm">
-								<TicketQrCode
-									publicCode={ticket.publicCode}
-									size={180}
-									alt={`Código QR para ${ticket.event.title}`}
-									className="rounded"
-								/>
-							</div>
+							<GateQrPanel
+								publicCode={ticket.publicCode}
+								eventTitle={ticket.event.title}
+								alt={`Código QR para ${ticket.event.title}`}
+								size={180}
+							/>
 							<span className="font-ticket-code text-xs uppercase tracking-wider text-muted-foreground">
 								{formatTicketCode(ticket.publicCode)}
 							</span>
