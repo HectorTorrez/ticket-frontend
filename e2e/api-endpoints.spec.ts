@@ -82,6 +82,65 @@ test.describe("API endpoints", () => {
 		expect(logout.status).toBeLessThan(400);
 	});
 
+	test("auth: GET /me y restablecimiento de contraseña", async () => {
+		const email = `api_reset_${Date.now()}@e2e.local`;
+		const password = "password123!";
+		const newPassword = "newpassword456!";
+
+		const registered = await api("/auth/register", {
+			method: "POST",
+			body: JSON.stringify({ email, password }),
+		});
+		expect(registered.status).toBeLessThan(400);
+		const regBody = registered.body as {
+			accessToken: string;
+			user: { id: string; email: string; role: string };
+		};
+
+		const me = await api("/me", {
+			headers: { Authorization: `Bearer ${regBody.accessToken}` },
+		});
+		expect(me.status).toBe(200);
+		expect(me.body).toMatchObject({
+			email,
+			role: "CUSTOMER",
+			status: "ACTIVE",
+		});
+
+		const forgot = await api("/auth/forgot-password", {
+			method: "POST",
+			body: JSON.stringify({ email }),
+		});
+		expect(forgot.status).toBeLessThan(400);
+		const forgotBody = forgot.body as {
+			message: string;
+			resetUrl?: string;
+		};
+		expect(forgotBody.message).toBeTruthy();
+		expect(forgotBody.resetUrl).toBeTruthy();
+
+		const token = new URL(forgotBody.resetUrl!).searchParams.get("token");
+		expect(token).toBeTruthy();
+
+		const reset = await api("/auth/reset-password", {
+			method: "POST",
+			body: JSON.stringify({ token, newPassword }),
+		});
+		expect(reset.status).toBeLessThan(400);
+
+		const loginOld = await api("/auth/login", {
+			method: "POST",
+			body: JSON.stringify({ email, password }),
+		});
+		expect(loginOld.status).toBeGreaterThanOrEqual(400);
+
+		const loginNew = await api("/auth/login", {
+			method: "POST",
+			body: JSON.stringify({ email, password: newPassword }),
+		});
+		expect(loginNew.status).toBeLessThan(400);
+	});
+
 	test("público: catálogo y detalle de evento publicado", async () => {
 		const admin = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
 		const event = await createPublishedEventWithTickets(admin.accessToken);
