@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Clock, ReceiptText } from "lucide-react";
 import { z } from "zod";
@@ -17,6 +17,7 @@ import { requireCustomer } from "#/lib/auth/guards";
 import { eventsListDefaultSearch } from "#/lib/default-search";
 import { formatOrderRef, labelFor, orderStatusLabel } from "#/lib/labels";
 import { ordersKeys } from "#/lib/query-keys";
+import { cn } from "#/lib/utils.ts";
 
 const searchSchema = z.object({
 	page: z.coerce.number().catch(1),
@@ -48,9 +49,13 @@ function MyOrdersPage() {
 	const q = useQuery({
 		queryKey: ordersKeys.meList({ page, limit, status }),
 		queryFn: () => fetchMyOrders({ page, limit, status }),
+		placeholderData: keepPreviousData,
 	});
 
 	useErrorToast(q.isError ? q.error : null, "No pudimos cargar tus pedidos");
+
+	const isListLoading = q.isLoading || (q.isFetching && q.isPlaceholderData);
+	const hasFreshData = !q.isPlaceholderData || !q.isFetching;
 
 	return (
 		<PublicLayout>
@@ -99,14 +104,16 @@ function MyOrdersPage() {
 					}
 				/>
 
-				{q.isPending ? <Skeleton className="h-48 rounded-xl" /> : null}
+				{isListLoading ? (
+					<Skeleton className="h-48 rounded-xl" aria-busy="true" />
+				) : null}
 				{q.isError ? (
 					<p className="text-muted-foreground">
 						No pudimos cargar tus pedidos.
 					</p>
 				) : null}
 
-				{q.data && q.data.items.length === 0 ? (
+				{q.data && q.data.items.length === 0 && hasFreshData ? (
 					<EmptyState
 						icon={ReceiptText}
 						title="Aún no tienes pedidos"
@@ -121,8 +128,11 @@ function MyOrdersPage() {
 					/>
 				) : null}
 
-				{q.data && q.data.items.length > 0 ? (
-					<ul className="space-y-4">
+				{!isListLoading && q.data && q.data.items.length > 0 ? (
+					<ul
+						className={cn("space-y-4", q.isFetching && "opacity-60")}
+						aria-busy={q.isFetching}
+					>
 						{q.data.items.map((o) => (
 							<li key={o.id}>
 								<TicketStub
@@ -186,7 +196,7 @@ function MyOrdersPage() {
 					</ul>
 				) : null}
 
-				{q.data && q.data.total > limit ? (
+				{q.data && hasFreshData && q.data.total > limit ? (
 					<ListPagination
 						page={page}
 						total={q.data.total}
