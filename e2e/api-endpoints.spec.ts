@@ -167,6 +167,74 @@ test.describe("API endpoints", () => {
 		expect(unauthCreate.status).toBe(401);
 	});
 
+	test("público: eventos finalizados no aparecen en cartelera ni aceptan pedidos", async () => {
+		const admin = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
+		const customer = await registerCustomer(
+			`past_event_${Date.now()}@e2e.local`,
+		);
+		const slug = `past-${Date.now()}`;
+		const title = `Past Event ${Date.now()}`;
+
+		const created = await api<{ id: string; slug: string }>("/events", {
+			method: "POST",
+			headers: { Authorization: `Bearer ${admin.accessToken}` },
+			body: JSON.stringify({
+				title,
+				slug,
+				description: "Evento pasado E2E",
+				venue: "Arena",
+				startsAt: new Date(Date.now() - 3 * 864e5).toISOString(),
+				endsAt: new Date(Date.now() - 864e5).toISOString(),
+			}),
+		});
+		expect(created.status).toBeLessThan(400);
+
+		const eventId = created.body.id;
+		await api(`/events/${eventId}/publish`, {
+			method: "POST",
+			headers: { Authorization: `Bearer ${admin.accessToken}` },
+		});
+
+		const ticketType = await api<{ id: string }>(
+			`/events/${eventId}/ticket-types`,
+			{
+				method: "POST",
+				headers: { Authorization: `Bearer ${admin.accessToken}` },
+				body: JSON.stringify({
+					tier: "GENERAL",
+					name: "General",
+					price: 15,
+					quantity: 50,
+				}),
+			},
+		);
+		expect(ticketType.status).toBeLessThan(400);
+
+		const catalog = await api(
+			`/events?publishedOnly=true&q=${encodeURIComponent(slug)}`,
+		);
+		expect(catalog.status).toBe(200);
+		const items = (catalog.body as { items: Array<{ slug: string }> }).items;
+		expect(items.some((e) => e.slug === slug)).toBe(false);
+
+		const withPast = await api(
+			`/events?publishedOnly=true&includePast=true&q=${encodeURIComponent(slug)}`,
+		);
+		expect(withPast.status).toBe(200);
+		const pastItems = (withPast.body as { items: Array<{ slug: string }> })
+			.items;
+		expect(pastItems.some((e) => e.slug === slug)).toBe(true);
+
+		const order = await api("/orders", {
+			method: "POST",
+			headers: { Authorization: `Bearer ${customer.accessToken}` },
+			body: JSON.stringify({
+				lines: [{ ticketTypeId: ticketType.body.id, quantity: 1 }],
+			}),
+		});
+		expect(order.status).toBeGreaterThanOrEqual(400);
+	});
+
 	test("admin: dashboard, eventos, pedidos y ticket types", async () => {
 		const admin = await login(ADMIN_EMAIL, ADMIN_PASSWORD);
 		const auth = { Authorization: `Bearer ${admin.accessToken}` };
