@@ -24,6 +24,7 @@ import type { z } from "zod";
 import { ApiError } from "#/lib/api/errors";
 import { apiRequest } from "#lib/api/client";
 import {
+	adminOrderItemSchema,
 	adminResetPasswordResponseSchema,
 	adminUserSchema,
 	authResponseSchema,
